@@ -211,7 +211,7 @@
       </widget>
      </item>
      <item row="1" column="5">
-      <widget class="QPushButton" name="plot_file">
+      <widget class="QPushButton" name="btn_plot_from_file">
        <property name="text">
         <string>Plot from File</string>
        </property>

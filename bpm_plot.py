@@ -61,6 +61,7 @@ class BPM(QMainWindow):
         self.btn_close.clicked.connect(self.close)
         self.btn_run_auto.clicked.connect(self.run_auto)
         self.btn_stop_auto.clicked.connect(self.stop_auto)
+        self.btn_plot_from_file.clicked.connect(self.plot_from_file)
 
         self.BPM_x = np.ndarray((16,), dtype=np.float64)
         self.BPM_z = np.ndarray((16,), dtype=np.float64)
@@ -100,6 +101,11 @@ class BPM(QMainWindow):
             self.statusbar.showMessage('AUTO stops')
         else:
             self.statusbar.showMessage('AUTO have already stopped')
+
+    def plot_from_file(self):
+        self.statusbar.showMessage('Made data plot from file')
+        if self.mode_auto:
+            self.mode_auto = 0
 
 
 if __name__ == "__main__":

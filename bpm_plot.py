@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
 from PyQt5 import uic, QtCore
@@ -6,7 +6,7 @@ from PyQt5 import uic, QtCore
 import sys
 import os
 import numpy as np
-import pyqtgraph as pg
+# import pyqtgraph as pg
 import pycx4.qcda as cda
 
 
@@ -18,34 +18,39 @@ class BPM(QMainWindow):
         self.DIR = os.getcwd() + "/saved_modes"
         self.mode_auto = 0
 
+        self.BPM_dict = {}
+        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'e2v2': self.lbl_e2v2, 'p2v4': self.lbl_p2v4, 'p2v2': self.lbl_p2v2}
+        self.lbl_w_dict = {'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_e2v2': self.lbl_e2v2_w,
+                           'btn_sel_p2v4': self.lbl_p2v4_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
+
         self.setWindowTitle("Plot")
 
-        # x_plot area
-        self.plot_window_x = pg.GraphicsLayoutWidget(parent=self)
-        self.plot_x = self.plot_window_x.addPlot(title='X coordinates', enableMenu=False)
-        self.plot_x.showGrid(x=True, y=True)
-        self.plot_x.setLabel('left', "X coordinate", units='mm')
-        self.plot_x.setLabel('bottom', "Position", units='Abs')
-        self.plot_x.setRange(yRange=[-15, 15])
-
-        # z_plot area
-        self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
-        self.plot_z = self.plot_window_z.addPlot(title='Z coordinates', enableMenu=False)
-        self.plot_z.showGrid(x=True, y=True)
-        self.plot_z.setLabel('left', "Z coordinate", units='mm')
-        self.plot_z.setLabel('bottom', "Position", units='Abs')
-        self.plot_z.setRange(yRange=[-15, 15])
-        p = QVBoxLayout()
-        self.plot_coor.setLayout(p)
-        p.addWidget(self.plot_window_x)
-        p.addWidget(self.plot_window_z)
-
-        self.BPM_dict = {}
-        self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
-                           'p2v2': self.lbl_p2v2_w,
-                           'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
-                           'btn_sel_e2v2': self.lbl_e2v2_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
-        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
+        # # x_plot area
+        # self.plot_window_x = pg.GraphicsLayoutWidget(parent=self)
+        # self.plot_x = self.plot_window_x.addPlot(title='X coordinates', enableMenu=False)
+        # self.plot_x.showGrid(x=True, y=True)
+        # self.plot_x.setLabel('left', "X coordinate", units='mm')
+        # self.plot_x.setLabel('bottom', "Position", units='Abs')
+        # self.plot_x.setRange(yRange=[-15, 15])
+        #
+        # # z_plot area
+        # self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
+        # self.plot_z = self.plot_window_z.addPlot(title='Z coordinates', enableMenu=False)
+        # self.plot_z.showGrid(x=True, y=True)
+        # self.plot_z.setLabel('left', "Z coordinate", units='mm')
+        # self.plot_z.setLabel('bottom', "Position", units='Abs')
+        # self.plot_z.setRange(yRange=[-15, 15])
+        # p = QVBoxLayout()
+        # self.plot_coor.setLayout(p)
+        # p.addWidget(self.plot_window_x)
+        # p.addWidget(self.plot_window_z)
+        #
+        # self.BPM_dict = {}
+        # self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
+        #                    'p2v2': self.lbl_p2v2_w,
+        #                    'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
+        #                    'btn_sel_e2v2': self.lbl_e2v2_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
+        # self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
 
         self.chan_list = [cda.DChan(key) for key in self.BPM_dict]
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)

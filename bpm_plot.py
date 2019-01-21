@@ -19,9 +19,11 @@ class BPM(QMainWindow):
         self.mode_auto = 0
 
         self.BPM_dict = {}
-        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'e2v2': self.lbl_e2v2, 'p2v4': self.lbl_p2v4, 'p2v2': self.lbl_p2v2}
-        self.lbl_w_dict = {'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_e2v2': self.lbl_e2v2_w,
-                           'btn_sel_p2v4': self.lbl_p2v4_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
+        self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
+                           'p2v2': self.lbl_p2v2_w,
+                           'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
+                           'btn_sel_e2v2': self.lbl_e2v2_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
+        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
 
         self.setWindowTitle("Plot")
 
@@ -44,13 +46,6 @@ class BPM(QMainWindow):
         # self.plot_coor.setLayout(p)
         # p.addWidget(self.plot_window_x)
         # p.addWidget(self.plot_window_z)
-        #
-        # self.BPM_dict = {}
-        # self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
-        #                    'p2v2': self.lbl_p2v2_w,
-        #                    'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
-        #                    'btn_sel_e2v2': self.lbl_e2v2_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
-        # self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
 
         self.chan_list = [cda.DChan(key) for key in self.BPM_dict]
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
@@ -72,9 +67,19 @@ class BPM(QMainWindow):
         self.BPM_z = np.ndarray((16,), dtype=np.float64)
 
     def plot(self):
+        """
+        plot actual beam orbit, if self.mode_auto == 1, doing nothing if == 0
+        :return: show actual beam orbit
+        """
+
         pass
 
     def save_file(self):
+        """
+        save beam orbit for corresponding DR (K500) mode
+        :return: file with the saved orbit
+        """
+
         save_dir = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
         if save_dir:
             file_name = save_dir[0] + '.txt'
@@ -84,16 +89,33 @@ class BPM(QMainWindow):
             save_file.close()
 
     def load_file(self):
+        """
+        allows us to choose file with required beam orbit for current DR (K500) mode
+        :return: show required beam orbit
+        """
+
         load_file = QFileDialog.getOpenFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
         file_name = load_file[0]
         self.lbl_w_dict[self.sender().objectName()].setText(file_name.split('/')[-1])
 
+        # replot data from file
+
     def switch_state(self):
+        """
+        switch the beam_type/fire_direction
+        :return: corresponding beam orbit
+        """
+
         for key in self.lbl_dict:
             self.lbl_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.lbl_dict[self.chan_ic_mode.val].setStyleSheet("background-color:rgb(0, 255, 0);")
 
     def run_auto(self):
+        """
+        run auto collecting data from BPM's
+        :return: give self.mode_auto = 1. Using in self.plot() function
+        """
+
         if self.mode_auto:
             self.statusbar.showMessage('AUTO have already run')
         else:
@@ -101,13 +123,23 @@ class BPM(QMainWindow):
             self.statusbar.showMessage('AUTO runs')
 
     def stop_auto(self):
+        """
+        stop auto collecting data from BPM's
+        :return: stop plotting actual beam orbit
+        """
+
         if self.mode_auto:
             self.mode_auto = 0
             self.statusbar.showMessage('AUTO stops')
         else:
-            self.statusbar.showMessage('AUTO have already stopped')
+            self.statusbar.showMessage('AUTO has already stopped')
 
     def plot_from_file(self):
+        """
+        plot beam orbit from file
+        :return: show beam orbit from file
+        """
+
         self.statusbar.showMessage('Made data plot from file')
         if self.mode_auto:
             self.mode_auto = 0

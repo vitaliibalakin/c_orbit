@@ -13,7 +13,7 @@ import pycx4.qcda as cda
 class BPM(QMainWindow):
     def __init__(self):
         super(BPM, self).__init__()
-        uic.loadUi("bpm's.ui", self)
+        uic.loadUi("c_orbit's.ui", self)
         self.show()
         self.DIR = os.getcwd() + "/saved_modes"
         self.mode_auto = 0
@@ -66,7 +66,7 @@ class BPM(QMainWindow):
         self.BPM_x = np.ndarray((16,), dtype=np.float64)
         self.BPM_z = np.ndarray((16,), dtype=np.float64)
 
-    def plot(self):
+    def plot(self, chan):
         """
         plot actual beam orbit, if self.mode_auto == 1, doing nothing if == 0
         :return: show actual beam orbit
@@ -109,6 +109,8 @@ class BPM(QMainWindow):
         for key in self.lbl_dict:
             self.lbl_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.lbl_dict[self.chan_ic_mode.val].setStyleSheet("background-color:rgb(0, 255, 0);")
+
+        #also need switch saved data on plot
 
     def run_auto(self):
         """

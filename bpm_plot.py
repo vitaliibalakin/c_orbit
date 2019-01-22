@@ -11,6 +11,9 @@ import pycx4.qcda as cda
 
 
 class BPM(QMainWindow):
+    """
+    show DR orbit
+    """
     def __init__(self):
         super(BPM, self).__init__()
         uic.loadUi("c_orbit's.ui", self)

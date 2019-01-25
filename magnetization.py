@@ -20,8 +20,8 @@ class Magnetization:
         try:
             self.conn = psycopg2.connect(dbname='icdata', user='postgres', host='pg10-srv', password='')
             print("Connected to DB")
-        except:
-            print("No access to DB")
+        except Exception as err:
+            print("No access to DB", err)
 
         # self.del_chan = cda.StrChan('del_chan')
         self.corr_chans = {'Iset': {}, 'Imes': {}}

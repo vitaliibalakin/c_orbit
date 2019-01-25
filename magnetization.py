@@ -4,8 +4,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 
 import sys
-import psycopg2
-import functools
 import pycx4.qcda as cda
 
 from aux_module import Auxiliary
@@ -17,7 +15,7 @@ class Magnetization(Auxiliary):
     q - quadrupole, d - dipole
     type - type of correction (*q* or *d*)
     """
-    def __init__(self, corr_list=0):
+    def __init__(self, corr_names=0):
         super(Magnetization, self).__init__()
         # try:
         #     self.conn = psycopg2.connect(dbname='icdata', user='postgres', host='pg10-srv', password='')
@@ -61,14 +59,22 @@ class Magnetization(Auxiliary):
         #             self.corr_values[chan_type][name] = 0
         #             chan.valueMeasured.connect(self.ps_val_change)
         # print(self.corr_values)
-        self.init_corr_vals = {}
+        self.init_corr_values = {}
 
-        self.corr_err = []
-        self.mag_flag = False
+        self.flag = False
         self.counter = 0
         self.stop_mag = 5
+        self.corr_names = ['c1d2_z', 'c1f2_x', 'c1f1_x', 'c1d1_z', 'c2d2_z', 'c2f2_x', 'c2f1_x', 'c2d1_z', 'c3d2_z',
+                           'c3f2_x', 'c3f1_x', 'c3d1_z', 'c4d2_z', 'c4f2_x', 'c4f1_x', 'c4d1_z', 'crm1', 'crm2', 'crm3',
+                           'crm4', 'crm5', 'crm6', 'crm7', 'crm8', 'c4f3_x', 'c3f3_x', 'c4d3_z', 'c3d3_z', 'c1d1_q',
+                           'c1f1_q', 'c1d2_q', 'c1f2_q', 'c1d3_q', 'c1f4_q', 'c1f3_q', 'c2f4_q', 'c2d1_q', 'c2f1_q',
+                           'c2d2_q', 'c2f2_q', 'c2d3_q', 'c3f4_q', 'c2f3_q', 'c4f4_q', 'c3d1_q', 'c3f1_q', 'c3d2_q',
+                           'c3f2_q', 'c3d3_q', 'c4d3_q', 'c3f3_q', 'c4d1_q', 'c4f1_q', 'c4d2_q', 'c4f2_q',
+                           'c4f3_q']
+        self.corr_err = []
 
-        self.corr_values, self.corr_chans = self.chans_connect()
+        self.corr_values, self.corr_chans = self.chans_connect({'Iset': {}, 'Imes': {}}, {'Iset': {}, 'Imes': {}},
+                                                               self.corr_names)
 
         QTimer.singleShot(3000, self.mag_proc)
 
@@ -76,22 +82,16 @@ class Magnetization(Auxiliary):
         """
         function make magnetization. Check each step, if ok, calls next step nor emergency_check
         """
-        if not self.mag_flag:
-            self.init_corr_vals = self.corr_values['Iset'].copy()
-            self.mag_flag = True
+        if not self.flag:
+            self.init_corr_values = self.corr_values['Iset'].copy()
+            self.flag = True
         print(self.corr_values)
 
-        for set_key in self.corr_values['Iset']:
-            if abs(self.corr_values['Iset'][set_key] - self.corr_values['Imes'][set_key]) < 100:
-                if set_key in self.corr_err:
-                    self.corr_err.remove(set_key)
-            else:
-                self.corr_err.append(set_key)
-        if not len(self.corr_err):
+        if not len(self.checking_equality(self.corr_values, self.corr_err)):
             if self.counter != self.stop_mag:
                 # make next step
-                # for c_name in self.corr_chans:
-                #     self.corr_chans['Iset'][c_name].setValue(self.corr_values[c_name] + 1000 * (-1)**step)
+                # for c_name in self.init_corr_values:
+                #     self.corr_chans['Iset'][c_name].setValue(self.init_corr_values[c_name] + 1000 * (-1)**step)
                 self.counter += 1
                 QTimer.singleShot(3000, self.mag_proc)
                 print(self.counter)
@@ -100,8 +100,8 @@ class Magnetization(Auxiliary):
                 # for c_name in self.corr_chans:
                 #     self.corr_chans['Iset'][c_name].setValue(self.init_corr_vals[c_name])
                 print('Magnetization finished')
-                self.mag_flag = False
-                # self.del_chan.setValue("mag")
+                self.flag = False
+                # self.del_chan.setValue('mag')
         else:
             QTimer.singleShot(3000, self.emergency_check)
 
@@ -110,11 +110,8 @@ class Magnetization(Auxiliary):
         make emergency ps status check, if the first was 'fail'
         :return: ps status
         """
-        for set_key in self.corr_values['Iset']:
-            if abs(self.corr_values['Iset'][set_key] - self.corr_values['Imes'][set_key]) < 100:
-                if set_key in self.corr_err:
-                    self.corr_err.remove(set_key)
-        if not len(self.corr_err):
+        self.corr_err = self.checking_equality(self.corr_values, self.corr_err)
+        if not self.corr_err:
             QTimer.singleShot(3000, self.mag_proc)
         else:
             print('error', self.corr_err)

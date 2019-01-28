@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 
 import sys
+import functools
 import pycx4.qcda as cda
 
 from aux_module import Auxiliary
@@ -24,19 +25,57 @@ class ResponseMatrixAssembling(Auxiliary):
                            'c4f3_q']
         self.corr_err = []
         self.flag = False
-        self.counter = 0
-        self.stop_bpm = 5
-        self.stop_corr = 5
+        self.init_corr_values = {}
+
+        self.counter = {'c_val': -4, 'bpm': 0, 'c_name': 0}  # -4 to make symmetrical interval -4..4
+        self.stop = {'c_val': 5, 'bpm': 10, 'c_name': len(self.corr_names)}
+        self.step = 100
+        self.c_name = self.corr_names[self.counter['c_name']]
 
         self.corr_values, self.corr_chans = self.chans_connect({'Iset': {}, 'Imes': {}}, {'Iset': {}, 'Imes': {}},
                                                                self.corr_names)
-        # one more staff is to connect BPM's channels
+        # one more stuff is to connect BPM's channels
+
+    def bpm_data_proc(self):
+        """
+        bpm data collecting step
+        :return: array with data from bpm's
+        """
+
+        # go to next step
+        self.resp_matr_ass_proc()
 
     def resp_matr_ass_proc(self):
         """
         assemble response matrix
         :return: response matrix
         """
+        if not self.flag:
+            self.init_corr_values = self.corr_values['Iset'].copy()
+            self.flag = True
+        print(self.corr_values)
+
+        if not len(self.checking_equality(self.corr_values, self.corr_err)):
+            if self.counter['c_val'] != self.stop['c_val']:
+                print(self.c_name, self.counter['c_val'])
+                # self.corr_chans[self.c_name].setValue(self.init_corr_values[self.c_name] + self.counter * self.step)
+                self.counter['c_val'] += 1
+                QTimer.singleShot(3000, self.bpm_data_proc)
+
+            else:
+                # self.corr_chans['Iset'][self.c_name].setValue(self.init_corr_vals[self.c_name])
+                self.counter['c_name'] += 1
+                if self.counter['c_name'] != self.stop['c_name']:
+                    self.c_name = self.corr_names[self.counter['c_name']]
+                    self.counter['c_val'] = -4
+                    self.resp_matr_ass_proc()
+                else:
+                    print('rma collecting finished')
+                    # self.del_chan.setValue('rma')
+        else:
+            QTimer.singleShot(3000, functools.partial(self.err_verification, self.corr_values, self.corr_err,
+                                                      [ResponseMatrixAssembling, 'bpm_data_proc'],
+                                                      'f_stop_chan', 'rma'))
 
 
 if __name__ == "__main__":

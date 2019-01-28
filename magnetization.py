@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 
+import functools
 import sys
 import pycx4.qcda as cda
 
@@ -90,31 +91,21 @@ class Magnetization(Auxiliary):
         if not len(self.checking_equality(self.corr_values, self.corr_err)):
             if self.counter != self.stop_mag:
                 # make next step
-                # for c_name in self.init_corr_values:
-                #     self.corr_chans['Iset'][c_name].setValue(self.init_corr_values[c_name] + 1000 * (-1)**step)
+                # for c_name, c_val in self.init_corr_values.items():
+                #     self.corr_chans['Iset'][c_name].setValue(c_val + 1000 * (-1)**self.counter)
                 self.counter += 1
                 QTimer.singleShot(3000, self.mag_proc)
                 print(self.counter)
             else:
                 # stop magnetization process
-                # for c_name in self.corr_chans:
-                #     self.corr_chans['Iset'][c_name].setValue(self.init_corr_vals[c_name])
+                # for c_name, c_chan in self.corr_chans['Iset']:
+                #     c_chan.setValue(self.init_corr_vals[c_name])
                 print('Magnetization finished')
-                self.flag = False
                 # self.del_chan.setValue('mag')
         else:
-            QTimer.singleShot(3000, self.emergency_check)
-
-    def emergency_check(self):
-        """
-        make emergency ps status check, if the first was 'fail'
-        :return: ps status
-        """
-        self.corr_err = self.checking_equality(self.corr_values, self.corr_err)
-        if not self.corr_err:
-            QTimer.singleShot(3000, self.mag_proc)
-        else:
-            print('error', self.corr_err)
+            # I don't know correctly err_verification will call back mag_proc or not. Checking is required
+            QTimer.singleShot(3000, functools.partial(self.err_verification, self.corr_err, [Magnetization, 'mag_proc'],
+                              'f_stop_chan', 'mag'))
 
 
 if __name__ == "__main__":

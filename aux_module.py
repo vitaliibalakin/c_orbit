@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QTimer
 
 import sys
 import psycopg2
@@ -82,6 +83,23 @@ class Auxiliary:
                 if not (key in err):
                     err.append(key)
         return err
+
+    def err_verification(self, values_dict, err, call_func, chan, chan_val):
+        """
+        make emergency ps status check, if the first was 'fail'
+        :param values_dict: dict with *Iset* and *Imes* vals
+        :param err: list with error's chans
+        :param call_func: it's function, which should be called, if no errors after verification
+        :param chan: it's chan, where information sends if some errors exist. Actually stopped method, which called
+        err_verification
+        :param chan_val: value, which should be send into the chan
+        """
+        err = self.checking_equality(values_dict, err)
+        if not err:
+            getattr(call_func[0](), call_func[1])
+        else:
+            print('error', err)
+            # chan.setValue(chan_val)
 
 
 if __name__ == "__main__":

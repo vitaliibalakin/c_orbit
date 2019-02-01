@@ -75,6 +75,7 @@ class Auxiliary:
         :param err: list with error's chans
         :return: error list
         """
+        print('check')
         for key in values_dict['Iset']:
             if abs(values_dict['Iset'][key] - values_dict['Imes'][key]) < 100:
                 if key in err:
@@ -94,6 +95,7 @@ class Auxiliary:
         err_verification
         :param chan_val: value, which should be send into the chan
         """
+        print('recheck')
         err = self.checking_equality(values_dict, err)
         if not err:
             getattr(call_func[0](), call_func[1])

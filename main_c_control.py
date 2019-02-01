@@ -10,6 +10,7 @@ import pycx4.qcda as cda
 
 from magnetization import Magnetization
 from resp_matrix_asseml import ResponseMatrixAssembling
+from test import Test
 
 
 class MainCorrectionControl:
@@ -20,9 +21,9 @@ class MainCorrectionControl:
         super(MainCorrectionControl, self).__init__()
         # self.del_chan = cda.StrChan('del_chan')
         self.modules_run = {}
-        self.modules_dict = {'mag': Magnetization, 'rma': ResponseMatrixAssembling}
-        self.modules_func = {'mag': 'mag_proc', 'rma': 'resp_matr_ass_proc'}
-        self.run_module('mag')
+        self.modules_dict = {'mag': Magnetization, 'rma': ResponseMatrixAssembling, 'test': Test}
+        self.modules_func = {'mag': 'mag_proc', 'rma': 'resp_matr_ass_proc', 'test': 'test'}
+        self.run_module('rma')
 
         # self.del_chan.valueMeasured.connect(self.modules_del)
 
@@ -41,6 +42,7 @@ class MainCorrectionControl:
         """
         print('imhere')
         self.modules_run[module] = getattr(self.modules_dict[module](), self.modules_func[module])
+        self.modules_run[module]()
 
 
 if __name__ == "__main__":

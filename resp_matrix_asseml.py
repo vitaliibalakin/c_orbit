@@ -34,7 +34,7 @@ class ResponseMatrixAssembling(Auxiliary):
         self.c_name = self.corr_names[self.counter['c_name']]
 
         self.corr_values, self.corr_chans = self.chans_connect({'Iset': {}, 'Imes': {}}, {'Iset': {}, 'Imes': {}},
-                                                               self.corr_names)
+                                                               self.corr_names, 'UM4')
         # one more stuff is to connect BPM's channels
 
     def bpm_data_proc(self):

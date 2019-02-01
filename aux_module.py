@@ -16,12 +16,13 @@ class Auxiliary:
         module with functions, which used more than one module. Module for sharing to others
         """
 
-    def chans_connect(self, chans, values, names):
+    def chans_connect(self, chans, values, names, devtype='UM4'):
         """
         function connects to needed channels and creates their callbacks
         :param chans: chans representation structure
         :param values: chans vals representation structure
         :param names: use these names to create channels connections
+        :param devtype: devtype of chosen elems
         :return: dict of chans and their values
         """
         try:
@@ -37,7 +38,7 @@ class Auxiliary:
         cur.execute(
             "select devtype.name, namesys.name || '.' || dev.name as full_name from dev,dev_devtype,devtype, namesys "
             "where dev.id=dev_devtype.dev_id and devtype.id=dev_devtype.devtype_id and namesys.id=dev.namesys_id and "
-            "devtype.name in ('UM4') group by grouping sets((devtype.name, full_name))")
+            "devtype.name in (%(DEVTYPE)s) group by grouping sets((devtype.name, full_name))", {'DEVTYPE': devtype})
         for elem in cur.fetchall():
             devnames_list.append(elem[1])
         # print('devname_list', devnames_list)

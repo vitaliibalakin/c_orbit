@@ -76,7 +76,7 @@ class Magnetization(Auxiliary):
         self.corr_names = ['crm5', 'crm3']
 
         self.corr_values, self.corr_chans = self.chans_connect({'Iset': {}, 'Imes': {}}, {'Iset': {}, 'Imes': {}},
-                                                               self.corr_names)
+                                                               self.corr_names, 'UM4')
 
         # QTimer.singleShot(3000, self.mag_proc)
 

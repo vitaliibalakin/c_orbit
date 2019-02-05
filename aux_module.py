@@ -99,7 +99,7 @@ class Auxiliary:
         print('recheck')
         err = self.checking_equality(values_dict, err)
         if not err:
-            getattr(call_func[0](), call_func[1])
+            getattr(call_func[0](), call_func[1])()
         else:
             print('error', err)
             # chan.setValue(chan_val)

@@ -73,12 +73,15 @@ class ResponseMatrixAssembling(Auxiliary):
                     self.counter['c_val'] = -4
                     self.resp_matr_ass_proc()
                 else:
-                    print('rma collecting finished')
-                    # self.del_chan.setValue('rma')
+                    self.save_rma()
         else:
             QTimer.singleShot(3000, functools.partial(self.err_verification, self.corr_values, self.corr_err,
                                                       [ResponseMatrixAssembling, 'bpm_data_proc'],
                                                       'f_stop_chan', 'rma'))
+
+    def save_rma(self):
+        print('rma collecting finished')
+        # self.del_chan.setValue('rma': 'file_name')  # +json.dumps
 
 
 if __name__ == "__main__":

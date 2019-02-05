@@ -6,7 +6,7 @@ from PyQt5 import uic, QtCore
 import sys
 import os
 import numpy as np
-# import pyqtgraph as pg
+import pyqtgraph as pg
 import pycx4.qcda as cda
 
 
@@ -16,7 +16,7 @@ class BPM(QMainWindow):
     """
     def __init__(self):
         super(BPM, self).__init__()
-        uic.loadUi("c_orbit's.ui", self)
+        uic.loadUi("bpm's.ui", self)
         self.show()
         self.DIR = os.getcwd() + "/saved_modes"
         self.mode_auto = 0
@@ -30,25 +30,25 @@ class BPM(QMainWindow):
 
         self.setWindowTitle("Plot")
 
-        # # x_plot area
-        # self.plot_window_x = pg.GraphicsLayoutWidget(parent=self)
-        # self.plot_x = self.plot_window_x.addPlot(title='X coordinates', enableMenu=False)
-        # self.plot_x.showGrid(x=True, y=True)
-        # self.plot_x.setLabel('left', "X coordinate", units='mm')
-        # self.plot_x.setLabel('bottom', "Position", units='Abs')
-        # self.plot_x.setRange(yRange=[-15, 15])
-        #
-        # # z_plot area
-        # self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
-        # self.plot_z = self.plot_window_z.addPlot(title='Z coordinates', enableMenu=False)
-        # self.plot_z.showGrid(x=True, y=True)
-        # self.plot_z.setLabel('left', "Z coordinate", units='mm')
-        # self.plot_z.setLabel('bottom', "Position", units='Abs')
-        # self.plot_z.setRange(yRange=[-15, 15])
-        # p = QVBoxLayout()
-        # self.plot_coor.setLayout(p)
-        # p.addWidget(self.plot_window_x)
-        # p.addWidget(self.plot_window_z)
+        # x_plot area
+        self.plot_window_x = pg.GraphicsLayoutWidget(parent=self)
+        self.plot_x = self.plot_window_x.addPlot(title='X coordinates', enableMenu=False)
+        self.plot_x.showGrid(x=True, y=True)
+        self.plot_x.setLabel('left', "X coordinate", units='mm')
+        self.plot_x.setLabel('bottom', "Position", units='Abs')
+        self.plot_x.setRange(yRange=[-15, 15])
+
+        # z_plot area
+        self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
+        self.plot_z = self.plot_window_z.addPlot(title='Z coordinates', enableMenu=False)
+        self.plot_z.showGrid(x=True, y=True)
+        self.plot_z.setLabel('left', "Z coordinate", units='mm')
+        self.plot_z.setLabel('bottom', "Position", units='Abs')
+        self.plot_z.setRange(yRange=[-15, 15])
+        p = QVBoxLayout()
+        self.plot_coor.setLayout(p)
+        p.addWidget(self.plot_window_x)
+        p.addWidget(self.plot_window_z)
 
         self.chan_list = [cda.DChan(key) for key in self.BPM_dict]
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
@@ -145,12 +145,11 @@ class BPM(QMainWindow):
         :return: show beam orbit from file
         """
 
-        self.statusbar.showMessage('Made data plot from file')
-        if self.mode_auto:
-            self.mode_auto = 0
+        self.statusbar.showMessage('Made data plotted from file')
 
 
 if __name__ == "__main__":
         app = QApplication(['BPM'])
         w = BPM()
         sys.exit(app.exec_())
+

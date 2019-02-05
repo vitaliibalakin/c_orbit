@@ -102,7 +102,7 @@ class Magnetization(Auxiliary):
                 for c_name, c_chan in self.corr_chans['Iset'].items():
                     c_chan.setValue(self.init_corr_values[c_name])
                 print('Magnetization finished')
-                # self.del_chan.setValue('mag')
+                # self.del_chan.setValue('mag': 0)  # +json.dumps
         else:
             # I don't know correctly err_verification will call back mag_proc or not. Checking is required
             QTimer.singleShot(3000, functools.partial(self.err_verification, self.corr_err, [Magnetization, 'mag_proc'],

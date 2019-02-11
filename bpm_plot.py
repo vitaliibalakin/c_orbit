@@ -9,8 +9,6 @@ import numpy as np
 import pyqtgraph as pg
 import pycx4.qcda as cda
 
-from aux.service_daemon import CXService
-
 
 class BPM(QMainWindow):
     """

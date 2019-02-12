@@ -149,7 +149,7 @@ class BPM(QMainWindow):
 
 
 if __name__ == "__main__":
-        app = QApplication(['BPM'])
-        w = BPM()
-        sys.exit(app.exec_())
+    app = QApplication(['BPM'])
+    w = BPM()
+    sys.exit(app.exec_())
 

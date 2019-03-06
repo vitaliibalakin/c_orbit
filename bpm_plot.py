@@ -8,6 +8,7 @@ import os
 import numpy as np
 import pyqtgraph as pg
 import pycx4.qcda as cda
+import math
 
 
 class BPM(QMainWindow):
@@ -20,8 +21,10 @@ class BPM(QMainWindow):
         self.show()
         self.DIR = os.getcwd() + "/saved_modes"
         self.mode_auto = 0
+        self.bpm_chan = cda.VChan('cxhw:37.adc03.dataenvl', max_nelems=512, dtype=cda.CXDTYPE_INT32)
+        self.bpm_chan1 = cda.VChan('cxhw:37.adc03.datatxzi', max_nelems=4096)
 
-        self.BPM_dict = {}
+        self.BPM_dict = {'cxhw:37.adc03.dataenvl'}
         self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
                            'p2v2': self.lbl_p2v2_w,
                            'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
@@ -54,7 +57,7 @@ class BPM(QMainWindow):
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
 
         for chan in self.chan_list:
-            chan.valueMeasured.connect(self.plot)
+            chan.valueMeasured.connect(self.plot_)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
         self.btn_sel_e2v4.clicked.connect(self.load_file)
@@ -68,14 +71,18 @@ class BPM(QMainWindow):
 
         self.BPM_x = np.ndarray((16,), dtype=np.float64)
         self.BPM_z = np.ndarray((16,), dtype=np.float64)
+        self.bpm_chan.valueChanged.connect(self.plot_)
 
-    def plot(self, chan):
+    def plot_(self, chan):
         """
         plot actual beam orbit, if self.mode_auto == 1, doing nothing if == 0
         :return: show actual beam orbit
         """
 
-        pass
+        if isinstance(chan.val, np.ndarray):
+            print('here')
+            self.plot_x.clear()
+            self.plot_x.plot(chan.val)
 
     def save_file(self):
         """

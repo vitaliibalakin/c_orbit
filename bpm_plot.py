@@ -8,7 +8,6 @@ import os
 import numpy as np
 import pyqtgraph as pg
 import pycx4.qcda as cda
-import math
 
 
 class BPM(QMainWindow):

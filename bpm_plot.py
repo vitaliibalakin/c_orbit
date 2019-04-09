@@ -51,6 +51,7 @@ class BPM(QMainWindow):
         self.btn_run_auto.clicked.connect(self.run_auto)
         self.btn_stop_auto.clicked.connect(self.stop_auto)
         self.btn_plot_from_file.clicked.connect(self.plot_from_file)
+        self.btn_calibrate.clicked.connect(self.calibrate)
 
         # self.bpm_chan1.valueChanged.connect(self.plot_)
 
@@ -83,7 +84,11 @@ class BPM(QMainWindow):
     def data_proc(self, chan):
         self.bpm_x[chan.name.split('.')[-2]] = np.mean(chan.val[1024:2047])
         self.bpm_z[chan.name.split('.')[-2]] = np.mean(chan.val[2048:3071])
+        print(chan.name)
         self.plot_()
+
+    def calibrate(self):
+        print('calibrate')
 
     def plot_(self):
         """
@@ -92,14 +97,15 @@ class BPM(QMainWindow):
         """
         x = []
         z = []
+        print(self.bpm_x)
         if len(self.bpm_x) == 16:
             for key in sorted(self.bpm_x):
                 x.append(self.bpm_x[key])
                 z.append(self.bpm_z[key])
-        self.plot_x.clear()
-        self.plot_z.clear()
-        self.plot_x.plot(x, pen=pg.mkPen('r', width=2))
-        self.plot_z.plot(z, pen=pg.mkPen('r', width=2))
+            self.plot_x.clear()
+            self.plot_z.clear()
+            self.plot_x.plot(x, pen=pg.mkPen('r', width=2))
+            self.plot_z.plot(z, pen=pg.mkPen('r', width=2))
 
         # if isinstance(chan.val, np.ndarray):
         #     print('here')

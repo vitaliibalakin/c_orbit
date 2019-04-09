@@ -257,6 +257,13 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btn_calibrate">
+       <property name="text">
+        <string>Calibrate</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
@@ -285,7 +292,7 @@
      <x>0</x>
      <y>0</y>
      <width>981</width>
-     <height>30</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

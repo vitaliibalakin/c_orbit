@@ -24,33 +24,24 @@ class BPM(QMainWindow):
         self.bpms_dict = {}
         self.bpm_x = {}
         self.bpm_z = {}
-        self.mode_auto = 0
+        self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
+                         'p2v2': self.btn_sel_p2v2}
         self.bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                          'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        # self.bpm_chan1 = cda.VChan('cxhw:37.ring.bpm11.datatxzi', max_nelems=4096)
 
-        # chans init
+        # channels init
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
         for bpm in self.bpm_list:
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
             chan.valueMeasured.connect(self.data_proc)
             self.bpms_dict[bpm] = chan
-        self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
-                           'p2v2': self.lbl_p2v2_w,
-                           'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
-                           'btn_sel_e2v2': self.lbl_e2v2_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
-        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
 
+        # callbacks init
+        for key, btn in self.btn_dict.items():
+            btn.clicked.connect(self.load_file)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
-        self.btn_sel_e2v4.clicked.connect(self.load_file)
-        self.btn_sel_p2v4.clicked.connect(self.load_file)
-        self.btn_sel_e2v2.clicked.connect(self.load_file)
-        self.btn_sel_p2v2.clicked.connect(self.load_file)
         self.btn_close.clicked.connect(self.close)
-        self.btn_run_auto.clicked.connect(self.run_auto)
-        self.btn_stop_auto.clicked.connect(self.stop_auto)
-        self.btn_plot_from_file.clicked.connect(self.plot_from_file)
         self.btn_calibrate.clicked.connect(self.calibrate)
 
         # self.bpm_chan1.valueChanged.connect(self.plot_)
@@ -84,7 +75,6 @@ class BPM(QMainWindow):
     def data_proc(self, chan):
         self.bpm_x[chan.name.split('.')[-2]] = np.mean(chan.val[1024:2047])
         self.bpm_z[chan.name.split('.')[-2]] = np.mean(chan.val[2048:3071])
-        print(chan.name)
         self.plot_()
 
     def calibrate(self):
@@ -97,7 +87,6 @@ class BPM(QMainWindow):
         """
         x = []
         z = []
-        print(self.bpm_x)
         if len(self.bpm_x) == 16:
             for key in sorted(self.bpm_x):
                 x.append(self.bpm_x[key])
@@ -143,44 +132,9 @@ class BPM(QMainWindow):
         switch the beam_type/fire_direction
         :return: corresponding beam orbit
         """
-
-        for key in self.lbl_dict:
-            self.lbl_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        self.lbl_dict[self.chan_ic_mode.val].setStyleSheet("background-color:rgb(0, 255, 0);")
-
-        #also need switch saved data on plot
-
-    def run_auto(self):
-        """
-        run auto collecting data from BPM's
-        :return: give self.mode_auto = 1. Using in self.plot() function
-        """
-
-        if self.mode_auto:
-            self.statusbar.showMessage('AUTO have already run')
-        else:
-            self.mode_auto = 1
-            self.statusbar.showMessage('AUTO runs')
-
-    def stop_auto(self):
-        """
-        stop auto collecting data from BPM's
-        :return: stop plotting actual beam orbit
-        """
-
-        if self.mode_auto:
-            self.mode_auto = 0
-            self.statusbar.showMessage('AUTO stops')
-        else:
-            self.statusbar.showMessage('AUTO has already stopped')
-
-    def plot_from_file(self):
-        """
-        plot beam orbit from file
-        :return: show beam orbit from file
-        """
-
-        self.statusbar.showMessage('Made data plotted from file')
+        for key in self.btn_dict:
+            self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
+        self.btn_dict[self.chan_ic_mode.val].setStyleSheet("background-color:rgb(0, 255, 0);")
 
 
 if __name__ == "__main__":

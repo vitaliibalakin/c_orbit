@@ -100,6 +100,7 @@ class BPM(QMainWindow):
         self.plot_z.clear()
         self.plot_x.plot(x, pen=pg.mkPen('r', width=2))
         self.plot_z.plot(z, pen=pg.mkPen('r', width=2))
+
         # if isinstance(chan.val, np.ndarray):
         #     print('here')
         #     self.plot_x.clear()

@@ -18,17 +18,45 @@ class BPM(QMainWindow):
         super(BPM, self).__init__()
         uic.loadUi("bpm's.ui", self)
         self.show()
-        self.DIR = os.getcwd() + "/saved_modes"
-        self.mode_auto = 0
-        self.bpm_chan = cda.VChan('cxhw:37.adc03.dataenvl', max_nelems=512, dtype=cda.CXDTYPE_INT32)
-        self.bpm_chan1 = cda.VChan('cxhw:37.adc03.datatxzi', max_nelems=4096)
+        self.window_forming()
 
-        self.BPM_dict = {'cxhw:37.adc03.dataenvl'}
+        self.DIR = os.getcwd() + "/saved_modes"
+        self.bpms_dict = {}
+        self.bpm_x = {}
+        self.bpm_z = {}
+        self.mode_auto = 0
+        self.bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
+                         'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        # self.bpm_chan1 = cda.VChan('cxhw:37.ring.bpm11.datatxzi', max_nelems=4096)
+
+        # chans init
+        self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
+        for bpm in self.bpm_list:
+            chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
+            chan.valueMeasured.connect(self.data_proc)
+            self.bpms_dict[bpm] = chan
         self.lbl_w_dict = {'e2v4': self.lbl_e2v4_w, 'p2v4': self.lbl_p2v4_w, 'e2v2': self.lbl_e2v2_w,
                            'p2v2': self.lbl_p2v2_w,
                            'btn_sel_e2v4': self.lbl_e2v4_w, 'btn_sel_p2v4': self.lbl_p2v4_w,
                            'btn_sel_e2v2': self.lbl_e2v2_w, 'btn_sel_p2v2': self.lbl_p2v2_w}
         self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
+
+        self.chan_ic_mode.valueMeasured.connect(self.switch_state)
+        self.btn_save.clicked.connect(self.save_file)
+        self.btn_sel_e2v4.clicked.connect(self.load_file)
+        self.btn_sel_p2v4.clicked.connect(self.load_file)
+        self.btn_sel_e2v2.clicked.connect(self.load_file)
+        self.btn_sel_p2v2.clicked.connect(self.load_file)
+        self.btn_close.clicked.connect(self.close)
+        self.btn_run_auto.clicked.connect(self.run_auto)
+        self.btn_stop_auto.clicked.connect(self.stop_auto)
+        self.btn_plot_from_file.clicked.connect(self.plot_from_file)
+
+        # self.bpm_chan1.valueChanged.connect(self.plot_)
+
+    def window_forming(self):
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
 
         self.setWindowTitle("Plot")
 
@@ -38,7 +66,7 @@ class BPM(QMainWindow):
         self.plot_x.showGrid(x=True, y=True)
         self.plot_x.setLabel('left', "X coordinate", units='mm')
         self.plot_x.setLabel('bottom', "Position", units='Abs')
-        self.plot_x.setRange(yRange=[-15, 15])
+        self.plot_x.setRange(yRange=[-30, 30])
 
         # z_plot area
         self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
@@ -52,36 +80,30 @@ class BPM(QMainWindow):
         p.addWidget(self.plot_window_x)
         p.addWidget(self.plot_window_z)
 
-        self.chan_list = [cda.DChan(key) for key in self.BPM_dict]
-        self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
+    def data_proc(self, chan):
+        self.bpm_x[chan.name.split('.')[-2]] = np.mean(chan.val[1024:2047])
+        self.bpm_z[chan.name.split('.')[-2]] = np.mean(chan.val[2048:3071])
+        self.plot_()
 
-        for chan in self.chan_list:
-            chan.valueMeasured.connect(self.plot_)
-        self.chan_ic_mode.valueMeasured.connect(self.switch_state)
-        self.btn_save.clicked.connect(self.save_file)
-        self.btn_sel_e2v4.clicked.connect(self.load_file)
-        self.btn_sel_p2v4.clicked.connect(self.load_file)
-        self.btn_sel_e2v2.clicked.connect(self.load_file)
-        self.btn_sel_p2v2.clicked.connect(self.load_file)
-        self.btn_close.clicked.connect(self.close)
-        self.btn_run_auto.clicked.connect(self.run_auto)
-        self.btn_stop_auto.clicked.connect(self.stop_auto)
-        self.btn_plot_from_file.clicked.connect(self.plot_from_file)
-
-        self.BPM_x = np.ndarray((16,), dtype=np.float64)
-        self.BPM_z = np.ndarray((16,), dtype=np.float64)
-        self.bpm_chan.valueChanged.connect(self.plot_)
-
-    def plot_(self, chan):
+    def plot_(self):
         """
         plot actual beam orbit, if self.mode_auto == 1, doing nothing if == 0
         :return: show actual beam orbit
         """
-
-        if isinstance(chan.val, np.ndarray):
-            print('here')
-            self.plot_x.clear()
-            self.plot_x.plot(chan.val)
+        x = []
+        z = []
+        if len(self.bpm_x) == 16:
+            for key in sorted(self.bpm_x):
+                x.append(self.bpm_x[key])
+                z.append(self.bpm_z[key])
+        self.plot_x.clear()
+        self.plot_z.clear()
+        self.plot_x.plot(x, pen=pg.mkPen('r', width=2))
+        self.plot_z.plot(z, pen=pg.mkPen('r', width=2))
+        # if isinstance(chan.val, np.ndarray):
+        #     print('here')
+        #     self.plot_x.clear()
+        #     self.plot_x.plot(chan.val[1024:3071])
 
     def save_file(self):
         """

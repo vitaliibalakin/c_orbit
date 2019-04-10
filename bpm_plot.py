@@ -5,6 +5,7 @@ from PyQt5 import uic, QtCore
 
 import sys
 import os
+import json
 import numpy as np
 import pyqtgraph as pg
 import pycx4.qcda as cda
@@ -77,11 +78,6 @@ class BPM(QMainWindow):
         self.x_aper = np.transpose(np.loadtxt('x_aper.txt'))
         self.z_aper = np.transpose(np.loadtxt('y_aper.txt'))
 
-        # self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
-        # self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
-        # self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
-        # self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
-
     def data_proc(self, chan):
         self.bpm_x[chan.name.split('.')[-2]] = np.mean(chan.val[1024:2047])
         self.bpm_z[chan.name.split('.')[-2]] = np.mean(chan.val[2048:3071])
@@ -101,7 +97,6 @@ class BPM(QMainWindow):
             x = np.append(x, self.bpm_x[key])
             z = np.append(z, self.bpm_z[key])
         self.cur_orbit = np.array([x, z])
-
         self.plot_x.clear()
         self.plot_z.clear()
         self.plot_x.plot(self.bpm_cor, x, pen=None, symbol='star', symbolSize=25)
@@ -110,11 +105,6 @@ class BPM(QMainWindow):
         self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
         self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
         self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
-
-        # if isinstance(chan.val, np.ndarray):
-        #     print('here')
-        #     self.plot_x.clear()
-        #     self.plot_x.plot(chan.val[1024:3071])
 
     def save_file(self):
         """
@@ -127,6 +117,9 @@ class BPM(QMainWindow):
             file_name = sv_file[0] + '.txt'
             np.savetxt(file_name, self.cur_orbit)
             self.icmode_orbit[self.chan_ic_mode.val] = file_name
+            f = open('icmode_file.txt', 'w')
+            f.write(json.dumps(self.icmode_orbit))
+            f.close()
 
     def load_file(self):
         """

@@ -101,6 +101,7 @@ class BPM(QMainWindow):
             x = np.append(x, self.bpm_x[key])
             z = np.append(z, self.bpm_z[key])
         self.cur_orbit = np.array([x, z])
+
         self.plot_x.clear()
         self.plot_z.clear()
         self.plot_x.plot(self.bpm_cor, x, pen=None, symbol='star', symbolSize=25)

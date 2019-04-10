@@ -21,20 +21,24 @@ class BPM(QMainWindow):
         self.window_forming()
 
         self.DIR = os.getcwd() + "/saved_modes"
-        self.bpms_dict = {}
+        self.bpm_chan = {}
         self.bpm_x = {}
         self.bpm_z = {}
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
-        self.bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
-                         'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.icmode_orbit = {'e2v2': None, 'p2v2p': None, 'e2v4': None, 'p2v4': None}
+        self.bpms = {'bpm01': 21.4842, 'bpm02': 23.3922, 'bpm03': 24.6282, 'bpm04': 26.5572, 'bpm05': 0.8524,
+                     'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
+                     'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697,
+                     'bpm17': 19.6742}
+        self.bpm_cor = sorted(self.bpms.values())
 
         # channels init
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4)
-        for bpm in self.bpm_list:
+        for bpm, bpm_cor in self.bpms.items():
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
             chan.valueMeasured.connect(self.data_proc)
-            self.bpms_dict[bpm] = chan
+            self.bpm_chan[bpm] = chan
 
         # callbacks init
         for key, btn in self.btn_dict.items():
@@ -44,57 +48,67 @@ class BPM(QMainWindow):
         self.btn_close.clicked.connect(self.close)
         self.btn_calibrate.clicked.connect(self.calibrate)
 
-        # self.bpm_chan1.valueChanged.connect(self.plot_)
-
     def window_forming(self):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
 
-        self.setWindowTitle("Plot")
+        self.setWindowTitle("IC DR orbit")
 
         # x_plot area
         self.plot_window_x = pg.GraphicsLayoutWidget(parent=self)
         self.plot_x = self.plot_window_x.addPlot(title='X coordinates', enableMenu=False)
         self.plot_x.showGrid(x=True, y=True)
         self.plot_x.setLabel('left', "X coordinate", units='mm')
-        self.plot_x.setLabel('bottom', "Position", units='Abs')
-        self.plot_x.setRange(yRange=[-30, 30])
+        self.plot_x.setLabel('bottom', "Position", units='m')
+        self.plot_x.setRange(yRange=[-20, 20])
 
         # z_plot area
         self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
         self.plot_z = self.plot_window_z.addPlot(title='Z coordinates', enableMenu=False)
         self.plot_z.showGrid(x=True, y=True)
         self.plot_z.setLabel('left', "Z coordinate", units='mm')
-        self.plot_z.setLabel('bottom', "Position", units='Abs')
-        self.plot_z.setRange(yRange=[-15, 15])
+        self.plot_z.setLabel('bottom', "Position", units='m')
+        self.plot_z.setRange(yRange=[-24, 24])
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
         p.addWidget(self.plot_window_x)
         p.addWidget(self.plot_window_z)
 
+        self.x_aper = np.transpose(np.loadtxt('x_aper.txt'))
+        self.z_aper = np.transpose(np.loadtxt('y_aper.txt'))
+
+        # self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
+        # self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
+        # self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+        # self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+
     def data_proc(self, chan):
         self.bpm_x[chan.name.split('.')[-2]] = np.mean(chan.val[1024:2047])
         self.bpm_z[chan.name.split('.')[-2]] = np.mean(chan.val[2048:3071])
-        self.plot_()
+        if len(self.bpm_x) == 16:
+            self.plot_()
 
     def calibrate(self):
         print('calibrate')
 
     def plot_(self):
         """
-        plot actual beam orbit, if self.mode_auto == 1, doing nothing if == 0
         :return: show actual beam orbit
         """
-        x = []
-        z = []
-        if len(self.bpm_x) == 16:
-            for key in sorted(self.bpm_x):
-                x.append(self.bpm_x[key])
-                z.append(self.bpm_z[key])
-            self.plot_x.clear()
-            self.plot_z.clear()
-            self.plot_x.plot(x, pen=pg.mkPen('r', width=2))
-            self.plot_z.plot(z, pen=pg.mkPen('r', width=2))
+        x = np.array([])
+        z = np.array([])
+        for key in sorted(self.bpms, key=self.bpms.__getitem__):
+            x = np.append(x, self.bpm_x[key])
+            z = np.append(z, self.bpm_z[key])
+        self.cur_orbit = np.array([x, z])
+        self.plot_x.clear()
+        self.plot_z.clear()
+        self.plot_x.plot(self.bpm_cor, x, pen=None, symbol='star', symbolSize=25)
+        self.plot_z.plot(self.bpm_cor, z, pen=None, symbol='star', symbolSize=25)
+        self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
+        self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
+        self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+        self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
 
         # if isinstance(chan.val, np.ndarray):
         #     print('here')
@@ -107,13 +121,11 @@ class BPM(QMainWindow):
         :return: file with the saved orbit
         """
 
-        save_dir = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
-        if save_dir:
-            file_name = save_dir[0] + '.txt'
-            save_file = open(file_name, 'w')
-            save_file.write('1')
-            self.lbl_w_dict[self.chan_ic_mode.val].setText(file_name.split('/')[-1])
-            save_file.close()
+        sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
+        if sv_file:
+            file_name = sv_file[0] + '.txt'
+            np.savetxt(file_name, self.cur_orbit)
+            self.icmode_orbit[self.chan_ic_mode.val] = file_name
 
     def load_file(self):
         """
@@ -123,7 +135,6 @@ class BPM(QMainWindow):
 
         load_file = QFileDialog.getOpenFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
         file_name = load_file[0]
-        self.lbl_w_dict[self.sender().objectName()].setText(file_name.split('/')[-1])
 
         # replot data from file
 

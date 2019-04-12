@@ -2,6 +2,7 @@
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
 from PyQt5 import uic, QtCore
+from aQt.QtCore import QTimer
 
 import sys
 import os
@@ -22,7 +23,8 @@ class BPM(QMainWindow):
         self.window_forming()
 
         self.DIR = os.getcwd() + "/saved_modes"
-        self.bpm_chan = {}
+        self.chan_bpm_vals = {}
+        self.chan_bpm_marker = {}
         self.bpm_x = {}
         self.bpm_z = {}
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
@@ -32,6 +34,9 @@ class BPM(QMainWindow):
                      'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
                      'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697,
                      'bpm17': 19.6742}
+        self.bpm_val_renew = {'bpm01': 0, 'bpm02': 0, 'bpm03': 0, 'bpm04': 0, 'bpm05': 0, 'bpm07': 0, 'bpm08': 0,
+                              'bpm09': 0, 'bpm10': 0, 'bpm11': 0, 'bpm12': 0, 'bpm13': 0, 'bpm14': 0, 'bpm15': 0,
+                              'bpm16': 0, 'bpm17': 0}
         self.bpm_cor = sorted(self.bpms.values())
 
         # channels init
@@ -39,7 +44,13 @@ class BPM(QMainWindow):
         for bpm, bpm_cor in self.bpms.items():
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
             chan.valueMeasured.connect(self.data_proc)
-            self.bpm_chan[bpm] = chan
+            self.chan_bpm_vals[bpm] = chan
+
+        # bpms marker init
+        for bpm, bpm_cor in self.bpms.items():
+            chan = cda.VChan('cxhw:37.ring.' + bpm + '.marker')
+            chan.valueMeasured.connect(self.bpm_marker)
+            self.chan_bpm_marker[bpm] = chan
 
         # callbacks init
         for key, btn in self.btn_dict.items():
@@ -82,29 +93,36 @@ class BPM(QMainWindow):
         self.bpm_x[chan.name.split('.')[-2]] = np.mean(chan.val[1024:2047])
         self.bpm_z[chan.name.split('.')[-2]] = np.mean(chan.val[2048:3071])
         if len(self.bpm_x) == 16:
-            self.plot_()
+            x = np.array([])
+            z = np.array([])
+            for key in sorted(self.bpms, key=self.bpms.__getitem__):
+                x = np.append(x, self.bpm_x[key])
+                z = np.append(z, self.bpm_z[key])
+            self.cur_orbit = np.array([x, z])
 
     def calibrate(self):
         print('calibrate')
+
+    def bpm_marker(self, chan):
+        self.bpm_val_renew[chan.name.split('.')[-2]] = 1
+        if all(sorted(self.bpm_val_renew.values())):
+            for key in self.bpm_val_renew:
+                self.bpm_val_renew[key] = 0
+            self.plot_()
 
     def plot_(self):
         """
         :return: show actual beam orbit
         """
-        x = np.array([])
-        z = np.array([])
-        for key in sorted(self.bpms, key=self.bpms.__getitem__):
-            x = np.append(x, self.bpm_x[key])
-            z = np.append(z, self.bpm_z[key])
-        self.cur_orbit = np.array([x, z])
-        self.plot_x.clear()
-        self.plot_z.clear()
-        self.plot_x.plot(self.bpm_cor, x, pen=None, symbol='star', symbolSize=25)
-        self.plot_z.plot(self.bpm_cor, z, pen=None, symbol='star', symbolSize=25)
-        self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
-        self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
-        self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
-        self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+        if len(self.bpm_x) == 16:
+            self.plot_x.clear()
+            self.plot_z.clear()
+            self.plot_x.plot(self.bpm_cor, self.cur_orbit[0], pen=None, symbol='star', symbolSize=25)
+            self.plot_z.plot(self.bpm_cor, self.cur_orbit[0], pen=None, symbol='star', symbolSize=25)
+            self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
+            self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
+            self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+            self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
 
     def save_file(self):
         """

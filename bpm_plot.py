@@ -133,6 +133,7 @@ class BPM(QMainWindow):
         """
         :return: show actual beam orbit
         """
+
         if len(self.bpm_x) == 16:
             self.plot_x.clear()
             self.plot_x.plot(self.bpm_cor, self.saved_orbit[0], pen=None, symbol='o', symbolBrush=(0, 234, 0),

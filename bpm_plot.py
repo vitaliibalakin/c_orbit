@@ -154,7 +154,6 @@ class BPM(QMainWindow):
         save beam orbit for corresponding DR (K500) mode
         :return: file with the saved orbit
         """
-
         sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
         if sv_file:
             file_name = sv_file[0] + '.txt'

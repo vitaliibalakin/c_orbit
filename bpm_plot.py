@@ -23,9 +23,13 @@ class BPM(QMainWindow):
         self.show()
         self.window_forming()
 
+        self.cur_iter = 0
+        self.CALIBRATE = False
         self.DIR = os.getcwd() + "/saved_modes"
         self.cur_orbit = np.array([])
         self.saved_orbit = np.array([])
+        self.zero_orbit = np.zeros([2, 16])
+        self.tmp_zero_orbit = np.zeros([2, 16])
         self.chan_bpm_vals = {}
         self.chan_bpm_marker = {}
         self.chan_bpm_numpts = {}
@@ -85,7 +89,7 @@ class BPM(QMainWindow):
         self.plot_x.showGrid(x=True, y=True)
         self.plot_x.setLabel('left', "X coordinate", units='mm')
         self.plot_x.setLabel('bottom', "Position", units='m')
-        self.plot_x.setRange(yRange=[-20, 20])
+        self.plot_x.setRange(yRange=[-40, 40])
 
         # z_plot area
         self.plot_window_z = pg.GraphicsLayoutWidget(parent=self)
@@ -93,7 +97,7 @@ class BPM(QMainWindow):
         self.plot_z.showGrid(x=True, y=True)
         self.plot_z.setLabel('left', "Z coordinate", units='mm')
         self.plot_z.setLabel('bottom', "Position", units='m')
-        self.plot_z.setRange(yRange=[-24, 24])
+        self.plot_z.setRange(yRange=[-48, 48])
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
         p.addWidget(self.plot_window_x)
@@ -107,16 +111,24 @@ class BPM(QMainWindow):
         data_len = int(self.bpm_numpts_renew[bpm_num][0])
         self.bpm_x[bpm_num] = np.mean(chan.val[data_len:2*data_len-1])
         self.bpm_z[bpm_num] = np.mean(chan.val[2*data_len:3*data_len-1])
-        if len(self.bpm_x) == 16:
-            x = np.array([])
-            z = np.array([])
-            for key in sorted(self.bpms, key=self.bpms.__getitem__):
-                x = np.append(x, self.bpm_x[key])
-                z = np.append(z, self.bpm_z[key])
-            self.cur_orbit = np.array([x, z])
 
     def calibrate(self):
-        print('calibrate')
+        self.CALIBRATE = True
+        self.zero_orbit = np.zeros([2, 16])
+        print('begin_calibr')
+
+    def bpm_zero_cor(self, iter_n=5):
+        if self.cur_iter < iter_n:
+            self.cur_iter += 1
+            self.tmp_zero_orbit += self.cur_orbit
+            print(self.cur_iter, self.tmp_zero_orbit)
+
+        else:
+            self.cur_iter = 0
+            self.CALIBRATE = False
+            self.zero_orbit = self.tmp_zero_orbit / iter_n
+            self.tmp_zero_orbit = np.zeros([2, 16])
+            print(self.zero_orbit)
 
     def bpm_numpts(self, chan):
         self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val
@@ -127,27 +139,36 @@ class BPM(QMainWindow):
         if all(sorted(self.bpm_val_renew.values())):
             for key in self.bpm_val_renew:
                 self.bpm_val_renew[key] = 0
-            self.plot_()
+            x = np.array([])
+            z = np.array([])
+            for key in sorted(self.bpms, key=self.bpms.__getitem__):
+                x = np.append(x, self.bpm_x[key])
+                z = np.append(z, self.bpm_z[key])
+            self.cur_orbit = np.array([x, z]) - self.zero_orbit
+            if self.CALIBRATE:
+                self.bpm_zero_cor()
+                self.plot_()
+            else:
+                self.plot_()
 
     def plot_(self):
         """
         :return: show actual beam orbit
         """
 
-        if len(self.bpm_x) == 16:
-            self.plot_x.clear()
-            self.plot_x.plot(self.bpm_cor, self.saved_orbit[0], pen=None, symbol='o', symbolBrush=(0, 234, 0),
-                             symbolPen='g', symbolSize=10)
-            self.plot_x.plot(self.bpm_cor, self.cur_orbit[0], pen=None, symbol='star', symbolSize=25)
-            self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
-            self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+        self.plot_x.clear()
+        self.plot_x.plot(self.bpm_cor, self.saved_orbit[0], pen=None, symbol='o', symbolBrush=(0, 234, 0),
+                         symbolPen='g', symbolSize=10)
+        self.plot_x.plot(self.bpm_cor, self.cur_orbit[0], pen=None, symbol='star', symbolSize=25)
+        self.plot_x.plot(self.x_aper[0], self.x_aper[1]*1000, pen=pg.mkPen('b', width=2))
+        self.plot_x.plot(self.x_aper[0], self.x_aper[1]*(-1000), pen=pg.mkPen('b', width=2))
 
-            self.plot_z.clear()
-            self.plot_z.plot(self.bpm_cor, self.saved_orbit[1], pen=None, symbol='o', symbolBrush=(0, 234, 0),
-                             symbolPen='g', symbolSize=10)
-            self.plot_z.plot(self.bpm_cor, self.cur_orbit[1], pen=None, symbol='star', symbolSize=25)
-            self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000 / 2, pen=pg.mkPen('b', width=2))
-            self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000) / 2, pen=pg.mkPen('b', width=2))
+        self.plot_z.clear()
+        self.plot_z.plot(self.bpm_cor, self.saved_orbit[1], pen=None, symbol='o', symbolBrush=(0, 234, 0),
+                         symbolPen='g', symbolSize=10)
+        self.plot_z.plot(self.bpm_cor, self.cur_orbit[1], pen=None, symbol='star', symbolSize=25)
+        self.plot_z.plot(self.z_aper[0], self.z_aper[1]*1000, pen=pg.mkPen('b', width=2))
+        self.plot_z.plot(self.z_aper[0], self.z_aper[1]*(-1000), pen=pg.mkPen('b', width=2))
 
     def save_file(self):
         """

@@ -1,3 +1,2 @@
-f = open('icmode_file.txt', 'r+')
-f.write('her')
-f.close()
+from pyqtgraph import examples
+examples.run()

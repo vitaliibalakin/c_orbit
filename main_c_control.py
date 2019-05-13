@@ -9,7 +9,6 @@ import pycx4.qcda as cda
 
 from magnetization import Magnetization
 from resp_matrix_asseml import ResponseMatrixAssembling
-from test import Test
 
 
 class MainCorrectionControl(QMainWindow):
@@ -18,14 +17,14 @@ class MainCorrectionControl(QMainWindow):
     """
     def __init__(self):
         super(MainCorrectionControl, self).__init__()
-        uic.loadUi("c_orbit_main.ui", self)
+        # uic.loadUi("c_orbit_main.ui", self)
         # self.del_chan = cda.StrChan('del_chan')
 
         self.rma_file_name = None
 
         self.modules_run = {}
-        self.modules_dict = {'mag': Magnetization, 'rma': ResponseMatrixAssembling, 'test': Test}
-        self.modules_call = {'mag': 'mag_proc', 'rma': 'resp_matr_ass_proc', 'test': 'test'}
+        self.modules_dict = {'mag': Magnetization, 'rma': ResponseMatrixAssembling}
+        self.modules_call = {'mag': 'mag_proc', 'rma': 'resp_matr_ass_proc'}
         self.module_del = {'mag': self.delete_mag, 'rma': self.delete_rma}
         # self.module_run('mag')
 

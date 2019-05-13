@@ -9,22 +9,11 @@ import functools
 import pycx4.qcda as cda
 
 
-class Auxiliary:
+class BasicFunc:
     def __init__(self):
-        super(Auxiliary, self).__init__()
-        """
-        module with functions, which used more than one module. Module for sharing to others
-        """
+        super(BasicFunc, self).__init__()
 
     def chans_connect(self, chans, values, names, devtype='UM4'):
-        """
-        function connects to needed channels and creates their callbacks
-        :param chans: chans representation structure
-        :param values: chans vals representation structure
-        :param names: use these names to create channels connections
-        :param devtype: devtype of chosen elems
-        :return: dict of chans and their values
-        """
         try:
             conn = psycopg2.connect(dbname='icdata', user='postgres', host='pg10-srv', password='')
             print("Connected to DB")
@@ -60,22 +49,10 @@ class Auxiliary:
 
     @staticmethod
     def chan_val_change(chan, values):
-        """
-        function update chans value
-        :param chan: called function chan
-        :param values: dict of chans values
-        :return: new values dict
-        """
         values[chan.name.split('.')[-1]][chan.name.split('.')[-2]] = chan.val
 
     @staticmethod
     def checking_equality(values_dict, err):
-        """
-        check the equality of of values in values_dict
-        :param values_dict: dict with *Iset* and *Imes* vals
-        :param err: list with error's chans
-        :return: error list
-        """
         print('check')
         for key in values_dict['Iset']:
             if abs(values_dict['Iset'][key] - values_dict['Imes'][key]) < 100:
@@ -87,15 +64,6 @@ class Auxiliary:
         return err
 
     def err_verification(self, values_dict, err, call_func, chan, chan_val):
-        """
-        make emergency ps status check, if the first was 'fail'
-        :param values_dict: dict with *Iset* and *Imes* vals
-        :param err: list with error's chans
-        :param call_func: it's function, which should be called, if no errors after verification
-        :param chan: it's chan, where information sends if some errors exist. Actually stopped method, which called
-        err_verification
-        :param chan_val: value, which should be send into the chan
-        """
         print('recheck')
         err = self.checking_equality(values_dict, err)
         if not err:
@@ -106,6 +74,6 @@ class Auxiliary:
 
 
 if __name__ == "__main__":
-    app = QApplication(['Auxiliary'])
-    w = Auxiliary()
+    app = QApplication(['BasicFunc'])
+    w = BasicFunc()
     sys.exit(app.exec_())

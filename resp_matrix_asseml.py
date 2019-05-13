@@ -7,15 +7,12 @@ import sys
 import functools
 import pycx4.qcda as cda
 
-from aux_module import Auxiliary
+from basic_module import BasicFunc
 
 
-class ResponseMatrixAssembling(Auxiliary):
-    def __init__(self):
+class ResponseMatrixAssembling(BasicFunc):
+    def __init__(self, corr_names=0, bpm_names=0):
         super(ResponseMatrixAssembling, self).__init__()
-        """
-        response matrix assembling
-        """
         # self.corr_names = ['c1d2_z', 'c1f2_x', 'c1f1_x', 'c1d1_z', 'c2d2_z', 'c2f2_x', 'c2f1_x', 'c2d1_z', 'c3d2_z',
         #                    'c3f2_x', 'c3f1_x', 'c3d1_z', 'c4d2_z', 'c4f2_x', 'c4f1_x', 'c4d1_z', 'crm1', 'crm2', 'crm3',
         #                    'crm4', 'crm5', 'crm6', 'crm7', 'crm8', 'c4f3_x', 'c3f3_x', 'c4d3_z', 'c3d3_z', 'c1d1_q',
@@ -38,20 +35,11 @@ class ResponseMatrixAssembling(Auxiliary):
         # one more stuff is to connect BPM's channels
 
     def bpm_data_proc(self):
-        """
-        bpm data collecting step
-        :return: array with data from bpm's
-        """
-
         # go to next step
         print('bpm_data_proc')
         self.resp_matr_ass_proc()
 
     def resp_matr_ass_proc(self):
-        """
-        assemble response matrix
-        :return: response matrix
-        """
         if not self.flag:
             self.init_corr_values = self.corr_values['Iset'].copy()
             self.flag = True

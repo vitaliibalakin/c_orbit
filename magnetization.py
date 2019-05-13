@@ -7,10 +7,10 @@ import functools
 import sys
 import pycx4.qcda as cda
 
-from aux_module import Auxiliary
+from basic_module import BasicFunc
 
 
-class Magnetization(Auxiliary):
+class Magnetization(BasicFunc):
     """
     make DR correctors magnetization process
     q - quadrupole, d - dipole
@@ -81,9 +81,6 @@ class Magnetization(Auxiliary):
         # QTimer.singleShot(3000, self.mag_proc)
 
     def mag_proc(self):
-        """
-        function make magnetization. Check each step, if ok, calls next step nor emergency_check
-        """
         if not self.flag:
             self.init_corr_values = self.corr_values['Iset'].copy()
             self.flag = True
@@ -92,8 +89,8 @@ class Magnetization(Auxiliary):
         if not len(self.checking_equality(self.corr_values, self.corr_err)):
             if self.counter != self.stop_mag:
                 # make next step
-                for c_name, c_val in self.init_corr_values.items():
-                    self.corr_chans['Iset'][c_name].setValue(c_val + 1000 * (-1)**self.counter)
+                # for c_name, c_val in self.init_corr_values.items():
+                #     self.corr_chans['Iset'][c_name].setValue(c_val + 1000 * (-1)**self.counter)
                 self.counter += 1
                 QTimer.singleShot(3000, self.mag_proc)
                 print(self.counter)

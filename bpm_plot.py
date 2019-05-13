@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
-from PyQt5 import uic, QtCore
+from PyQt5 import uic, QtCore, QtGui
 from aQt.QtCore import QTimer
 
 import sys
@@ -35,9 +35,10 @@ class CustomOrbitView(pg.GraphicsObject):
 
     def saved_orbit_widget(self, orbit):
         p = pg.QtGui.QPainter(self.picture)
-        p.setPen(pg.mkPen('g'))
-        for i in range(0, len(orbit[0]-1)):
-            p.drawEllipse(pg.QtCore.QPointF(orbit[0][i], orbit[1][i]), 0.3, 3)
+        p.setBrush(QtCore.Qt.darkCyan)
+        p.setPen(QtCore.Qt.NoPen)
+        for i in range(0, len(orbit[0]) - 1):
+            p.drawEllipse(pg.QtCore.QPointF(orbit[0][i], orbit[1][i]), 0.2, 3)
         p.end()
 
     def paint(self, p, *args):
@@ -56,9 +57,8 @@ class BPM(QMainWindow):
         self.cur_iter = 0
         self.CALIBRATE = False
         self.DIR = os.getcwd() + "/saved_modes"
-        self.cur_orbit = np.array([])
-        self.zero_orbit = np.zeros([2, 16])
-        self.tmp_zero_orbit = np.zeros([2, 16])
+        self.cur_orbit = np.zeros([2, 16])
+        print(self.cur_orbit[0])
         # self.chan_bpm_vals = {}
         # self.chan_bpm_marker = {}
         # self.chan_bpm_numpts = {}
@@ -79,6 +79,8 @@ class BPM(QMainWindow):
         self.bpm_coor = sorted(self.bpms.values())
 
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
+        self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
+        self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
         # # bpms numpts
         # for bpm, bpm_cor in self.bpms.items():
         #     chan = cda.VChan('cxhw:37.ring.' + bpm + '.numpts')
@@ -100,10 +102,11 @@ class BPM(QMainWindow):
         # callbacks init
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(ftl.partial(self.load_file, key))
+        self.chan_x_orbit.valueMeasured.connect(self.update_orbit)
+        self.chan_z_orbit.valueMeasured.connect(self.update_orbit)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
         self.btn_close.clicked.connect(self.close)
-        self.btn_calibrate.clicked.connect(self.calibrate)
 
         self.window_forming()
 
@@ -143,6 +146,13 @@ class BPM(QMainWindow):
 
         self.saved_orbit_replot()
 
+    def update_orbit(self, chan):
+        if chan.name.split('.')[-1] == 'x_orbit':
+            self.cur_orbit[0] = chan.val
+        if chan.name.split('.')[-1] == 'z_orbit':
+            self.cur_orbit[1] = chan.val
+        self.plot_()
+
     def saved_orbit_replot(self):
         self.plot_x.clear()
         self.plot_z.clear()
@@ -166,24 +176,6 @@ class BPM(QMainWindow):
     #     self.bpm_x[bpm_num] = np.mean(chan.val[data_len:2*data_len-1])
     #     self.bpm_z[bpm_num] = np.mean(chan.val[2*data_len:3*data_len-1])
 
-    def calibrate(self):
-        self.CALIBRATE = True
-        self.zero_orbit = np.zeros([2, 16])
-        print('begin_calibr')
-
-    def bpm_zero_cor(self, iter_n=5):
-        if self.cur_iter < iter_n:
-            self.cur_iter += 1
-            self.tmp_zero_orbit += self.cur_orbit
-            print(self.cur_iter, self.tmp_zero_orbit)
-
-        else:
-            self.cur_iter = 0
-            self.CALIBRATE = False
-            self.zero_orbit = self.tmp_zero_orbit / iter_n
-            self.tmp_zero_orbit = np.zeros([2, 16])
-            print(self.zero_orbit)
-
     # def bpm_numpts(self, chan):
     #     self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val
 
@@ -206,8 +198,8 @@ class BPM(QMainWindow):
     #             self.plot_()
 
     def plot_(self):
-        self.plt_x.plot(self.bpm_coor, self.cur_orbit[0], pen=None, symbol='star', symbolSize=25)
-        self.plt_z.plot(self.bpm_coor, self.cur_orbit[1], pen=None, symbol='star', symbolSize=25)
+        self.plt_x.setData(self.bpm_coor, self.cur_orbit[0])#, pen=None, symbol='star', symbolSize=25)
+        self.plt_z.setData(self.bpm_coor, self.cur_orbit[1])#, pen=None, symbol='star', symbolSize=25)
 
     def save_file(self):
         sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')

@@ -26,6 +26,9 @@ class BpmPreproc:
                               'bpm16': 0, 'bpm17': 0}
         self.bpm_numpts_renew = self.bpm_val_renew.copy()
 
+        self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
+        self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
+
         for bpm, bpm_coor in self.bpm_val_renew.items():
             # bpm numpts init
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.numpts')
@@ -61,7 +64,8 @@ class BpmPreproc:
             for key in sorted(self.bpms, key=self.bpms.__getitem__):
                 x = np.append(x, self.bpm_x[key])
                 z = np.append(z, self.bpm_z[key])
-            self.cur_orbit = np.array([x, z])
+            self.chan_x_orbit.setValue(x)
+            self.chan_z_orbit.setValue(z)
 
 
 if __name__ == "__main__":

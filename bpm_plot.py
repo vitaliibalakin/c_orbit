@@ -13,14 +13,32 @@ import pycx4.qcda as cda
 import functools as ftl
 
 
-class CustomOrbitView(pg.GraphicsObject):
-    def __init__(self, data, type):
+class SavedOrbitView(pg.GraphicsObject):
+    def __init__(self, orbit):
         pg.GraphicsObject.__init__(self)
         self.picture = pg.QtGui.QPicture()
-        if type == 'aper':
-            self.aper_widget(data)
-        if type == 's_orbit':
-            self.saved_orbit_widget(data)
+        self.saved_orbit_widget(orbit)
+
+    def saved_orbit_widget(self, orbit):
+        p = pg.QtGui.QPainter(self.picture)
+        p.setBrush(QtCore.Qt.darkCyan)
+        p.setPen(QtCore.Qt.NoPen)
+        for i in range(0, len(orbit[0]) - 1):
+            p.drawEllipse(pg.QtCore.QPointF(orbit[0][i], orbit[1][i]), 0.2, 3)
+        p.end()
+
+    def paint(self, p, *args):
+        p.drawPicture(0, 0, self.picture)
+
+    def boundingRect(self):
+        return pg.QtCore.QRectF(self.picture.boundingRect())
+
+
+class CustomOrbitView(pg.GraphicsObject):
+    def __init__(self, aper):
+        pg.GraphicsObject.__init__(self)
+        self.picture = pg.QtGui.QPicture()
+        self.aper_widget(aper)
 
     def aper_widget(self, aper):
         p = pg.QtGui.QPainter(self.picture)
@@ -31,14 +49,6 @@ class CustomOrbitView(pg.GraphicsObject):
         for i in range(0, len(aper[0])-1):
             p.drawLine(pg.QtCore.QPointF(aper[0][i], aper[1][i]*(-1000)),
                        pg.QtCore.QPointF(aper[0][i + 1], aper[1][i + 1]*(-1000)))
-        p.end()
-
-    def saved_orbit_widget(self, orbit):
-        p = pg.QtGui.QPainter(self.picture)
-        p.setBrush(QtCore.Qt.darkCyan)
-        p.setPen(QtCore.Qt.NoPen)
-        for i in range(0, len(orbit[0]) - 1):
-            p.drawEllipse(pg.QtCore.QPointF(orbit[0][i], orbit[1][i]), 0.2, 3)
         p.end()
 
     def paint(self, p, *args):

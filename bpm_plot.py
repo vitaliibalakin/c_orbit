@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
-from PyQt5 import uic, QtCore, QtGui
-from aQt.QtCore import QTimer
+from PyQt5 import uic, QtCore
 
 import sys
 import os
@@ -13,19 +12,21 @@ import pycx4.qcda as cda
 import functools as ftl
 
 
-class SavedOrbitView(pg.GraphicsObject):
-    def __init__(self, orbit):
+class BPMPoint(pg.GraphicsObject):
+    def __init__(self):
         pg.GraphicsObject.__init__(self)
         self.picture = pg.QtGui.QPicture()
-        self.saved_orbit_widget(orbit)
+        self.point_obj()
 
-    def saved_orbit_widget(self, orbit):
+    def point_obj(self):
         p = pg.QtGui.QPainter(self.picture)
         p.setBrush(QtCore.Qt.darkCyan)
         p.setPen(QtCore.Qt.NoPen)
-        for i in range(0, len(orbit[0]) - 1):
-            p.drawEllipse(pg.QtCore.QPointF(orbit[0][i], orbit[1][i]), 0.2, 3)
+        p.drawEllipse(0, 0, 0.2, 3)
         p.end()
+
+    def update_beam_pos(self):
+        pass
 
     def paint(self, p, *args):
         p.drawPicture(0, 0, self.picture)
@@ -34,7 +35,7 @@ class SavedOrbitView(pg.GraphicsObject):
         return pg.QtCore.QRectF(self.picture.boundingRect())
 
 
-class CustomOrbitView(pg.GraphicsObject):
+class AperView(pg.GraphicsObject):
     def __init__(self, aper):
         pg.GraphicsObject.__init__(self)
         self.picture = pg.QtGui.QPicture()
@@ -58,9 +59,38 @@ class CustomOrbitView(pg.GraphicsObject):
         return pg.QtCore.QRectF(self.picture.boundingRect())
 
 
-class BPM(QMainWindow):
+class OrbitPlot(pg.PlotWidget):
+    def __init__(self, o_type):
+        super(OrbitPlot, self).__init__()
+        self.showGrid(x=True, y=True)
+        self.setLabel('left', o_type.upper() + " coordinate", units='mm')
+        self.setLabel('bottom', "Position", units='m')
+        self.setRange(yRange=[-48, 48])
+
+        aper = np.transpose(np.loadtxt(o_type + '_aper.txt'))
+        self.addItem(AperView(aper))
+
+        self.orbit = np.zeros([16, ])
+        self.bpms = {'bpm01': 21.4842, 'bpm02': 23.3922, 'bpm03': 24.6282, 'bpm04': 26.5572, 'bpm05': 0.8524,
+                     'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
+                     'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697,
+                     'bpm17': 19.6742}
+        self.bpm_coor = sorted(self.bpms.values())
+
+    def update_orbit(self):
+        print('orbit')
+
+    def set_orbit(self, orbit, which_orbit='cur'):
+        print(which_orbit)
+        self.orbit = orbit
+        self.update_orbit()
+
+
+class Orbit(QMainWindow):
     def __init__(self):
-        super(BPM, self).__init__()
+        super(Orbit, self).__init__()
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
         uic.loadUi("bpm's.ui", self)
         self.show()
 
@@ -69,107 +99,34 @@ class BPM(QMainWindow):
         self.DIR = os.getcwd() + "/saved_modes"
         self.cur_orbit = np.zeros([2, 16])
         print(self.cur_orbit[0])
-        # self.chan_bpm_vals = {}
-        # self.chan_bpm_marker = {}
-        # self.chan_bpm_numpts = {}
         self.chan_lines = {}
-        # self.bpm_x = {}
-        # self.bpm_z = {}
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
         self.icmode_orbit = {'e2v2': None, 'p2v2': None, 'e2v4': None, 'p2v4': None}
-        self.bpms = {'bpm01': 21.4842, 'bpm02': 23.3922, 'bpm03': 24.6282, 'bpm04': 26.5572, 'bpm05': 0.8524,
-                     'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
-                     'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697,
-                     'bpm17': 19.6742}
-        # self.bpm_val_renew = {'bpm01': 0, 'bpm02': 0, 'bpm03': 0, 'bpm04': 0, 'bpm05': 0, 'bpm07': 0, 'bpm08': 0,
-        #                       'bpm09': 0, 'bpm10': 0, 'bpm11': 0, 'bpm12': 0, 'bpm13': 0, 'bpm14': 0, 'bpm15': 0,
-        #                       'bpm16': 0, 'bpm17': 0}
-        # self.bpm_numpts_renew = self.bpm_val_renew.copy()
-        self.bpm_coor = sorted(self.bpms.values())
+        self.orbits = {'x_orbit': OrbitPlot('x'), 'z_orbit': OrbitPlot('z')}
+        p = QVBoxLayout()
+        self.plot_coor.setLayout(p)
+        for o_type, plot in self.orbits.items():
+            p.addWidget(plot)
 
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
         self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
-        # # bpms numpts
-        # for bpm, bpm_cor in self.bpms.items():
-        #     chan = cda.VChan('cxhw:37.ring.' + bpm + '.numpts')
-        #     chan.valueMeasured.connect(self.bpm_numpts)
-        #     self.chan_bpm_numpts[bpm] = chan
-        #
-        # # channels init
-        # for bpm, bpm_cor in self.bpms.items():
-        #     chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
-        #     chan.valueMeasured.connect(self.data_proc)
-        #     self.chan_bpm_vals[bpm] = chan
-        #
-        # # bpms marker init
-        # for bpm, bpm_cor in self.bpms.items():
-        #     chan = cda.VChan('cxhw:37.ring.' + bpm + '.marker')
-        #     chan.valueMeasured.connect(self.bpm_marker)
-        #     self.chan_bpm_marker[bpm] = chan
-
-        # callbacks init
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(ftl.partial(self.load_file, key))
-        self.chan_x_orbit.valueMeasured.connect(self.update_orbit)
-        self.chan_z_orbit.valueMeasured.connect(self.update_orbit)
+        self.chan_x_orbit.valueMeasured.connect(self.new_orbit_mes)
+        self.chan_z_orbit.valueMeasured.connect(self.new_orbit_mes)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
         self.btn_close.clicked.connect(self.close)
 
-        self.window_forming()
-
-        # for i in range(0, 4):
-        #     chan = cda.VChan('cxhw:37.ring.' + 'bpm01' + '.line' + str(i), max_nelems=4096)
-        #     chan.valueMeasured.connect(self.callback)
-        #     self.chan_lines[i] = chan
-
-    # def callback(self, chan):
-    #     self.plot_x.plot(chan.val, pen='r')
-
-    def window_forming(self):
-        pg.setConfigOption('background', 'w')
-        pg.setConfigOption('foreground', 'k')
-
-        self.setWindowTitle("IC DR orbit")
-        # x_plot area
-        self.plot_x = pg.PlotWidget()
-        self.plot_x.showGrid(x=True, y=True)
-        self.plot_x.setLabel('left', "X coordinate", units='mm')
-        self.plot_x.setLabel('bottom', "Position", units='m')
-        self.plot_x.setRange(yRange=[-40, 40])
-        self.plt_x = self.plot_x.plot(pen='g')
-
-        # z_plot area
-        self.plot_z = pg.PlotWidget()
-        self.plot_z.showGrid(x=True, y=True)
-        self.plot_z.setLabel('left', "Z coordinate", units='mm')
-        self.plot_z.setLabel('bottom', "Position", units='m')
-        self.plot_z.setRange(yRange=[-48, 48])
-        self.plt_z = self.plot_z.plot(pen='g')
-
-        p = QVBoxLayout()
-        self.plot_coor.setLayout(p)
-        p.addWidget(self.plot_x)
-        p.addWidget(self.plot_z)
-
-        self.saved_orbit_replot()
-
-    def update_orbit(self, chan):
-        if chan.name.split('.')[-1] == 'x_orbit':
-            self.cur_orbit[0] = chan.val
-        if chan.name.split('.')[-1] == 'z_orbit':
-            self.cur_orbit[1] = chan.val
-        self.plot_()
+    def new_orbit_mes(self, chan):
+        self.orbits[chan.name.split('.')[-1]].set_orbit(chan.val)
 
     def saved_orbit_replot(self):
         self.plot_x.clear()
         self.plot_z.clear()
-        x_aper = np.transpose(np.loadtxt('x_aper.txt'))
-        z_aper = np.transpose(np.loadtxt('y_aper.txt'))
-        self.plot_x.addItem(CustomOrbitView(x_aper, 'aper'))
-        self.plot_z.addItem(CustomOrbitView(z_aper, 'aper'))
+
         f = open('icmode_file.txt', 'r')
         file = json.loads(f.read())
         f.close()
@@ -177,39 +134,8 @@ class BPM(QMainWindow):
             self.saved_orbit = np.loadtxt(file[self.chan_ic_mode.val])
         except KeyError:
             self.saved_orbit = np.zeros([2, 16])
-        self.plot_x.addItem(CustomOrbitView(np.array([self.bpm_coor, self.saved_orbit[0]]), 's_orbit'))
-        self.plot_z.addItem(CustomOrbitView(np.array([self.bpm_coor, self.saved_orbit[1]]), 's_orbit'))
-
-    # def data_proc(self, chan):
-    #     bpm_num = chan.name.split('.')[-2]
-    #     data_len = int(self.bpm_numpts_renew[bpm_num][0])
-    #     self.bpm_x[bpm_num] = np.mean(chan.val[data_len:2*data_len-1])
-    #     self.bpm_z[bpm_num] = np.mean(chan.val[2*data_len:3*data_len-1])
-
-    # def bpm_numpts(self, chan):
-    #     self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val
-
-    # def bpm_marker(self, chan):
-    #     self.bpm_val_renew[chan.name.split('.')[-2]] = 1
-    #     # print(self.bpm_val_renew)
-    #     if all(sorted(self.bpm_val_renew.values())):
-    #         for key in self.bpm_val_renew:
-    #             self.bpm_val_renew[key] = 0
-    #         x = np.array([])
-    #         z = np.array([])
-    #         for key in sorted(self.bpms, key=self.bpms.__getitem__):
-    #             x = np.append(x, self.bpm_x[key])
-    #             z = np.append(z, self.bpm_z[key])
-    #         self.cur_orbit = np.array([x, z]) - self.zero_orbit
-    #         if self.CALIBRATE:
-    #             self.bpm_zero_cor()
-    #             self.plot_()
-    #         else:
-    #             self.plot_()
-
-    def plot_(self):
-        self.plt_x.setData(self.bpm_coor, self.cur_orbit[0])#, pen=None, symbol='star', symbolSize=25)
-        self.plt_z.setData(self.bpm_coor, self.cur_orbit[1])#, pen=None, symbol='star', symbolSize=25)
+        self.plot_x.addItem(AperView(np.vstack([self.bpm_coor, self.saved_orbit[0]])))
+        self.plot_z.addItem(AperView(np.vstack([self.bpm_coor, self.saved_orbit[1]])))
 
     def save_file(self):
         sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
@@ -249,7 +175,7 @@ class BPM(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(['BPM'])
 
-    w = BPM()
+    w = Orbit()
 
     sys.exit(app.exec_())
 

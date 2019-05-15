@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from scipy import optimize as opt
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 import sys
 from PyQt5.QtWidgets import QApplication
 
@@ -10,12 +9,11 @@ from PyQt5.QtWidgets import QApplication
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
-
         self.bpm_x = {}
         self.bpm_z = {}
-        self.chan_bpm_marker = {}
-        self.chan_bpm_numpts = {}
-        self.chan_bpm_vals = {}
+        self.chan_bpm_marker = []
+        self.chan_bpm_numpts = []
+        self.chan_bpm_vals = []
 
         self.bpms = {'bpm01': 21.4842, 'bpm02': 23.3922, 'bpm03': 24.6282, 'bpm04': 26.5572, 'bpm05': 0.8524,
                      'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
@@ -23,27 +21,28 @@ class BpmPreproc:
                      'bpm17': 19.6742}
         self.bpm_val_renew = {'bpm01': 0, 'bpm02': 0, 'bpm03': 0, 'bpm04': 0, 'bpm05': 0, 'bpm07': 0, 'bpm08': 0,
                               'bpm09': 0, 'bpm10': 0, 'bpm11': 0, 'bpm12': 0, 'bpm13': 0, 'bpm14': 0, 'bpm15': 0,
-                              'bpm16': 0, 'bpm17': 0}
+                              'bpm16': 0 , 'bpm17': 0}
         self.bpm_numpts_renew = self.bpm_val_renew.copy()
 
         self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
         self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
+        print('start')
 
         for bpm, bpm_coor in self.bpm_val_renew.items():
             # bpm numpts init
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.numpts')
             chan.valueMeasured.connect(self.bpm_numpts)
-            self.chan_bpm_numpts[bpm] = chan
+            self.chan_bpm_numpts.append(chan)
 
             # bpm channels init
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
             chan.valueMeasured.connect(self.data_proc)
-            self.chan_bpm_vals[bpm] = chan
+            self.chan_bpm_vals.append(chan)
 
             # bpms marker init
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.marker')
             chan.valueMeasured.connect(self.bpm_marker)
-            self.chan_bpm_marker[bpm] = chan
+            self.chan_bpm_marker.append(chan)
 
     def bpm_numpts(self, chan):
         self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val

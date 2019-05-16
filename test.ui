@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>39</y>
+      <width>781</width>
+      <height>511</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>231</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>bpm01</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm02</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm03</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm04</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm05</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm07</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm08</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm09</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm15</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm17</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -78,8 +78,8 @@ class OrbitPlot(pg.PlotWidget):
 
         self.bpms = {'bpm01': 21.4842, 'bpm02': 23.3922, 'bpm03': 24.6282, 'bpm04': 26.5572, 'bpm05': 0.8524,
                      'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
-                     'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697,
-                     'bpm17': 19.6742}
+                     'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697} #,
+                     #'bpm17': 19.6742}
         self.bpm_coor = sorted(self.bpms.values())
 
         for i in range(len(self.bpm_coor)):

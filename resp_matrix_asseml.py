@@ -21,6 +21,7 @@ class ResponseMatrixAssembling(BasicFunc):
         #                    'c3f2_q', 'c3d3_q', 'c4d3_q', 'c3f3_q', 'c4d1_q', 'c4f1_q', 'c4d2_q', 'c4f2_q',
         #                    'c4f3_q']
         self.corr_names = ['crm3', 'crm5']
+        self.bpm_names = ['bpm_preproc']
         self.corr_err = []
         self.flag = False
         self.init_corr_values = {}
@@ -32,7 +33,9 @@ class ResponseMatrixAssembling(BasicFunc):
 
         self.corr_values, self.corr_chans = self.chans_connect({'Iset': {}, 'Imes': {}}, {'Iset': {}, 'Imes': {}},
                                                                self.corr_names, 'UM4')
-        # one more stuff is to connect BPM's channels
+        self.bpm_values, self.bpm_chans = self.chans_connect({'x_orbit': {}}, {'x_orbit': {}}, self.bpm_names,
+                                                             'ring_bpm_preproc')
+        print(self.bpm_values, self.bpm_chans)
 
     def bpm_data_proc(self):
         # go to next step

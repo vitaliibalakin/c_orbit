@@ -30,25 +30,33 @@ class BasicFunc:
             "devtype.name in (%(DEVTYPE)s) group by grouping sets((devtype.name, full_name))", {'DEVTYPE': devtype})
         for elem in cur.fetchall():
             devnames_list.append(elem[1])
-        # print('devname_list', devnames_list)
+        print('devname_list', devnames_list)
 
         for key in chans:
             chan_list.append(key)
-        print(chan_list)
 
         for dname in devnames_list:
             name = dname.split('.')[-1]
+            print(name, names)
             if name in names:
                 for chan_type in chan_list:
-                    chan = cda.DChan(dname + '.' + chan_type)
+                    print(dname + '.' + chan_type)
+                    if devtype == 'UM4':
+                        chan = cda.DChan(dname + '.' + chan_type)
+                    elif devtype == 'ring_bpm_preproc':
+                        chan = cda.VChan(dname + '.' + chan_type, max_nelems=16)
+                    else:
+                        print('unknown devtype: ', devtype)
+                        break
                     chans[chan_type][name] = chan
-                    values[chan_type][name] = 0
+                    values[chan_type][name] = None
                     chan.valueMeasured.connect(functools.partial(self.chan_val_change, chan, values))
         print(chans)
         return values, chans
 
     @staticmethod
     def chan_val_change(chan, values):
+        print(chan.val)
         values[chan.name.split('.')[-1]][chan.name.split('.')[-2]] = chan.val
 
     @staticmethod

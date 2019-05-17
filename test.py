@@ -2,6 +2,7 @@
 
 import pycx4.qcda as cda
 import sys
+import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PyQt5 import uic
@@ -30,11 +31,12 @@ class BpmPreproc(QMainWindow):
                 self.chan_bpm_vals[bpm].update({i: chan})
         self.plot = pg.PlotWidget()
         self.plot.showGrid(x=True, y=True)
+        self.plot.setRange(yRange=[0, 400])
         p = QVBoxLayout()
         self.widget.setLayout(p)
         p.addWidget(self.plot)
 
-        self.cur_lines = {'0': None, '1': None, '2': None, '3': None}
+        self.cur_lines = {'0': np.ones([16, ]), '1': np.ones([16, ]), '2': np.ones([16, ]), '3': np.ones([16, ])}
 
         self.comboBox.currentTextChanged.connect(self.bpm_changed)
 
@@ -44,14 +46,10 @@ class BpmPreproc(QMainWindow):
     def data_proc(self, chan):
         if chan.name.split('.')[-2] == self.cur_bpm:
             self.cur_lines[chan.name.split('.')[-1][-1]] = chan.val
-            # print(len(self.cur_lines['0']))
-        if any(self.cur_lines['0']):
+            self.plot.clear()
             self.plot.plot(self.cur_lines['0'], pen=pg.mkPen('r'))
-        if any(self.cur_lines['1']):
             self.plot.plot(self.cur_lines['1'], pen=pg.mkPen('g'))
-        if any(self.cur_lines['2']):
             self.plot.plot(self.cur_lines['2'], pen=pg.mkPen('b'))
-        if any(self.cur_lines['3']):
             self.plot.plot(self.cur_lines['3'], pen=pg.mkPen('y'))
 
 

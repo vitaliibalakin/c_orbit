@@ -147,10 +147,10 @@ class Orbit(QMainWindow):
         f.close()
         print(self.ic_mode_orbit)
         if self.ic_mode_orbit[chan.val]:
-            orbit = self.ic_mode_orbit[chan.val]
+            orbit = np.loadtxt(self.ic_mode_orbit[chan.val])
         else:
             orbit = np.zeros([2, 16])
-
+        print(orbit)
         self.orbits['x_orbit'].update_orbit(orbit[0], which_orbit='eq')
         self.orbits['z_orbit'].update_orbit(orbit[1], which_orbit='eq')
 

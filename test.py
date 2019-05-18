@@ -51,6 +51,17 @@ class BpmPreproc(QMainWindow):
             self.plot.plot(self.cur_lines['1'], pen=pg.mkPen('g'))
             self.plot.plot(self.cur_lines['2'], pen=pg.mkPen('b'))
             self.plot.plot(self.cur_lines['3'], pen=pg.mkPen('y'))
+            self.coor_calc()
+
+    def coor_calc(self):
+        x_ = np.mean((self.cur_lines['0'] - self.cur_lines['2']) / 2 / (self.cur_lines['0'] + self.cur_lines['2']))
+        z_ = np.mean((self.cur_lines['1'] - self.cur_lines['3']) / 2 / (self.cur_lines['1'] + self.cur_lines['3']))
+        rho_ = np.sqrt(x_**2 + z_**2)
+        rho = (1 - np.sqrt(1 - 4 * rho_**2)) / 2 / rho_
+        x = x_ * (1 + rho**2) * 80
+        z = z_ * (1 + rho**2) * 80
+        output = str(x) + '|||||' + str(z)
+        self.statusbar.showMessage(output)
 
 
 if __name__ == "__main__":

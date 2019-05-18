@@ -77,9 +77,9 @@ class ResponseMatrixAssembling(BasicFunc):
         for i in range(self.orbit_resp_data[:, 0] - 2):
             self.orbit_changes_data = np.vstack(self.orbit_changes_data, self.orbit_resp_data[i + 1] -
                                                 self.orbit_resp_data[i + 2])
-            
+
         np.savetxt(self.c_name + '.txt', self.orbit_changes_data,
-                   header=(self.c_name + '|' + str(self.init_corr_values['Imes'][self.c_name]) + '19'))
+                   header=(str(self.init_corr_values['Imes'][self.c_name]) + '|' + '19'))
 
         self.orbit_resp_data = np.zeros([15, ])
         self.orbit_changes_data = np.zeros([15, ])

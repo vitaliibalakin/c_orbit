@@ -36,8 +36,6 @@ class RespProc(QMainWindow):
         self.widget.setLayout(p)
         p.addWidget(self.plot)
 
-        self.cur_lines = {'0': np.ones([16, ]), '1': np.ones([16, ]), '2': np.ones([16, ]), '3': np.ones([16, ])}
-
         self.comboBox.currentTextChanged.connect(self.bpm_changed)
         self.comboBox_2.currentTextChanged.connect(self.cor_changed)
 

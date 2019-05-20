@@ -33,7 +33,7 @@ class Test(QMainWindow):
         self.widget.setLayout(p)
         p.addWidget(self.plot)
 
-        self.cur_lines = {'0': np.ones([16, ]), '1': np.ones([16, ]), '2': np.ones([16, ]), '3': np.ones([16, ])}
+        self.cur_lines = {'0': np.ones([100, ]), '1': np.ones([100, ]), '2': np.ones([100, ]), '3': np.ones([100, ])}
 
         self.comboBox.currentTextChanged.connect(self.bpm_changed)
 
@@ -51,12 +51,22 @@ class Test(QMainWindow):
             self.coor_calc()
 
     def coor_calc(self):
-        x_ = np.mean((self.cur_lines['0'] - self.cur_lines['2']) / 2 / (self.cur_lines['0'] + self.cur_lines['2']))
-        z_ = np.mean((self.cur_lines['1'] - self.cur_lines['3']) / 2 / (self.cur_lines['1'] + self.cur_lines['3']))
+        if self.cur_bpm in ['bpm04', 'bpm05', 'bpm13', 'bpm14']:
+            x_ = np.mean((self.cur_lines['0'] - self.cur_lines['2']) / 2 / (self.cur_lines['0'] + self.cur_lines['2']))
+            z_ = np.mean((self.cur_lines['1'] - self.cur_lines['3']) / 2 / (self.cur_lines['1'] + self.cur_lines['3']))
+        else:
+            x_ = np.mean((self.cur_lines['1'] + self.cur_lines['2'] - self.cur_lines['0'] - self.cur_lines['3']) /
+                         (self.cur_lines['1'] + self.cur_lines['2'] + self.cur_lines['0'] + self.cur_lines['3']) / 2)
+            z_ = np.mean((self.cur_lines['0'] + self.cur_lines['1'] - self.cur_lines['2'] - self.cur_lines['3']) /
+                         (self.cur_lines['1'] + self.cur_lines['2'] + self.cur_lines['0'] + self.cur_lines['3']) / 2)
         rho_ = np.sqrt(x_**2 + z_**2)
         rho = (1 - np.sqrt(1 - 4 * rho_**2)) / 2 / rho_
-        x = x_ * (1 + rho**2) * 80
-        z = z_ * (1 + rho**2) * 80
+        if self.cur_bpm in ['bpm04', 'bpm05', 'bpm13', 'bpm14']:
+            x = x_ * (1 + rho**2) * 40
+            z = z_ * (1 + rho**2) * 40
+        else:
+            x = x_ * (1 + rho ** 2) * 30
+            z = z_ * (1 + rho ** 2) * 30
         output = str(x) + '|||||' + str(z)
         self.statusbar.showMessage(output)
 

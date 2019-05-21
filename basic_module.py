@@ -59,26 +59,22 @@ class BasicFunc:
         print(chan.val)
         values[chan.name.split('.')[-1]][chan.name.split('.')[-2]] = chan.val
 
-    @staticmethod
-    def checking_equality(values_dict, err):
+    def checking_equality(self, val_dict, call_ok, call_err):
         print('check')
-        for key in values_dict['Iset']:
-            if abs(values_dict['Iset'][key] - values_dict['Imes'][key]) < 100:
-                if key in err:
-                    err.remove(key)
+        for key in val_dict['Iset']:
+            if abs(val_dict['Iset'][key] - val_dict['Imes'][key]) < 100:
+                getattr(call_ok[0](), call_ok[1])()
             else:
-                if not (key in err):
-                    err.append(key)
-        return err
+                QTimer.singleShot(3000, functools.partial(self.err_verification, val_dict, call_ok, call_err))
 
-    def err_verification(self, values_dict, err, call_func, chan, chan_val):
+    @staticmethod
+    def err_verification(val_dict, call_ok, call_err):
         print('recheck')
-        err = self.checking_equality(values_dict, err)
-        if not err:
-            getattr(call_func[0](), call_func[1])()
-        else:
-            print('error', err)
-            # chan.setValue(chan_val)
+        for key in val_dict['Iset']:
+            if abs(val_dict['Iset'][key] - val_dict['Imes'][key]) < 100:
+                getattr(call_ok[0](), call_ok[1])()
+            else:
+                getattr(call_err[0](), call_err[1])(key)
 
 
 if __name__ == "__main__":

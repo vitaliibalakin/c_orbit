@@ -12,16 +12,20 @@ from basic_module import BasicFunc
 
 
 class CorMeasure(BasicFunc):
-    def __init__(self, name, step=20, n_iter=19):
+    def __init__(self, call_upon_completion, name, step=20, n_iter=19):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'x_orbit': None, 'Iset': None, 'Imes': None}
+        self.name = name
         self.init_val = 1
-        self.flag = False
         self.step = step
         self.n_iter = -1 * n_iter
         self.stop = n_iter + 1
         self.cor_data = np.zeros([15, ])
+        self.response = None
+        self.status = None
+        self.flag = False
+        self.callback = call_upon_completion
 
         for chan in ['Iset', 'Imes']:
             cor_chan = cda.DChan('canhw:12.rst2.c' + name + '.' + chan)
@@ -40,13 +44,19 @@ class CorMeasure(BasicFunc):
 
         if self.n_iter == self.stop:
             self.flag = False
+            self.status = 'completed'
             self.chans['Iset'].setValue(self.init_val)
-            return self.cor_data[1:], self.init_val
+            self.response = [self.cor_data[1:], self.init_val]
+            self.callback(self.name)
         else:
             self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
             self.n_iter += 1
             QTimer.singleShot(3000, ftl.partial(self.checking_equality, self.val,
-                                                [CorMeasure, 'bpm_proc'], [RMA, 'cor_error']))
+                                                [CorMeasure, 'bpm_proc'], [CorMeasure, 'cor_error']))
+
+    def cor_error(self):
+        self.status = 'fail'
+        self.callback(self.name)
 
     def bpm_proc(self):
         self.cor_data = np.vstack(self.cor_data, self.val['x_orbit'])
@@ -64,30 +74,44 @@ class RMA(BasicFunc):
         #                    'c3f2_q', 'c3d3_q', 'c4d3_q', 'c3f3_q', 'c4d1_q', 'c4f1_q', 'c4d2_q', 'c4f2_q',
         #                    'c4f3_q']
         self.cor_names = ['crm3', 'crm5']
-        self.cor_response = [[] for i in range(len(self.cor_names))]
-        self.cor_init_vals = [i for i in range(len(self.cor_names))]
+        self.stack_names = self.cor_names.copy()
+        self.cor_dict = {cor: CorMeasure(self.mes_comp, cor) for cor in self.cor_names}
+        self.resp_matr = {name: [] for name in self.cor_names}
         self.cor_orbit_response()
 
     def cor_orbit_response(self):
-        for i in range(len(self.cor_names)):
-            print(i)
-            CorMeasure(self.cor_names[i]).cor_proc()
-        self.save_cor_resp()
-        self.save_rma()
+        if len(self.stack_names):
+            self.cor_dict[self.stack_names[0]].cor_proc()
+        else:
+            print('my work is done here')
+            self.save_rma()
 
-    def save_cor_resp(self):
-        for i in range(len(self.cor_response)):
-            np.savetxt(self.cor_names[i] + '.txt', self.cor_response[i], header=(str(self.cor_init_vals[i]) + '|' + '19'))
+    def mes_comp(self, name):
+        self.stack_names.remove(name)
+        if self.cor_dict[name].status == 'fail':
+            print(name, 'cor fail')
+            # should I or not continue?
+            self.cor_orbit_response()
+        elif self.cor_dict[name].status == 'completed':
+            print(name, 'go to the next step')
+            self.save_cor_resp(name, self.cor_dict[name].response)
+            self.cor_orbit_response()
+        elif not self.cor_dict[name].status:
+            print(name, 'response error')
+        else:
+            print(name, 'wtf')
+
+    def save_cor_resp(self, name, *data):
+        if len(data) == 2:
+            np.savetxt(name + '.txt', data[0], header=(str(data[1]) + '|' + '19'))
+            self.resp_matr[name] = data[0]
 
     def save_rma(self):
         print('rma collecting finished')
         # self.del_chan.setValue('rma': 'file_name')  # +json.dumps
 
-    def cor_error(self, name):
-        print(name)
-
 
 if __name__ == "__main__":
-    app = QApplication(['ResponseMatrixAssembling'])
+    app = QApplication(['RMA'])
     w = RMA()
     sys.exit(app.exec_())

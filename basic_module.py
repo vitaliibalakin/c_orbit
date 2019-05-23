@@ -61,20 +61,18 @@ class BasicFunc:
 
     def checking_equality(self, val_dict, call_ok, call_err):
         print('check')
-        for key in val_dict['Iset']:
-            if abs(val_dict['Iset'][key] - val_dict['Imes'][key]) < 100:
-                getattr(call_ok[0](), call_ok[1])()
-            else:
-                QTimer.singleShot(3000, functools.partial(self.err_verification, val_dict, call_ok, call_err))
+        if abs(val_dict['Iset'] - val_dict['Imes']) < 100:
+            call_ok()
+        else:
+            QTimer.singleShot(3000, functools.partial(self.err_verification, val_dict, call_ok, call_err))
 
     @staticmethod
     def err_verification(val_dict, call_ok, call_err):
         print('recheck')
-        for key in val_dict['Iset']:
-            if abs(val_dict['Iset'][key] - val_dict['Imes'][key]) < 100:
-                getattr(call_ok[0](), call_ok[1])()
-            else:
-                getattr(call_err[0](), call_err[1])(key)
+        if abs(val_dict['Iset'] - val_dict['Imes']) < 100:
+            call_ok()
+        else:
+            call_err()
 
 
 if __name__ == "__main__":

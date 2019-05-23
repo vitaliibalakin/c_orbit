@@ -14,10 +14,11 @@ class Magnetization(BasicFunc):
     def __init__(self, corr_names=0):
         super(Magnetization, self).__init__()
         self.init_corr_values = {}
-
         self.flag = False
         self.counter = 0
         self.stop_mag = 5
+        self.chans = {}
+        self.vals = {}
         # self.corr_names = ['c1d2_z', 'c1f2_x', 'c1f1_x', 'c1d1_z', 'c2d2_z', 'c2f2_x', 'c2f1_x', 'c2d1_z', 'c3d2_z',
         #                    'c3f2_x', 'c3f1_x', 'c3d1_z', 'c4d2_z', 'c4f2_x', 'c4f1_x', 'c4d1_z', 'crm1', 'crm2', 'crm3',
         #                    'crm4', 'crm5', 'crm6', 'crm7', 'crm8', 'c4f3_x', 'c3f3_x', 'c4d3_z', 'c3d3_z', 'c1d1_q',
@@ -28,16 +29,27 @@ class Magnetization(BasicFunc):
         self.corr_err = []
         self.corr_names = ['crm5', 'crm3']
 
-        self.corr_values, self.corr_chans = self.chans_connect({'Iset': {}, 'Imes': {}}, {'Iset': {}, 'Imes': {}},
-                                                               self.corr_names, 'UM4')
+        for name in self.corr_names:
+            cor_chan_set = cda.DChan('canhw:12.rst2.' + name + '.' + 'Iset')
+            cor_chan_mes = cda.DChan('canhw:12.rst2.' + name + '.' + 'Imes')
+            cor_chan_set.valueMeasured.connect(self.val_change)
+            cor_chan_mes.valueMeasured.connect(self.val_change)
+            self.chans.update({name: {'Iset': cor_chan_set, 'Imes': cor_chan_mes}})
+            self.vals.update({name: {'Iset': 0, 'Imes': 0}})
 
         # QTimer.singleShot(3000, self.mag_proc)
 
+    def val_change(self, chan):
+        self.vals[chan.name.split('.')[-2]][chan.name.split('.')[-1]] = chan.val
+
+    def check(self):
+        pass
+
     def mag_proc(self):
         if not self.flag:
-            self.init_corr_values = self.corr_values['Iset'].copy()
+            self.init_corr_values = self.vals.copy()
             self.flag = True
-        print(self.corr_values)
+        print(self.vals)
 
         if not len(self.checking_equality(self.corr_values, self.corr_err)):
             if self.counter != self.stop_mag:
@@ -45,7 +57,7 @@ class Magnetization(BasicFunc):
                 # for c_name, c_val in self.init_corr_values.items():
                 #     self.corr_chans['Iset'][c_name].setValue(c_val + 1000 * (-1)**self.counter)
                 self.counter += 1
-                QTimer.singleShot(3000, self.mag_proc)
+                QTimer.singleShot(3000, self.check)
                 print(self.counter)
             else:
                 # stop magnetization process

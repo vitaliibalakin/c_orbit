@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5 import uic
 
 import sys
-import functools
-import pycx4.qcda as cda
 
-from magnetization import Magnetization
-from resp_matrix_asseml import ResponseMatrixAssembling
+from old.magnetization import Magnetization
+from old.resp_matrix_asseml import ResponseMatrixAssembling
 
 
 class MainCorrectionControl(QMainWindow):

@@ -157,7 +157,9 @@ class RMA(BasicFunc):
             if not len(self.stack_names):
                 self.stack_names = self.cor_names.copy()
                 print('mag finished')
-                # some check or smth else?
+                if not len(self.cor_mag_fail):
+                    for elem in self.cor_mag_fail:
+                        self.stack_names.remove(elem)
                 self.cor_orbit_response()
         elif not self.cor_2_mag[name].status:
             print(name, 'mag error')

@@ -37,7 +37,6 @@ class CorMagnetization(BasicFunc):
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']
-
         if self.counter == self.stop:
             self.flag = False
             self.status = 'completed'
@@ -83,7 +82,7 @@ class CorMeasure(BasicFunc):
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']
-
+        print(self.n_iter)
         if self.n_iter == self.stop:
             self.flag = False
             self.status = 'completed'
@@ -100,7 +99,7 @@ class CorMeasure(BasicFunc):
         self.callback(self.name)
 
     def bpm_proc(self):
-        self.cor_data = np.vstack(self.cor_data, self.val['x_orbit'])
+        self.cor_data = np.vstack((self.cor_data, self.val['x_orbit']))
         self.cor_proc()
 
 
@@ -120,9 +119,10 @@ class RMA(BasicFunc):
         self.cor_2_resp = {cor: CorMeasure(self.mes_comp, cor) for cor in self.cor_names}
         self.cor_2_mag = {cor: CorMagnetization(self.magn_comp, cor) for cor in self.cor_names}
         self.resp_matr = {name: [] for name in self.cor_names}
+        QTimer.singleShot(9000, self.cor_magnetization)
 
     def cor_magnetization(self):
-        for elem in self.cor_2_mag:
+        for cor_name, elem in self.cor_2_mag.items():
             elem.magnetiz_proc()
 
     def cor_orbit_response(self):
@@ -148,6 +148,7 @@ class RMA(BasicFunc):
             print(name, 'wtf')
 
     def magn_comp(self, name):
+        print(name, self.cor_2_mag[name].status)
         self.stack_names.remove(name)
         if self.cor_2_mag[name].status == 'fail':
             print(name, 'cor mag fail')
@@ -155,14 +156,16 @@ class RMA(BasicFunc):
         elif self.cor_2_mag[name].status == 'completed':
             if not len(self.stack_names):
                 self.stack_names = self.cor_names.copy()
+                print('mag finished')
                 # some check or smth else?
-                # self.cor_orbit_response()
+                self.cor_orbit_response()
         elif not self.cor_2_mag[name].status:
             print(name, 'mag error')
         else:
             print(name, 'wtf')
 
-    def save_cor_resp(self, name, *data):
+    def save_cor_resp(self, name, data):
+        print(len(data))
         if len(data) == 2:
             np.savetxt(name + '.txt', data[0], header=(str(data[1]) + '|' + '19'))
             self.resp_matr[name] = data[0]

@@ -19,7 +19,7 @@ class Test(QMainWindow):
         self.cur_bpm = 'bpm01'
         self.chan_bpm_vals = {'bpm01': {}, 'bpm02': {}, 'bpm03': {}, 'bpm04': {}, 'bpm05': {}, 'bpm07': {}, 'bpm08': {},
                               'bpm09': {}, 'bpm10': {}, 'bpm11': {}, 'bpm12': {}, 'bpm13': {}, 'bpm14': {}, 'bpm15': {},
-                              'bpm16': {}}
+                              'bpm16': {}, 'bpm17': {}}
         print('start')
         for bpm, bpm_coor in self.chan_bpm_vals.items():
             for i in range(4):

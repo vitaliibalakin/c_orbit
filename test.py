@@ -4,7 +4,7 @@ import pycx4.qcda as cda
 import sys
 import numpy as np
 import pyqtgraph as pg
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout
 from PyQt5 import uic
 
 
@@ -20,18 +20,28 @@ class Test(QMainWindow):
         self.chan_bpm_vals = {'bpm01': {}, 'bpm02': {}, 'bpm03': {}, 'bpm04': {}, 'bpm05': {}, 'bpm07': {}, 'bpm08': {},
                               'bpm09': {}, 'bpm10': {}, 'bpm11': {}, 'bpm12': {}, 'bpm13': {}, 'bpm14': {}, 'bpm15': {},
                               'bpm16': {}, 'bpm17': {}}
+        self.chan_bpm_vals_env = {'bpm01': {}, 'bpm02': {}, 'bpm03': {}, 'bpm04': {}, 'bpm05': {}, 'bpm07': {}, 'bpm08': {},
+                                  'bpm09': {}, 'bpm10': {}, 'bpm11': {}, 'bpm12': {}, 'bpm13': {}, 'bpm14': {}, 'bpm15': {},
+                                  'bpm16': {}, 'bpm17': {}}
         print('start')
         for bpm, bpm_coor in self.chan_bpm_vals.items():
             for i in range(4):
                 chan = cda.VChan('cxhw:37.ring.' + bpm + '.line' + str(i), max_nelems=4096)
                 chan.valueMeasured.connect(self.data_proc)
                 self.chan_bpm_vals[bpm].update({i: chan})
+            chan_env = cda.VChan('cxhw:37.ring.' + bpm + '.dataenvl', max_nelems=512)
+            chan_env.valueMeasured.connect(self.data_proc_env)
+            self.chan_bpm_vals_env[bpm].update({0: chan_env})
+
         self.plot = pg.PlotWidget()
         self.plot.showGrid(x=True, y=True)
         self.plot.setRange(yRange=[0, 400])
-        p = QVBoxLayout()
+        self.plot_env = pg.PlotWidget()
+        self.plot_env.showGrid(x=True, y=True)
+        p = QHBoxLayout()
         self.widget.setLayout(p)
         p.addWidget(self.plot)
+        p.addWidget(self.plot_env)
 
         self.cur_lines = {'0': np.ones([100, ]), '1': np.ones([100, ]), '2': np.ones([100, ]), '3': np.ones([100, ])}
 
@@ -39,6 +49,14 @@ class Test(QMainWindow):
 
     def bpm_changed(self):
         self.cur_bpm = self.comboBox.currentText()
+
+    def data_proc_env(self, chan):
+        if chan.name.split('.')[-2] == self.cur_bpm:
+            self.plot_env.clear()
+            self.plot_env.plot(chan.val[:11], pen=pg.mkPen('r'))
+            self.plot_env.plot(chan.val[128:139], pen=pg.mkPen('g'))
+            self.plot_env.plot(chan.val[256:267], pen=pg.mkPen('b'))
+            self.plot_env.plot(chan.val[384:395], pen=pg.mkPen('y'))
 
     def data_proc(self, chan):
         if chan.name.split('.')[-2] == self.cur_bpm:
@@ -48,7 +66,7 @@ class Test(QMainWindow):
             self.plot.plot(self.cur_lines['1'], pen=pg.mkPen('g'))
             self.plot.plot(self.cur_lines['2'], pen=pg.mkPen('b'))
             self.plot.plot(self.cur_lines['3'], pen=pg.mkPen('y'))
-            self.coor_calc()
+            # self.coor_calc()
 
     def coor_calc(self):
         if self.cur_bpm in ['bpm04', 'bpm05', 'bpm13', 'bpm14']:

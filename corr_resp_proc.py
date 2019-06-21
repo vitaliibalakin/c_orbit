@@ -16,10 +16,6 @@ class RespProc(QMainWindow):
         uic.loadUi("resp_proc.ui", self)
         self.show()
 
-        self.read_file('crm3')
-        self.cur_bpm = 'bpm01'
-        self.bpm_plot()
-
         self.bpm_vals = {'bpm01': [], 'bpm02': [], 'bpm03': [], 'bpm04': [], 'bpm05': [], 'bpm07': [], 'bpm08': [],
                          'bpm09': [], 'bpm10': [], 'bpm11': [], 'bpm12': [], 'bpm13': [], 'bpm14': [], 'bpm15': [],
                          'bpm16': []}
@@ -31,13 +27,17 @@ class RespProc(QMainWindow):
         print('start')
         self.plot = pg.PlotWidget()
         self.plot.showGrid(x=True, y=True)
-        self.plot.setRange(yRange=[-40, 40])
+        # self.plot.setRange(yRange=[-40, 40])
         p = QVBoxLayout()
         self.widget.setLayout(p)
         p.addWidget(self.plot)
 
         self.comboBox.currentTextChanged.connect(self.bpm_changed)
         self.comboBox_2.currentTextChanged.connect(self.cor_changed)
+
+        self.read_file('crm3')
+        self.cur_bpm = 'bpm01'
+        self.bpm_plot()
 
     def cor_changed(self):
         self.read_file(self.comboBox_2.currentText())
@@ -47,18 +47,18 @@ class RespProc(QMainWindow):
         f = open(cor + '.txt', 'r')
         cor_info = f.readline()
         f.close()
-        init_cur = float(cor_info.split('|')[0])
+        init_cur = float(cor_info.split('|')[0].split(' ')[1])
         cur_step = float(cor_info.split('|')[1])
         resp_data = np.loadtxt(cor + '.txt', skiprows=1)
         for i in range(len(resp_data[0])):
+            # print(len(np.arange(init_cur - 20 * cur_step, init_cur + 20 * (cur_step + 1), 20)), len(resp_data[:, i]))
             self.bpm_vals[self.bpms[i]] = np.vstack((np.arange(init_cur - 20 * cur_step,
-                                                               init_cur + 20 * cur_step,
+                                                               init_cur + 20 * (cur_step + 1),
                                                                20), resp_data[:, i]))
             const, pcov = optimize.curve_fit(self.lin_fit, self.bpm_vals[self.bpms[i]][0],
-                                             self.bpm_vals[self.bpms[i][1]])
-            self.bpm_vals[self.bpms[i]] = \
-                np.vstack((self.bpm_vals[self.bpms[i]],
-                           self.lin_fit(self.bpm_vals[self.bpms[i]][0], const)))
+                                             self.bpm_vals[self.bpms[i]][1])
+            self.bpm_vals[self.bpms[i]] = np.vstack((self.bpm_vals[self.bpms[i]],
+                                                     self.lin_fit(self.bpm_vals[self.bpms[i]][0], *const)))
             self.bpm_const[self.bpms[i]] = const
 
     def bpm_changed(self):
@@ -71,8 +71,8 @@ class RespProc(QMainWindow):
         self.plot.plot(self.bpm_vals[self.cur_bpm][0], self.bpm_vals[self.cur_bpm][2], pen=pg.mkPen('g'))
 
     @staticmethod
-    def lin_fit(x, a):
-        return a * x
+    def lin_fit(x, a, c):
+        return a * x + c
 
 
 if __name__ == "__main__":

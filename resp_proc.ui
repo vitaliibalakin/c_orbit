@@ -125,7 +125,12 @@
     </property>
     <item>
      <property name="text">
-      <string>crm3</string>
+      <string>crm1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>c4d2_z</string>
      </property>
     </item>
     <item>

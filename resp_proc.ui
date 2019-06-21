@@ -130,6 +130,16 @@
     </item>
     <item>
      <property name="text">
+      <string>c1d1_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>c1d2_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
       <string>c4d2_z</string>
      </property>
     </item>

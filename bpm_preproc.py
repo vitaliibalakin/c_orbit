@@ -12,6 +12,7 @@ class BpmPreproc(QMainWindow):
     def __init__(self):
         super(BpmPreproc, self).__init__()
         uic.loadUi("for_fft.ui", self)
+        self.show()
         self.bpm_x = {}
         self.bpm_z = {}
         self.chan_bpm_marker = []

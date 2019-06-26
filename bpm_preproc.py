@@ -53,7 +53,7 @@ class BpmPreproc(QMainWindow):
 
     def save_fft(self):
         time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        np.savetxt("for_fft" + " " + time, np.vstack((self.for_fft_x, self.for_fft_z)))
+        np.savetxt("p_for_fft" + " " + time, np.vstack((self.for_fft_x, self.for_fft_z)))
 
     def bpm_numpts(self, chan):
         self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val
@@ -80,6 +80,7 @@ class BpmPreproc(QMainWindow):
                 z = np.append(z, self.bpm_z[key])
             self.chan_x_orbit.setValue(x)
             self.chan_z_orbit.setValue(z)
+            # print(x, z)
 
 
 if __name__ == "__main__":

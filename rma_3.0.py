@@ -12,7 +12,7 @@ from basic_module_2_0 import BasicFunc
 
 
 class CorMagnetization(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=1000, stop=6):
+    def __init__(self, call_upon_completion, name, step=500, stop=6):
         super(CorMagnetization, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None}
@@ -59,7 +59,7 @@ class CorMagnetization(BasicFunc):
             self.chans['Iset'].setValue(self.init_val)
             self.callback(self.name)
         else:
-            self.chans['Iset'].setValue(self.init_val)# + self.step * (-1)**self.counter)
+            self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
             self.counter += 1
             self.time_flag = True
             self.time_stamp = time.time() + 3
@@ -75,7 +75,7 @@ class CorMagnetization(BasicFunc):
         
 
 class CorMeasure(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=60, n_iter=19):
+    def __init__(self, call_upon_completion, name, step=100, n_iter=5):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
@@ -85,7 +85,7 @@ class CorMeasure(BasicFunc):
         self.step = step
         self.n_iter = -1 * n_iter
         self.stop = n_iter + 1
-        self.cor_data = np.zeros([26, ])
+        self.cor_data = np.zeros([30, ])
         self.response = None
         self.status = None
         self.flag = False
@@ -130,7 +130,7 @@ class CorMeasure(BasicFunc):
             self.response = [self.cor_data[1:], self.init_val]
             self.callback(self.name)
         else:
-            self.chans['Iset'].setValue(self.init_val)  # + self.n_iter * self.step)
+            self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
             self.n_iter += 1
             print(self.name, self.n_iter)
             self.time_flag = True
@@ -152,12 +152,12 @@ class CorMeasure(BasicFunc):
     def bpm_proc(self, chan):
         otype = chan.name.split('.')[-1]
         self.bpm_val[otype] = chan.val
-
         if not self.data_flag[otype]:
             self.data_flag[otype] = 1
             if all(self.data_flag.values()):
                 self.cor_data = np.vstack((self.cor_data, np.append(self.bpm_val['x_orbit'],
                                                                     self.bpm_val['z_orbit'])))
+                self.cor_proc()
 
         # if otype == 'x_orbit':
         #     if self.data_flag['x_orbit'] == 0:
@@ -197,13 +197,13 @@ class RMA(BasicFunc):
         #                    'c2f1_q', 'c2d2_q', 'c2f2_q', 'c2d3_q', 'c3f4_q', 'c2f3_q', 'c4f4_q', 'c3d1_q', 'c3f1_q',
         #                    'c3d2_q', 'c3f2_q', 'c3d3_q', 'c4d3_q', 'c3f3_q', 'c4d1_q', 'c4f1_q', 'c4d2_q', 'c4f2_q',
         #                    'c4f3_q']
-        self.cor_names = ['c1d2_z', 'c1d1_z']  # , 'c2d2_z', 'c2d1_z', 'c3d2_z', 'c3d1_z', 'c4d2_z', 'c4d1_z']
+        self.cor_names = ['crm1', 'crm2', 'crm3', 'crm4', 'crm5', 'crm6', 'crm7', 'crm8']
         self.cor_mag_fail = []
         self.stack_names = self.cor_names.copy()
         self.cor_2_resp = {cor: CorMeasure(self.mes_comp, cor) for cor in self.cor_names}
         self.cor_2_mag = {cor: CorMagnetization(self.magn_comp, cor) for cor in self.cor_names}
         self.resp_matr = {name: [] for name in self.cor_names}
-        QTimer.singleShot(3000, self.cor_magnetization)
+        QTimer.singleShot(9000, self.cor_magnetization)
 
     def cor_magnetization(self):
         for cor_name, elem in self.cor_2_mag.items():
@@ -242,7 +242,6 @@ class RMA(BasicFunc):
             if not len(self.stack_names):
                 self.stack_names = self.cor_names.copy()
                 print('mag finished')
-                self.cor_2_mag = None
                 if not len(self.cor_mag_fail):
                     print('Fail List EMPTY')
                 else:

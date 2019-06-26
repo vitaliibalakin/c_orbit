@@ -43,7 +43,7 @@ class CorMagnetization(BasicFunc):
             self.chans['Iset'].setValue(self.init_val)
             self.callback(self.name)
         else:
-            self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
+            self.chans['Iset'].setValue(self.init_val)# + self.step * (-1)**self.counter)
             self.counter += 1
             QTimer.singleShot(3000, ftl.partial(self.checking_equality, self.val, self.magnetiz_proc, self.cor_error))
 
@@ -90,7 +90,7 @@ class CorMeasure(BasicFunc):
             self.response = [self.cor_data[1:], self.init_val]
             self.callback(self.name)
         else:
-            self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
+            self.chans['Iset'].setValue(self.init_val)# + self.n_iter * self.step)
             self.n_iter += 1
             QTimer.singleShot(3000, ftl.partial(self.checking_equality, self.val, self.bpm_proc, self.cor_error))
 

@@ -220,6 +220,7 @@ class CorMeasure(BasicFunc):
             if all(self.data_flag.values()):
                 self.cor_data = np.vstack((self.cor_data, np.append(self.bpm_val['x_orbit'],
                                                                     self.bpm_val['z_orbit'])))
+                # print('im here')
                 self.cor_proc()
 
         # if otype == 'x_orbit':
@@ -252,7 +253,7 @@ class CorMeasure(BasicFunc):
 class RMA(BasicFunc):
     def __init__(self, corr_names=None):
         super(RMA, self).__init__()
-        # self.corr_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
+        # self.cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
         #                    'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
         #                    'rst2.c4d2_z', 'rst2.c4f2_x', 'rst2.c4f1_x', 'rst2.c4d1_z',
         #                    'rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
@@ -270,17 +271,20 @@ class RMA(BasicFunc):
         #                    'rst4.c3f4_z', 'rst4.c4f4_z']
 
         self.main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
-        self.cor_names = ['rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
-                          'rst2.crm8']
+        self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
+                           'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
+                           'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
+                           'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
+                           'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
         self.cor_mag_fail = []
-        self.stack_names = self.cor_names.copy() + self.main_names.copy()
+        self.stack_names = self.cor_names.copy() #+ self.main_names.copy()
         self.main_2_mag = {main: MainMagnetization(self.magn_comp, main) for main in self.main_names}
         self.cor_2_mag = {cor: CorMagnetization(self.magn_comp, cor) for cor in self.cor_names}
         self.mag_types = {'cor': self.cor_2_mag, 'main': self.main_2_mag}
 
         self.cor_2_resp = {cor: CorMeasure(self.mes_comp, cor) for cor in self.cor_names}
         self.resp_matr = {name: [] for name in self.cor_names}
-        QTimer.singleShot(9000, self.cor_magnetization)
+        QTimer.singleShot(9000, self.cor_orbit_response)
 
     def cor_magnetization(self):
         for mtype, coresp_dict in self.mag_types.items():
@@ -323,6 +327,7 @@ class RMA(BasicFunc):
                 if not len(self.cor_mag_fail):
                     print('Fail List EMPTY')
                 else:
+                    print(self.cor_mag_fail)
                     for elem in self.cor_mag_fail:
                         self.stack_names.remove(elem)
                 # self.cor_orbit_response()

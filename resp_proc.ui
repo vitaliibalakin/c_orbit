@@ -125,57 +125,322 @@
     </property>
     <item>
      <property name="text">
-      <string>crm1</string>
+      <string>rst2.c1d2_z</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>c1d1_z</string>
+      <string>rst2.c1f2_x</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>c1d2_z</string>
+      <string>rst2.c1f1_x</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>c4d2_z</string>
+      <string>rst2.c1d1_z</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm2</string>
+      <string>rst2.c2d2_z</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm3</string>
+      <string>rst2.c2f2_x</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm4</string>
+      <string>rst2.c2f1_x</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm5</string>
+      <string>rst2.c2d1_z</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm6</string>
+      <string>rst2.3d2_z</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm7</string>
+      <string>rst2.c3f2_x</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>crm8</string>
+      <string>rst2.c3f1_x</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.c3d1_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.c4d2_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.c4f2_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.c4f1_x</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.c4d1_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst2.crm8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1d1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1f1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1d2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1f2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1d3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1f4_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c1f3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2f4_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2d1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2f1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2d2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2f2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2d3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3f4_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c2f3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4f4_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3d1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3f1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3d2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3f2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3d3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4d3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3f3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4f3_x</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4d1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4f1_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4d2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4f2_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3f3_x</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4d3_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c4f3_q</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst3.c3d3_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c1f3_x</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c1d3_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c2f3_x</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c2d3_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c1f4_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c2f4_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c3f4_z</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>rst4.c4f4_z</string>
      </property>
     </item>
    </widget>

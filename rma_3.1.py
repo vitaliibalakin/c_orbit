@@ -159,7 +159,7 @@ class CorMeasure(BasicFunc):
         self.callback = call_upon_completion
 
         for chan in ['Iset', 'Imes']:
-            cor_chan = cda.DChan('canhw:12.rst2.' + name + '.' + chan)
+            cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
             cor_chan.valueMeasured.connect(self.val_change)
             self.chans[chan] = cor_chan
         self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)

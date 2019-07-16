@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+import sys
+import numpy as np
+import pyqtgraph as pg
+from scipy import optimize
+from PyQt5.QtWidgets import QApplication
+
+
+class FFTFromFile:
+    def __init__(self):
+        super(FFTFromFile, self).__init__()
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
+        data = np.loadtxt('fft/e_for_fft 2019-06-26 04:53:06')
+        res = {}
+        fft = {'x': np.fft.rfft(data[0], len(data[0])), 'z': np.fft.rfft(data[1], len(data[1]))}
+        # freq = np.fft.rfftfreq(len(data[0]), 91.5e-9)
+        freq = np.fft.rfftfreq(len(data[0]), 1)
+        for coor, val in fft.items():
+            res[coor] = np.sqrt(val.real ** 2 + val.imag ** 2)
+
+        plt = pg.plot()
+        plt.showGrid(x=True, y=True)
+        plt.plot(freq, res['z'], pen=pg.mkPen('b', width=2))
+        # sys.exit()
+
+
+if __name__ == "__main__":
+    app = QApplication(['FFT'])
+    w = FFTFromFile()
+    sys.exit(app.exec_())

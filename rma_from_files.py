@@ -1,4 +1,4 @@
-#!/usr/bin/env python3\
+#!/usr/bin/env python3
 
 import sys
 import numpy as np
@@ -48,6 +48,6 @@ class RMAFromFile:
 
 
 if __name__ == "__main__":
-    app = QApplication(['BPM'])
+    app = QApplication(['RMA'])
     w = RMAFromFile()
     sys.exit(app.exec_())

@@ -220,34 +220,7 @@ class CorMeasure(BasicFunc):
             if all(self.data_flag.values()):
                 self.cor_data = np.vstack((self.cor_data, np.append(self.bpm_val['x_orbit'],
                                                                     self.bpm_val['z_orbit'])))
-                # print('im here')
                 self.cor_proc()
-
-        # if otype == 'x_orbit':
-        #     if self.data_flag['x_orbit'] == 0:
-        #         pass
-        #     elif self.data_flag['x_orbit'] == 1:
-        #         self.data_flag['x_orbit'] = 2
-        #         if self.data_flag['z_orbit'] == 2:
-        #             self.step_resp()
-        #     elif self.data_flag['x_orbit'] == 2:
-        #         if self.data_flag['z_orbit'] == 2:
-        #             self.step_resp()
-        # else:
-        #     if self.data_flag['z_orbit'] == 0:
-        #         pass
-        #     elif self.data_flag['z_orbit'] == 1:
-        #         self.data_flag['z_orbit'] = 2
-        #         if self.data_flag['x_orbit'] == 2:
-        #             self.step_resp()
-        #     elif self.data_flag['z_orbit'] == 2:
-        #         if self.data_flag['x_orbit'] == 2:
-        #             self.step_resp()
-    # def step_resp(self):
-    #     self.cor_data = np.vstack((self.cor_data, np.append(self.bpm_val['x_orbit'],
-    #                                                         self.bpm_val['z_orbit'])))
-    #     print('fffffff go next')
-    #     self.cor_proc()
 
 
 class RMA(BasicFunc):

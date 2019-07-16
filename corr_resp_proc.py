@@ -45,7 +45,7 @@ class RespProc(QMainWindow):
         self.comboBox.currentTextChanged.connect(self.bpm_changed)
         self.comboBox_2.currentTextChanged.connect(self.cor_changed)
 
-        self.read_file('c1d1_z')
+        self.read_file('rst2.c1d1_z')
         self.cur_bpm = 'bpm01'
         self.bpm_plot()
 
@@ -58,7 +58,7 @@ class RespProc(QMainWindow):
         cor_info = f.readline()
         f.close()
         init_cur = float(cor_info.split('|')[0].split(' ')[1])
-        cur_step = float(cor_info.split('|')[1])
+        cur_step = 5 #float(cor_info.split('|')[1])
         resp_data = np.loadtxt(cor + '.txt', skiprows=1)
         cur = np.arange(-20 * cur_step, 20 * (cur_step + 1), 20) + init_cur
         mid = int(len(resp_data[0]) / 2)

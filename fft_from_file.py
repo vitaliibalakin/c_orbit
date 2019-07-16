@@ -21,8 +21,13 @@ class FFTFromFile:
             res[coor] = np.sqrt(val.real ** 2 + val.imag ** 2)
 
         plt = pg.plot()
+        plt.setRange(yRange=[0, 1000])
         plt.showGrid(x=True, y=True)
-        plt.plot(freq, res['z'], pen=pg.mkPen('b', width=2))
+        plt.addLegend()
+
+        plt.plot(freq, res['z'], pen=pg.mkPen('b', width=2), name='z fft')
+        plt.plot(freq, res['x'], pen=pg.mkPen('r', width=2), name='x fft')
+
         # sys.exit()
 
 

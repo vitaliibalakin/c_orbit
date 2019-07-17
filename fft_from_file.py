@@ -12,7 +12,7 @@ class FFTFromFile:
         super(FFTFromFile, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        data = np.loadtxt('fft/e_for_fft 2019-06-26 04:53:06')
+        data = np.loadtxt('fft/p_for_fft 2019-06-26 04:58:49')
         res = {}
         fft = {'x': np.fft.rfft(data[0], len(data[0])), 'z': np.fft.rfft(data[1], len(data[1]))}
         # freq = np.fft.rfftfreq(len(data[0]), 91.5e-9)

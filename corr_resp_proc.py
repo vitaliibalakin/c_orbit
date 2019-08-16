@@ -45,7 +45,7 @@ class RespProc(QMainWindow):
         self.comboBox.currentTextChanged.connect(self.bpm_changed)
         self.comboBox_2.currentTextChanged.connect(self.cor_changed)
 
-        self.read_file('rma/positron/rst2.c1d1_z')
+        self.read_file('rma/positron/rst2.c1d2_z')
         self.cur_bpm = 'bpm01'
         self.bpm_plot()
 
@@ -60,8 +60,10 @@ class RespProc(QMainWindow):
         init_cur = float(cor_info.split('|')[0].split(' ')[1])
         cur_step = 5  # float(cor_info.split('|')[1])
         resp_data = np.loadtxt(cor + '.txt', skiprows=1)
-        cur = np.arange(-100 * cur_step, 100 * (cur_step + 1), 20) + init_cur
+        cur = np.arange(-100 * cur_step, 100 * (cur_step + 1), 100) + init_cur
         mid = int(len(resp_data[0]) / 2)
+        print(len(cur))
+        print(len(resp_data[:, 1]))
         for i in range(mid):
             self.bpm_vals_x[self.bpms[i]] = np.vstack((cur, resp_data[:, i]))
             const, pcov = optimize.curve_fit(self.lin_fit, self.bpm_vals_x[self.bpms[i]][0],
@@ -89,6 +91,9 @@ class RespProc(QMainWindow):
         self.plot_z.clear()
         self.plot_z.plot(self.bpm_vals_z[self.cur_bpm][0], self.bpm_vals_z[self.cur_bpm][1], pen=None, symbol='o')
         self.plot_z.plot(self.bpm_vals_z[self.cur_bpm][0], self.bpm_vals_z[self.cur_bpm][2], pen=pg.mkPen('g'))
+        a = pg.TextItem(str(self.bpm_const_z[self.cur_bpm][0]), color=(200, 0, 0), anchor=(1, 1))
+        a.setPos(500, 0.4)
+        self.plot_z.addItem(a)
 
     @staticmethod
     def lin_fit(x, a, c):

@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5 import uic
 
 import sys
 import pycx4.qcda as cda
 import numpy as np
 import time
+from scipy import optimize
+import json
 
 from basic_module_2_1 import BasicFunc
 
 
-class MainMagnetization(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=0.5, stop=6):
-        super(MainMagnetization, self).__init__()
+class Magnetization(BasicFunc):
+    def __init__(self, call_upon_completion, name, step=500, stop=6, odz=100):
+        super(Magnetization, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None}
         self.name = name
@@ -26,6 +28,7 @@ class MainMagnetization(BasicFunc):
         self.time_flag = False
         self.err_flag = False
         self.time_stamp = 0
+        self.odz = odz
         self.callback = call_upon_completion
 
         for chan in ['Iset', 'Imes']:
@@ -40,13 +43,13 @@ class MainMagnetization(BasicFunc):
             if time.time() > self.time_stamp:
                 if chan.name.split('.')[-1] == 'Imes':
                     self.time_flag = False
-                    self.checking_equality(self.val, self.magnetiz_proc, self.cor_error, 1.2)
+                    self.checking_equality(self.val, self.magnetiz_proc, self.error, self.odz)
 
         if self.err_flag:
             if time.time() > self.time_stamp:
                 if chan.name.split('.')[-1] == 'Imes':
                     self.err_flag = False
-                    self.err_verification(self.val, self.magnetiz_proc, self.cor_error, 1.2)
+                    self.err_verification(self.val, self.magnetiz_proc, self.error, self.odz)
 
     def magnetiz_proc(self):
         print(self.name, self.counter)
@@ -57,88 +60,25 @@ class MainMagnetization(BasicFunc):
             self.flag = False
             self.status = 'completed'
             self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name, 'main')
+            self.callback(self.name)
         else:
             self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
             self.counter += 1
             self.time_flag = True
             self.time_stamp = time.time() + 3
 
-    def cor_error(self, reason):
+    def error(self, reason):
         if reason == 'check_eq':
             self.err_flag = True
             self.time_stamp = time.time() + 3
         if reason == 'verif':
             self.status = 'fail'
             self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name, 'main')
+            self.callback(self.name)
 
-
-class CorMagnetization(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=500, stop=6):
-        super(CorMagnetization, self).__init__()
-        self.chans = {'Iset': None, 'Imes': None}
-        self.val = {'Iset': None, 'Imes': None}
-        self.name = name
-        self.init_val = None
-        self.step = step
-        self.stop = stop
-        self.counter = 0
-        self.status = None
-        self.flag = False
-        self.time_flag = False
-        self.err_flag = False
-        self.time_stamp = 0
-        self.callback = call_upon_completion
-
-        for chan in ['Iset', 'Imes']:
-            cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
-            cor_chan.valueMeasured.connect(self.val_change)
-            self.chans[chan] = cor_chan
-
-    def val_change(self, chan):
-        self.val[chan.name.split('.')[-1]] = chan.val
-
-        if self.time_flag:
-            if time.time() > self.time_stamp:
-                if chan.name.split('.')[-1] == 'Imes':
-                    self.time_flag = False
-                    self.checking_equality(self.val, self.magnetiz_proc, self.cor_error, 100)
-
-        if self.err_flag:
-            if time.time() > self.time_stamp:
-                if chan.name.split('.')[-1] == 'Imes':
-                    self.err_flag = False
-                    self.err_verification(self.val, self.magnetiz_proc, self.cor_error, 100)
-
-    def magnetiz_proc(self):
-        print(self.name, self.counter)
-        if not self.flag:
-            self.flag = True
-            self.init_val = self.val['Iset']
-        if self.counter == self.stop:
-            self.flag = False
-            self.status = 'completed'
-            self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name, 'cor')
-        else:
-            self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
-            self.counter += 1
-            self.time_flag = True
-            self.time_stamp = time.time() + 3
-
-    def cor_error(self, reason):
-        if reason == 'check_eq':
-            self.err_flag = True
-            self.time_stamp = time.time() + 3
-        if reason == 'verif':
-            self.status = 'fail'
-            self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name, 'cor')
-        
 
 class CorMeasure(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=100, n_iter=5):
+    def __init__(self, call_upon_completion, name, step=100, n_iter=5, a_bpm=15):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
@@ -148,7 +88,7 @@ class CorMeasure(BasicFunc):
         self.step = step
         self.n_iter = -1 * n_iter
         self.stop = n_iter + 1
-        self.cor_data = np.zeros([30, ])
+        self.cor_data = np.zeros([2*a_bpm, ])
         self.response = None
         self.status = None
         self.flag = False
@@ -223,46 +163,76 @@ class CorMeasure(BasicFunc):
                 self.cor_proc()
 
 
-class RMA(BasicFunc):
-    def __init__(self, corr_names=None):
+class RMA(QMainWindow, BasicFunc):
+    def __init__(self):
         super(RMA, self).__init__()
-        # self.cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
-        #                    'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
-        #                    'rst2.c4d2_z', 'rst2.c4f2_x', 'rst2.c4f1_x', 'rst2.c4d1_z',
-        #                    'rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
-        #                    'rst2.crm8',
-        #                    'rst3.c3d3_z', 'rst3.c3f3_x', 'rst3.c4d3_z', 'rst3.c4f3_x',
-        #                    'rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
-        #                    'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
-        #                    'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
-        #                    'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
-        #                    'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q', 'rst3.Sx2_1F4', 'rst3.Sy2_1F4',
-        #                    'rst3.Sx1_1F4', 'rst3.Sy1_1F4', 'rst3.Sx2_2F4', 'rst3.Sy2_2F4', 'rst3.Sy1_2F4',
-        #                    'rst3.Sx1_2F4', 'rst3.Sx2_3F4', 'rst3.Sy2_3F4', 'rst3.Sy1_3F4', 'rst3.Sx1_3F4',
-        #                    'rst3.Sx2_4F4', 'rst3.Sy2_4F4', 'rst3.Sy1_4F4', 'rst3.Sx1_4F4', 'rst4.cSM1', 'rst4.cSM2',
-        #                    'rst4.c1f4_z', 'rst4.c1d3_z', 'rst4.c1f3_x', 'rst4.c2f4_z', 'rst4.c2d3_z', 'rst4.c2f3_x',
-        #                    'rst4.c3f4_z', 'rst4.c4f4_z']
+        uic.loadUi("rma_main_window.ui", self)
+        self.show()
+        self.rma_ready = 0
+        self.stack_names = []
+        self.cor_fail = []
+        self.cor_names = []
+        self.resp_matr_x = {}
+        self.resp_matr_z = {}
 
-        self.main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
-        self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
-                           'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
-                           'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
-                           'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
-                           'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
-        self.cor_mag_fail = []
-        self.stack_names = self.cor_names.copy() #+ self.main_names.copy()
-        self.main_2_mag = {main: MainMagnetization(self.magn_comp, main) for main in self.main_names}
-        self.cor_2_mag = {cor: CorMagnetization(self.magn_comp, cor) for cor in self.cor_names}
-        self.mag_types = {'cor': self.cor_2_mag, 'main': self.main_2_mag}
+        self.btn_start_rma.clicked.connect(self.start_rma)
+        self.btn_stop_rma.clicked.connect(self.stop_rma)
 
-        self.cor_2_resp = {cor: CorMeasure(self.mes_comp, cor) for cor in self.cor_names}
-        self.resp_matr = {name: [] for name in self.cor_names}
-        QTimer.singleShot(9000, self.cor_orbit_response)
+    def start_rma(self):
+        print('start_rma')
+        if self.rma_ready:
+            self.label_type.setText('RMA')
+            self.rma_ready = 0
+            self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
+                              'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
+                              'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
+                              'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
+                              'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
+            self.stack_names = self.cor_names.copy()
 
-    def cor_magnetization(self):
-        for mtype, coresp_dict in self.mag_types.items():
-            for elem_name, elem in coresp_dict.items():
+            # deleting from stack FAIL elems
+            if not len(self.cor_fail):
+                print('Fail List EMPTY')
+            else:
+                print(self.cor_fail)
+                for elem in self.cor_fail:
+                    if elem in self.stack_names:
+                        self.stack_names.remove(elem)
+                self.cor_fail = []
+            self.cor_2_resp = {
+                cor: CorMeasure(self.mes_comp, cor, step=self.rma_step.value(), n_iter=self.rma_iter.value(), a_bpm=15)
+                for cor in self.stack_names}
+            self.cor_orbit_response()
+        else:
+            self.label_type.setText('Magnetization')
+            cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
+                         'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
+                         'rst2.c4d2_z', 'rst2.c4f2_x', 'rst2.c4f1_x', 'rst2.c4d1_z',
+                         'rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
+                         'rst2.crm8',
+                         'rst3.c3d3_z', 'rst3.c3f3_x', 'rst3.c4d3_z', 'rst3.c4f3_x',
+                         'rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
+                         'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
+                         'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
+                         'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
+                         'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q', 'rst3.Sx2_1F4', 'rst3.Sy2_1F4',
+                         'rst3.Sx1_1F4', 'rst3.Sy1_1F4', 'rst3.Sx2_2F4', 'rst3.Sy2_2F4', 'rst3.Sy1_2F4',
+                         'rst3.Sx1_2F4', 'rst3.Sx2_3F4', 'rst3.Sy2_3F4', 'rst3.Sy1_3F4', 'rst3.Sx1_3F4',
+                         'rst3.Sx2_4F4', 'rst3.Sy2_4F4', 'rst3.Sy1_4F4', 'rst3.Sx1_4F4', 'rst4.cSM1', 'rst4.cSM2',
+                         'rst4.c1f4_z', 'rst4.c1d3_z', 'rst4.c1f3_x', 'rst4.c2f4_z', 'rst4.c2d3_z', 'rst4.c2f3_x',
+                         'rst4.c3f4_z', 'rst4.c4f4_z']
+            main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
+            self.stack_names = main_names.copy() + cor_names.copy()
+            main_2_mag = {main: Magnetization(self.magn_comp, main, step=self.mag_range_main.value(),
+                                              stop=self.mag_iter_main.value(), odz=1.2) for main in main_names}
+            cor_2_mag = {cor: Magnetization(self.magn_comp, cor, step=self.mag_range_cor.value(),
+                                            stop=self.mag_iter_cor.value(), odz=100) for cor in cor_names}
+            self.mag_types = {**main_2_mag.copy(), **cor_2_mag.copy()}
+            for elem_name, elem in self.mag_types.items():
                 elem.magnetiz_proc()
+
+    def stop_rma(self):
+        print('stop_rma')
 
     def cor_orbit_response(self):
         if len(self.stack_names):
@@ -273,41 +243,53 @@ class RMA(BasicFunc):
 
     def mes_comp(self, name):
         self.stack_names.remove(name)
+        print(name, self.cor_2_resp[name].status)
         if self.cor_2_resp[name].status == 'fail':
-            print(name, 'cor fail')
-            # should I or not continue?
+            self.cor_fail.append(name)
             self.cor_orbit_response()
         elif self.cor_2_resp[name].status == 'completed':
-            print(name, 'go to the next step')
-            self.save_cor_resp(name, self.cor_2_resp[name].response)
-            print('queue = ', len(self.stack_names))
+            self.rma_string_calc(name, self.cor_2_resp[name].response)
             self.cor_orbit_response()
         elif not self.cor_2_resp[name].status:
             print(name, 'response error')
         else:
             print(name, 'wtf')
 
-    def magn_comp(self, name, mtype):
-        print(name, self.mag_types[mtype][name].status)
+    def magn_comp(self, name):
+        print(name, self.mag_types[name].status)
         self.stack_names.remove(name)
-        if self.mag_types[mtype][name].status == 'fail':
-            print(name, 'mag fail')
-            self.cor_mag_fail.append(name)
-        elif self.mag_types[mtype][name].status == 'completed':
-            if not len(self.stack_names):
-                self.stack_names = self.cor_names.copy()
-                print('mag finished')
-                if not len(self.cor_mag_fail):
-                    print('Fail List EMPTY')
-                else:
-                    print(self.cor_mag_fail)
-                    for elem in self.cor_mag_fail:
-                        self.stack_names.remove(elem)
-                # self.cor_orbit_response()
-        elif not self.mag_types[mtype][name].status:
+        if self.mag_types[name].status == 'fail':
+            self.cor_fail.append(name)
+        elif not self.mag_types[name].status:
             print(name, 'mag error')
+            self.cor_fail.append(name)
         else:
             print(name, 'wtf')
+
+        if not len(self.stack_names):
+            print('mag finished, rma started')
+            self.rma_ready = 1
+            self.start_rma()
+
+    def rma_string_calc(self, name, data):
+        mid = int(len(data[0]) / 2)
+        buffer_x = []
+        buffer_z = []
+        cur = np.arange(-1 * self.rma_step.value() * self.rma_iter.value(),
+                        self.rma_step.value() * (self.rma_iter.value() + 1), self.rma_step.value())
+        for i in range(mid):
+            const, pcov = optimize.curve_fit(self.lin_fit, cur, data[:, i])
+            buffer_x.append(const[0])
+
+        for i in range(mid, len(data[0]), 1):
+            const, pcov = optimize.curve_fit(self.lin_fit, cur, data[:, i])
+            buffer_z.append(const[0])
+        self.resp_matr_x[name] = buffer_x
+        self.resp_matr_z[name] = buffer_z
+
+    @staticmethod
+    def lin_fit(x, a, c):
+        return a * x + c
 
     def save_cor_resp(self, name, data):
         print(len(data))
@@ -317,7 +299,19 @@ class RMA(BasicFunc):
 
     def save_rma(self):
         print('rma collecting finished')
-        # self.del_chan.setValue('rma': 'file_name')  # +json.dumps
+        list_x_names = []
+        rm_x = []
+        for name, resp in self.resp_matr_x.values():
+            list_x_names.append(name)
+            rm_x.append(resp)
+        np.savetxt(self.rm_name.text() + '_x.txt', np.array(rm_x), header=json.dumps(list_x_names))
+
+        list_z_names = []
+        rm_z = []
+        for name, resp in self.resp_matr_z.values():
+            list_z_names.append(name)
+            rm_z.append(resp)
+        np.savetxt(self.rm_name.text() + '_z.txt', np.array(rm_z), header=json.dumps(list_z_names))
 
 
 if __name__ == "__main__":

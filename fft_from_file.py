@@ -12,7 +12,7 @@ class FFTFromFile:
         super(FFTFromFile, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        data = np.loadtxt('fft/p_for_fft 2019-06-26 04:58:49')
+        data = np.loadtxt('fft/e_for_fft 2019-06-26 04:53:41')
         res = {}
         fft = {'x': np.fft.rfft(data[0], len(data[0])), 'z': np.fft.rfft(data[1], len(data[1]))}
         # freq = np.fft.rfftfreq(len(data[0]), 91.5e-9)
@@ -25,7 +25,7 @@ class FFTFromFile:
         plt.showGrid(x=True, y=True)
         plt.addLegend()
         label_style = {'font-size': '20pt'}
-        plt.setLabel('bottom', units='V', **label_style)
+        # plt.setLabel('bottom', units='V', **label_style)
         plt.plot(freq, res['z'], pen=pg.mkPen('b', width=2), name='z fft')
         plt.plot(freq, res['x'], pen=pg.mkPen('r', width=2), name='x fft')
 

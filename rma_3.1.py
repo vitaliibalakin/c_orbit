@@ -199,11 +199,13 @@ class RMA(QMainWindow, BasicFunc):
                     if elem in self.stack_names:
                         self.stack_names.remove(elem)
                 self.cor_fail = []
+            self.counter = len(self.stack_names)
             self.cor_2_resp = {
                 cor: CorMeasure(self.mes_comp, cor, step=self.rma_step.value(), n_iter=self.rma_iter.value(), a_bpm=15)
                 for cor in self.stack_names}
             self.cor_orbit_response()
         else:
+            self.log_msg.clear()
             self.label_type.setText('Magnetization')
             cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
                          'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
@@ -223,6 +225,7 @@ class RMA(QMainWindow, BasicFunc):
                          'rst4.c3f4_z', 'rst4.c4f4_z']
             main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
             self.stack_names = main_names.copy() + cor_names.copy()
+            self.counter = len(self.stack_names)
             main_2_mag = {main: Magnetization(self.magn_comp, main, step=self.mag_range_main.value(),
                                               stop=self.mag_iter_main.value(), odz=1.2) for main in main_names}
             cor_2_mag = {cor: Magnetization(self.magn_comp, cor, step=self.mag_range_cor.value(),
@@ -238,12 +241,13 @@ class RMA(QMainWindow, BasicFunc):
         if len(self.stack_names):
             self.cor_2_resp[self.stack_names[0]].cor_proc()
         else:
-            print('my work is done here')
+            self.log_msg.append('work is done here, saving RM')
             self.save_rma()
 
     def mes_comp(self, name):
+        self.log_msg.append(name + ": " + self.cor_2_resp[name].status)
         self.stack_names.remove(name)
-        print(name, self.cor_2_resp[name].status)
+        self.prg_bar.setValue((len(self.stack_names) / self.counter) * 100)
         if self.cor_2_resp[name].status == 'fail':
             self.cor_fail.append(name)
             self.cor_orbit_response()
@@ -251,23 +255,23 @@ class RMA(QMainWindow, BasicFunc):
             self.rma_string_calc(name, self.cor_2_resp[name].response)
             self.cor_orbit_response()
         elif not self.cor_2_resp[name].status:
-            print(name, 'response error')
+            self.log_msg.append(name, 'response error')
         else:
-            print(name, 'wtf')
+            self.log_msg.append(name, 'wtf')
 
     def magn_comp(self, name):
-        print(name, self.mag_types[name].status)
+        self.log_msg.append(name + ": " + self.mag_types[name].status)
         self.stack_names.remove(name)
+        self.prg_bar.setValue((1 - len(self.stack_names) / self.counter) * 100)
         if self.mag_types[name].status == 'fail':
             self.cor_fail.append(name)
         elif not self.mag_types[name].status:
-            print(name, 'mag error')
             self.cor_fail.append(name)
         else:
-            print(name, 'wtf')
+            self.log_msg.append(name, 'wtf')
 
         if not len(self.stack_names):
-            print('mag finished, rma started')
+            self.log_msg.append('mag finished, rma started')
             self.rma_ready = 1
             self.start_rma()
 
@@ -292,13 +296,11 @@ class RMA(QMainWindow, BasicFunc):
         return a * x + c
 
     def save_cor_resp(self, name, data):
-        print(len(data))
         if len(data) == 2:
             np.savetxt(name + '.txt', data[0], header=(str(data[1]) + '|' + '19'))
             self.resp_matr[name] = data[0]
 
     def save_rma(self):
-        print('rma collecting finished')
         list_x_names = []
         rm_x = []
         for name, resp in self.resp_matr_x.values():
@@ -312,6 +314,7 @@ class RMA(QMainWindow, BasicFunc):
             list_z_names.append(name)
             rm_z.append(resp)
         np.savetxt(self.rm_name.text() + '_z.txt', np.array(rm_z), header=json.dumps(list_z_names))
+        self.log_msg.append('RM saved')
 
 
 if __name__ == "__main__":

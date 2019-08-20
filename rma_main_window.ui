@@ -30,7 +30,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QProgressBar" name="progress_bar">
+   <widget class="QProgressBar" name="prg_bar">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -345,7 +345,7 @@
      <string>Stop RMA</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="log_msg">
     <property name="geometry">
      <rect>
       <x>280</x>

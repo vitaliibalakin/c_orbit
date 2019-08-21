@@ -103,6 +103,7 @@ class Orbit(QMainWindow):
         uic.loadUi("bpm's.ui", self)
         self.show()
 
+        self.bot_spv = False
         self.cur_iter = 0
         self.CALIBRATE = False
         self.DIR = os.getcwd() + "/saved_modes"
@@ -126,6 +127,16 @@ class Orbit(QMainWindow):
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
         self.btn_close.clicked.connect(self.close)
+        self.btn_bot_on.clicked.connect(self.bot_ctrl)
+        self.btn_bot_off.clicked.connect(self.bot_ctrl)
+
+    def bot_ctrl(self):
+        if self.bot_spv:
+            self.bot_spv = False
+            print('bot supervision is on')
+        else:
+            self.bot_spv = True
+            print('bot supervision is on')
 
     def new_orbit_mes(self, chan):
         self.orbits[chan.name.split('.')[-1]].update_orbit(chan.val)
@@ -150,7 +161,6 @@ class Orbit(QMainWindow):
             orbit = np.loadtxt(self.ic_mode_orbit[chan.val])
         else:
             orbit = np.zeros([2, 16])
-        print(orbit)
         self.orbits['x_orbit'].update_orbit(orbit[0], which_orbit='eq')
         self.orbits['z_orbit'].update_orbit(orbit[1], which_orbit='eq')
 

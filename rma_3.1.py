@@ -192,11 +192,13 @@ class RMA(QMainWindow, BasicFunc):
         self.stack_names = []
         self.cor_fail = []
         self.cor_names = []
+        self.list_names = []
         self.resp_matr_x = {}
         self.resp_matr_z = {}
 
         self.btn_start_rma.clicked.connect(self.start_rma)
         self.btn_stop_rma.clicked.connect(self.stop_rma)
+        self.btn_reverse_rm.clicked.connect(self.reverse_rm)
 
     def start_rma(self):
         print('start_rma')
@@ -321,20 +323,19 @@ class RMA(QMainWindow, BasicFunc):
             self.resp_matr[name] = data[0]
 
     def save_rma(self):
-        list_x_names = []
+        list_names = []
         rm_x = []
         for name, resp in self.resp_matr_x.values():
-            list_x_names.append(name)
+            list_names.append(name)
             rm_x.append(resp)
-        np.savetxt(self.rm_name.text() + '_x.txt', np.array(rm_x), header=json.dumps(list_x_names))
+        np.savetxt(self.rm_name.text() + '_x.txt', np.array(rm_x), header=json.dumps(list_names))
 
-        list_z_names = []
         rm_z = []
         for name, resp in self.resp_matr_z.values():
-            list_z_names.append(name)
             rm_z.append(resp)
-        np.savetxt(self.rm_name.text() + '_z.txt', np.array(rm_z), header=json.dumps(list_z_names))
-        self.rm = {'x': np.array(rm_x), 'z': np.array(rm_z)}
+        np.savetxt(self.rm_name.text() + '_z.txt', np.array(rm_z), header=json.dumps(list_names))
+        self.rm = {'x': np.array(rm_x), 'z': np.array(rm_z), 'cor_names': list_names}
+        self.list_names = list_names
         self.log_msg.append('RM saved')
         self.rm_svd()
 
@@ -345,6 +346,26 @@ class RMA(QMainWindow, BasicFunc):
         u_z, s_z, vh_z = np.linalg.svd(self.rm['z'])
         self.plt_x.plot(s_x, pen=None, symbol='o')
         self.plt_z.plot(s_z, pen=None, symbol='o')
+
+    def reverse_rm(self):
+        x_sv_am = self.x_sv.value()
+        z_sv_am = self.z_sv.value()
+        u_x, s_x, vh_x = np.linalg.svd(self.rm['x'])
+        u_z, s_z, vh_z = np.linalg.svd(self.rm['z'])
+        for i in range(x_sv_am, len(s_x) - 1):
+            s_x[i] = 0
+        for i in range(z_sv_am, len(s_z) - 1):
+            s_z[i] = 0
+        s_x_r = np.zeros((vh_x.shape[0], u_x.shape[0]))
+        s_x_r[:x_sv_am, :x_sv_am] = np.diag(1 / s_x)
+        rm_x_rev = np.dot(np.transpose(vh_x), np.dot(s_x_r, np.transpose(u_x)))
+        s_z_r = np.zeros((vh_z.shape[0], u_z.shape[0]))
+        s_z_r[:z_sv_am, :z_sv_am] = np.diag(1 / s_z)
+        rm_z_rev = np.dot(np.transpose(vh_z), np.dot(s_z_r, np.transpose(u_z)))
+
+        f = open(self.rm_name.text(), 'w')
+        f.write(json.dumps({'x_orbit': rm_x_rev, 'z_orbit': rm_z_rev, 'cor_names': self.list_names}))
+        f.close()
 
 
 if __name__ == "__main__":

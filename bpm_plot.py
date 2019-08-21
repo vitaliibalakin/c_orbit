@@ -10,6 +10,8 @@ import numpy as np
 import pyqtgraph as pg
 import pycx4.qcda as cda
 
+from bot_orbit_cor import BotOrbitCor
+
 
 class BPMPoint(pg.GraphicsObject):
     def __init__(self, **kwargs):
@@ -104,6 +106,7 @@ class Orbit(QMainWindow):
         self.show()
 
         self.bot_spv = False
+        self.rev_rm = {}
         self.cur_iter = 0
         self.CALIBRATE = False
         self.DIR = os.getcwd() + "/saved_modes"
@@ -112,6 +115,8 @@ class Orbit(QMainWindow):
                          'p2v2': self.btn_sel_p2v2}
         self.ic_mode_orbit = {'e2v2': None, 'p2v2': None, 'e2v4': None, 'p2v4': None}
         self.orbits = {'x_orbit': OrbitPlot('x'), 'z_orbit': OrbitPlot('z')}
+        self.eq_orbit = {'x_orbit': np.zeros([1, 16]), 'z_orbit': np.zeros([1, 16])}
+        self.cur_orbit = {'x_orbit': np.zeros([1, 16]), 'z_orbit': np.zeros([1, 16])}
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbits.items():
@@ -135,11 +140,24 @@ class Orbit(QMainWindow):
             self.bot_spv = False
             print('bot supervision is on')
         else:
+            # selection of reverse response matrix
+            rev_rm_name = QFileDialog.getOpenFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')[0]
+            f = open(rev_rm_name, 'r')
+            self.rev_rm = json.loads(f.readline())
+            f.close()
             self.bot_spv = True
             print('bot supervision is on')
 
     def new_orbit_mes(self, chan):
-        self.orbits[chan.name.split('.')[-1]].update_orbit(chan.val)
+        d_type = chan.name.split('.')[-1]
+        self.orbits[d_type].update_orbit(chan.val)
+        self.cur_orbit[d_type] = chan.val
+        # auto correction
+        if self.bot_spv:
+            func = np.sum((self.cur_orbit[d_type] - self.eq_orbit[d_type]) ** 2)
+            if func > 5:
+                BotOrbitCor.make_orbit_cor(self.cur_orbit[d_type] - self.eq_orbit[d_type], self.rev_rm[d_type],
+                                           self.rev_rm['cor_names'])
 
     def save_file(self):
         sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
@@ -163,6 +181,8 @@ class Orbit(QMainWindow):
             orbit = np.zeros([2, 16])
         self.orbits['x_orbit'].update_orbit(orbit[0], which_orbit='eq')
         self.orbits['z_orbit'].update_orbit(orbit[1], which_orbit='eq')
+        self.eq_orbit['x_orbit'] = np.array(orbit[0])
+        self.eq_orbit['z_orbit'] = np.array(orbit[1])
 
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")

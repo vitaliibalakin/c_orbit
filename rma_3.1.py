@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PyQt5 import uic
+import pyqtgraph as pg
 
 import sys
 import pycx4.qcda as cda
@@ -167,8 +168,27 @@ class RMA(QMainWindow, BasicFunc):
     def __init__(self):
         super(RMA, self).__init__()
         uic.loadUi("rma_main_window.ui", self)
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
+        # x sing values plot
+        self.plt_x = pg.PlotWidget(parent=self)
+        self.plt_x.showGrid(x=True, y=True)
+        self.plt_x.addLegend(offset=(0, 100))
+        self.plt_x.setLogMode(False, True)
+        # z sing values plot
+        self.plt_z = pg.PlotWidget(parent=self)
+        self.plt_z.showGrid(x=True, y=True)
+        self.plt_z.addLegend(offset=(0, 100))
+        self.plt_z.setLogMode(False, True)
+
+        p = QVBoxLayout()
+        self.sv_plot.setLayout(p)
+        p.addWidget(self.plt_x)
+        p.addWidget(self.plt_z)
+
         self.show()
         self.rma_ready = 0
+        self.rm = {}
         self.stack_names = []
         self.cor_fail = []
         self.cor_names = []
@@ -314,7 +334,17 @@ class RMA(QMainWindow, BasicFunc):
             list_z_names.append(name)
             rm_z.append(resp)
         np.savetxt(self.rm_name.text() + '_z.txt', np.array(rm_z), header=json.dumps(list_z_names))
+        self.rm = {'x': np.array(rm_x), 'z': np.array(rm_z)}
         self.log_msg.append('RM saved')
+        self.rm_svd()
+
+    def rm_svd(self):
+        self.plt_x.clear()
+        self.plt_z.clear()
+        u_x, s_x, vh_x = np.linalg.svd(self.rm['x'])
+        u_z, s_z, vh_z = np.linalg.svd(self.rm['z'])
+        self.plt_x.plot(s_x, pen=None, symbol='o')
+        self.plt_z.plot(s_z, pen=None, symbol='o')
 
 
 if __name__ == "__main__":

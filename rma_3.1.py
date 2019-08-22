@@ -167,7 +167,7 @@ class CorMeasure(BasicFunc):
 class RMA(QMainWindow, BasicFunc):
     def __init__(self):
         super(RMA, self).__init__()
-        uic.loadUi("rma_main_window.ui", self)
+        uic.loadUi("uis/rma_main_window.ui", self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         # x sing values plot

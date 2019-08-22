@@ -5,14 +5,17 @@ from PyQt5.QtWidgets import QApplication
 import sys
 import numpy as np
 import pycx4.qcda as cda
+import json
 
 
 class BotOrbitCor:
     def __init__(self):
         super(BotOrbitCor, self).__init__()
 
-    def make_orbit_cor(self, d, rev_rm, cor_names):
+    @staticmethod
+    def make_orbit_cor(d, rev_rm, cor_names):
         chans_list = []
+        log = {}
         d_i = np.dot(rev_rm, d)
 
         for cor_name in cor_names:
@@ -21,6 +24,11 @@ class BotOrbitCor:
 
         for i in range(len(d_i) - 1):
             chans_list[i].setValue(d_i[i])
+            log[chans_list[i].name] = d_i[i]
+
+        f = open('last_log', 'w')
+        f.write(json.dumps(log))
+        f.close()
 
 
 if __name__ == "__main__":

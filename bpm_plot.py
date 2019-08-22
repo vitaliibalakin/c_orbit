@@ -78,10 +78,10 @@ class OrbitPlot(pg.PlotWidget):
         aper = np.transpose(np.loadtxt(o_type + '_aper.txt'))
         self.addItem(AperView(aper))
 
-        self.bpms = {'bpm01': 21.4842, 'bpm02': 23.3922, 'bpm03': 24.6282, 'bpm04': 26.5572, 'bpm05': 0.8524,
-                     'bpm07': 2.7974, 'bpm08': 4.0234, 'bpm09': 5.9514, 'bpm10': 7.7664, 'bpm11': 9.6884,
-                     'bpm12': 10.9154, 'bpm13': 12.8604, 'bpm14': 14.5802, 'bpm15': 16.5152, 'bpm16': 17.7697} #,
-                     #'bpm17': 19.6742}
+        self.bpms = {'bpm01': 0, 'bpm02': 1.908, 'bpm03': 3.144, 'bpm04': 5.073, 'bpm05': 6.7938,
+                     'bpm07': 8.7388, 'bpm08': 9.9648, 'bpm09': 11.8928, 'bpm10': 13.7078, 'bpm11': 15.6298,
+                     'bpm12': 16.8568, 'bpm13': 18.8018, 'bpm14': 20.5216, 'bpm15': 22.4566, 'bpm16': 23.7111}  # ,
+        # 'bpm17': 25.6156}
         self.bpm_coor = sorted(self.bpms.values())
 
         for i in range(len(self.bpm_coor)):
@@ -102,7 +102,7 @@ class Orbit(QMainWindow):
         super(Orbit, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        uic.loadUi("bpm's.ui", self)
+        uic.loadUi("uis/bpm's.ui", self)
         self.show()
 
         self.bot_spv = False

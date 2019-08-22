@@ -23,8 +23,8 @@ class BotOrbitCor:
             chans_list.append(cor_chan)
 
         for i in range(len(d_i) - 1):
-            chans_list[i].setValue(d_i[i])
-            log[chans_list[i].name] = d_i[i]
+            chans_list[i].setValue(d_i[i] / 100)
+            log[chans_list[i].name] = d_i[i] / 100
 
         f = open('last_log', 'w')
         f.write(json.dumps(log))

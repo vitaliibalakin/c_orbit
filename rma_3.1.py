@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QTableWidget, QTableWidgetItem
 from PyQt5 import uic
 import pyqtgraph as pg
 
@@ -164,27 +164,25 @@ class CorMeasure(BasicFunc):
                 self.cor_proc()
 
 
+class Table:
+    def __init__(self, table_config):
+        super(Table, self).__init__()
+
+
 class RMA(QMainWindow, BasicFunc):
     def __init__(self):
         super(RMA, self).__init__()
         uic.loadUi("uis/rma_main_window.ui", self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        # x sing values plot
-        self.plt_x = pg.PlotWidget(parent=self)
-        self.plt_x.showGrid(x=True, y=True)
-        self.plt_x.addLegend(offset=(0, 100))
-        self.plt_x.setLogMode(False, True)
-        # z sing values plot
-        self.plt_z = pg.PlotWidget(parent=self)
-        self.plt_z.showGrid(x=True, y=True)
-        self.plt_z.addLegend(offset=(0, 100))
-        self.plt_z.setLogMode(False, True)
-
+        # sing values plot
+        self.plt = pg.PlotWidget(parent=self)
+        self.plt.showGrid(x=True, y=True)
+        self.plt.addLegend(offset=(0, 100))
+        self.plt.setLogMode(False, True)
         p = QVBoxLayout()
         self.sv_plot.setLayout(p)
-        p.addWidget(self.plt_x)
-        p.addWidget(self.plt_z)
+        p.addWidget(self.plt)
 
         self.show()
         self.rma_ready = 0
@@ -193,8 +191,7 @@ class RMA(QMainWindow, BasicFunc):
         self.cor_fail = []
         self.cor_names = []
         self.list_names = []
-        self.resp_matr_x = {}
-        self.resp_matr_z = {}
+        self.resp_matr_dict = {}
 
         self.btn_start_rma.clicked.connect(self.start_rma)
         self.btn_stop_rma.clicked.connect(self.stop_rma)
@@ -298,20 +295,13 @@ class RMA(QMainWindow, BasicFunc):
             self.start_rma()
 
     def rma_string_calc(self, name, data):
-        mid = int(len(data[0]) / 2)
-        buffer_x = []
-        buffer_z = []
+        buffer = []
         cur = np.arange(-1 * self.rma_step.value() * self.rma_iter.value(),
                         self.rma_step.value() * (self.rma_iter.value() + 1), self.rma_step.value())
-        for i in range(mid):
+        for i in range(len(data[0])):
             const, pcov = optimize.curve_fit(self.lin_fit, cur, data[:, i])
-            buffer_x.append(const[0])
-
-        for i in range(mid, len(data[0]), 1):
-            const, pcov = optimize.curve_fit(self.lin_fit, cur, data[:, i])
-            buffer_z.append(const[0])
-        self.resp_matr_x[name] = buffer_x
-        self.resp_matr_z[name] = buffer_z
+            buffer.append(const[0])
+        self.resp_matr_dict[name] = buffer
 
     @staticmethod
     def lin_fit(x, a, c):
@@ -320,51 +310,38 @@ class RMA(QMainWindow, BasicFunc):
     def save_cor_resp(self, name, data):
         if len(data) == 2:
             np.savetxt(name + '.txt', data[0], header=(str(data[1]) + '|' + '19'))
-            self.resp_matr[name] = data[0]
+            self.resp_matr_dict[name] = data[0]
 
     def save_rma(self):
         list_names = []
-        rm_x = []
-        for name, resp in self.resp_matr_x.values():
+        rm = []
+        for name, resp in self.resp_matr_dict.values():
             list_names.append(name)
-            rm_x.append(resp)
-        np.savetxt(self.rm_name.text() + '_x.txt', np.array(rm_x), header=json.dumps(list_names))
-
-        rm_z = []
-        for name, resp in self.resp_matr_z.values():
-            rm_z.append(resp)
-        np.savetxt(self.rm_name.text() + '_z.txt', np.array(rm_z), header=json.dumps(list_names))
-        self.rm = {'x': np.array(rm_x), 'z': np.array(rm_z), 'cor_names': list_names}
+            rm.append(resp)
+        np.savetxt(self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(list_names))
+        self.rm = {'rm': np.array(rm), 'cor_names': list_names}
         self.list_names = list_names
         self.log_msg.append('RM saved')
         self.rm_svd()
 
     def rm_svd(self):
         self.plt_x.clear()
-        self.plt_z.clear()
-        u_x, s_x, vh_x = np.linalg.svd(self.rm['x'])
-        u_z, s_z, vh_z = np.linalg.svd(self.rm['z'])
-        self.plt_x.plot(s_x, pen=None, symbol='o')
-        self.plt_z.plot(s_z, pen=None, symbol='o')
+        u, s, vh = np.linalg.svd(self.rm['rm'])
+        self.plt.plot(s, pen=None, symbol='o')
 
     def reverse_rm(self):
-        x_sv_am = self.x_sv.value()
-        z_sv_am = self.z_sv.value()
-        u_x, s_x, vh_x = np.linalg.svd(self.rm['x'])
-        u_z, s_z, vh_z = np.linalg.svd(self.rm['z'])
-        for i in range(x_sv_am, len(s_x) - 1):
-            s_x[i] = 0
-        for i in range(z_sv_am, len(s_z) - 1):
-            s_z[i] = 0
-        s_x_r = np.zeros((vh_x.shape[0], u_x.shape[0]))
-        s_x_r[:x_sv_am, :x_sv_am] = np.diag(1 / s_x)
-        rm_x_rev = np.dot(np.transpose(vh_x), np.dot(s_x_r, np.transpose(u_x)))
-        s_z_r = np.zeros((vh_z.shape[0], u_z.shape[0]))
-        s_z_r[:z_sv_am, :z_sv_am] = np.diag(1 / s_z)
-        rm_z_rev = np.dot(np.transpose(vh_z), np.dot(s_z_r, np.transpose(u_z)))
-
+        sv_am = self.sv.value()
+        u, s, vh = np.linalg.svd(self.rm['rm'])
+        # small to zero, needed to 1 /
+        for i in range(sv_am, len(s) - 1):
+            s[i] = 0
+        for i in range(sv_am):
+            s[i] = 1 / s[i]
+        s_r = np.zeros((vh.shape[0], u.shape[0]))
+        s_r[:sv_am, :sv_am] = np.diag(s)
+        rm_rev = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
         f = open(self.rm_name.text(), 'w')
-        f.write(json.dumps({'x_orbit': rm_x_rev, 'z_orbit': rm_z_rev, 'cor_names': self.list_names}))
+        f.write(json.dumps({'rm_rev': rm_rev, 'cor_names': self.list_names}))
         f.close()
 
 

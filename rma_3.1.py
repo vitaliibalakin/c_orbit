@@ -239,57 +239,60 @@ class RMA(QMainWindow, BasicFunc):
         self.table = Table(self.cor_set_table)
 
     def start_rma(self):
-        print('start_rma')
+        self.log_msg.append('start_rma')
         if self.rma_ready:
             self.label_type.setText('RMA')
             self.rma_ready = 0
-            self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
-                              'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
-                              'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
-                              'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
-                              'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
-            self.stack_names = self.cor_names.copy()
+            # self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
+            #                   'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
+            #                   'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
+            #                   'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
+            #                   'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
 
             # deleting from stack FAIL elems
+            for cor in self.table.cors_list:
+                if not (cor['name'] in self.cor_fail):
+                    self.stack_names.append(cor['name'])
+                    self.cor_2_resp[cor['name']] = CorMeasure(self.mes_comp, cor['name'], step=cor['rm_step'],
+                                                              n_iter=cor['rm_iter'], a_bpm=16)
             if not len(self.cor_fail):
-                print('Fail List EMPTY')
+                self.log_msg.append('Fail List EMPTY')
             else:
-                print(self.cor_fail)
-                for elem in self.cor_fail:
-                    if elem in self.stack_names:
-                        self.stack_names.remove(elem)
+                self.log_msg.append(self.cor_fail)
                 self.cor_fail = []
             self.counter = len(self.stack_names)
-            self.cor_2_resp = {
-                cor: CorMeasure(self.mes_comp, cor, step=self.rma_step.value(), n_iter=self.rma_iter.value(), a_bpm=15)
-                for cor in self.stack_names}
             self.cor_orbit_response()
         else:
             self.log_msg.clear()
             self.label_type.setText('Magnetization')
-            cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
-                         'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
-                         'rst2.c4d2_z', 'rst2.c4f2_x', 'rst2.c4f1_x', 'rst2.c4d1_z',
-                         'rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
-                         'rst2.crm8',
-                         'rst3.c3d3_z', 'rst3.c3f3_x', 'rst3.c4d3_z', 'rst3.c4f3_x',
-                         'rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
-                         'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
-                         'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
-                         'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
-                         'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q', 'rst3.Sx2_1F4', 'rst3.Sy2_1F4',
-                         'rst3.Sx1_1F4', 'rst3.Sy1_1F4', 'rst3.Sx2_2F4', 'rst3.Sy2_2F4', 'rst3.Sy1_2F4',
-                         'rst3.Sx1_2F4', 'rst3.Sx2_3F4', 'rst3.Sy2_3F4', 'rst3.Sy1_3F4', 'rst3.Sx1_3F4',
-                         'rst3.Sx2_4F4', 'rst3.Sy2_4F4', 'rst3.Sy1_4F4', 'rst3.Sx1_4F4', 'rst4.cSM1', 'rst4.cSM2',
-                         'rst4.c1f4_z', 'rst4.c1d3_z', 'rst4.c1f3_x', 'rst4.c2f4_z', 'rst4.c2d3_z', 'rst4.c2f3_x',
-                         'rst4.c3f4_z', 'rst4.c4f4_z']
+            # cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
+            #              'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
+            #              'rst2.c4d2_z', 'rst2.c4f2_x', 'rst2.c4f1_x', 'rst2.c4d1_z',
+            #              'rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
+            #              'rst2.crm8',
+            #              'rst3.c3d3_z', 'rst3.c3f3_x', 'rst3.c4d3_z', 'rst3.c4f3_x',
+            #              'rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
+            #              'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
+            #              'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
+            #              'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
+            #              'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q', 'rst3.Sx2_1F4', 'rst3.Sy2_1F4',
+            #              'rst3.Sx1_1F4', 'rst3.Sy1_1F4', 'rst3.Sx2_2F4', 'rst3.Sy2_2F4', 'rst3.Sy1_2F4',
+            #              'rst3.Sx1_2F4', 'rst3.Sx2_3F4', 'rst3.Sy2_3F4', 'rst3.Sy1_3F4', 'rst3.Sx1_3F4',
+            #              'rst3.Sx2_4F4', 'rst3.Sy2_4F4', 'rst3.Sy1_4F4', 'rst3.Sx1_4F4', 'rst4.cSM1', 'rst4.cSM2',
+            #              'rst4.c1f4_z', 'rst4.c1d3_z', 'rst4.c1f3_x', 'rst4.c2f4_z', 'rst4.c2d3_z', 'rst4.c2f3_x',
+            #              'rst4.c3f4_z', 'rst4.c4f4_z']
             main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
-            self.stack_names = main_names.copy() + cor_names.copy()
-            self.counter = len(self.stack_names)
             main_2_mag = {main: Magnetization(self.magn_comp, main, step=self.mag_range_main.value(),
                                               stop=self.mag_iter_main.value(), odz=1.2) for main in main_names}
-            cor_2_mag = {cor: Magnetization(self.magn_comp, cor, step=self.mag_range_cor.value(),
-                                            stop=self.mag_iter_cor.value(), odz=100) for cor in cor_names}
+            self.stack_names = main_names.copy()
+            cor_2_mag = {}
+            for cor in self.table.cors_list:
+                self.stack_names.append(cor['name'])
+                cor_2_mag[cor] = Magnetization(self.magn_comp, cor['name'], step=cor['mag_range'], stop=cor['mag_iter'],
+                                               odz=100)
+            self.counter = len(self.stack_names)
+            # cor_2_mag = {cor: Magnetization(self.magn_comp, cor['name'], step=cor['mag_range'],
+            #                                 stop=cor['mag_iter'], odz=100) for cor in self.table.cors_list}
             self.mag_types = {**main_2_mag.copy(), **cor_2_mag.copy()}
             for elem_name, elem in self.mag_types.items():
                 elem.magnetiz_proc()

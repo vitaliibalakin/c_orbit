@@ -78,11 +78,10 @@ class OrbitPlot(pg.PlotWidget):
         aper = np.transpose(np.loadtxt(o_type + '_aper.txt'))
         self.addItem(AperView(aper))
 
-        self.bpms = {'bpm01': 0, 'bpm02': 1.908, 'bpm03': 3.144, 'bpm04': 5.073, 'bpm05': 6.7938,
-                     'bpm07': 8.7388, 'bpm08': 9.9648, 'bpm09': 11.8928, 'bpm10': 13.7078, 'bpm11': 15.6298,
-                     'bpm12': 16.8568, 'bpm13': 18.8018, 'bpm14': 20.5216, 'bpm15': 22.4566, 'bpm16': 23.7111,
-                     'bpm17': 25.6156}
-        self.bpm_coor = sorted(self.bpms.values())
+        self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
+                     'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.bpm_coor = [0, 1.908, 3.144, 5.073, 6.7938, 8.7388, 9.9648, 11.8928, 13.7078, 15.6298, 16.8568, 18.8018,
+                         20.5216, 22.4566, 23.7111, 25.6156]
 
         for i in range(len(self.bpm_coor)):
             bpm_e = BPMPoint(x=self.bpm_coor[i], color=QtCore.Qt.blue)
@@ -92,9 +91,14 @@ class OrbitPlot(pg.PlotWidget):
             self.pos['eq'].append(bpm_e)
             self.pos['cur'].append(bpm_c)
 
-    def update_orbit(self, orbit, which_orbit='cur'):
-        for i in range(len(self.pos[which_orbit])):
-            self.pos[which_orbit][i].update_pos(orbit[i])
+    def update_orbit(self, orbit, bpm_list, which_orbit='cur'):
+        for i in range(len(self.bpms)):
+            if self.bpms[i] in bpm_list:
+                self.pos[which_orbit][i].update_pos(orbit[i])
+            else:
+                self.pos[which_orbit][i].update_pos(50.0)
+        # for i in range(len(self.pos[which_orbit])):
+        #     self.pos[which_orbit][i].update_pos(orbit[i])
 
 
 class Orbit(QMainWindow):
@@ -105,6 +109,7 @@ class Orbit(QMainWindow):
         uic.loadUi("uis/bpm's.ui", self)
         self.show()
 
+        self.bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09']
         self.bot_spv = False
         self.rev_rm = {}
         self.cur_iter = 0
@@ -150,7 +155,7 @@ class Orbit(QMainWindow):
 
     def new_orbit_mes(self, chan):
         d_type = chan.name.split('.')[-1]
-        self.orbits[d_type].update_orbit(chan.val)
+        self.orbits[d_type].update_orbit(chan.val, self.bpm_list)
         self.cur_orbit[d_type] = chan.val
         # auto correction
         if self.bot_spv:
@@ -179,8 +184,8 @@ class Orbit(QMainWindow):
             orbit = np.loadtxt(self.ic_mode_orbit[chan.val])
         else:
             orbit = np.zeros([2, 16])
-        self.orbits['x_orbit'].update_orbit(orbit[0], which_orbit='eq')
-        self.orbits['z_orbit'].update_orbit(orbit[1], which_orbit='eq')
+        self.orbits['x_orbit'].update_orbit(orbit[0], self.bpm_list, which_orbit='eq')
+        self.orbits['z_orbit'].update_orbit(orbit[1], self.bpm_list, which_orbit='eq')
         self.eq_orbit['x_orbit'] = np.array(orbit[0])
         self.eq_orbit['z_orbit'] = np.array(orbit[1])
 

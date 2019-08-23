@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QSpinBox, QTableWidgetItem
 from PyQt5 import uic
 import pyqtgraph as pg
 
@@ -164,9 +164,48 @@ class CorMeasure(BasicFunc):
                 self.cor_proc()
 
 
+class RMSpinBox(QSpinBox):
+    def __init__(self, iter=100):
+        super(RMSpinBox, self).__init__()
+        self.setMaximum(1000)
+        self.setValue(0)
+        self.setSingleStep(iter)
+
+
 class Table:
-    def __init__(self, table_config):
+    def __init__(self, table):
         super(Table, self).__init__()
+        self.table = table
+        self.cors_list = []
+        # for cor in ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q']:
+        #     self.add_row(cor)
+        # print(self.table.rowCount())
+        # self.remove_row('rst3.c1f1_q')
+        # print(self.table.rowCount())
+        # self.remove_row('rst3.c1d3_q')
+
+    def add_row(self, name):
+        row_num = self.table.rowCount()
+        self.table.insertRow(row_num)
+        self.table.setItem(row_num, 0, QTableWidgetItem(name))
+        cor_dict = {'name': name, 'mag_range': RMSpinBox(), 'mag_iter': RMSpinBox(1), 'rm_step': RMSpinBox(),
+                    'rm_iter': RMSpinBox(1)}
+        self.table.setCellWidget(row_num, 1, cor_dict['mag_range'])
+        self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
+        self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])
+        self.table.setCellWidget(row_num, 4, cor_dict['rm_iter'])
+        self.cors_list.append(cor_dict)
+        print(self.cors_list)
+
+    def remove_row(self, name):
+        i = 0
+        for elem in self.cors_list:
+            print(elem['name'], name)
+            if elem['name'] == name:
+                self.table.removeRow(i)
+                del(self.cors_list[i])
+                break
+            i += 1
 
 
 class RMA(QMainWindow, BasicFunc):
@@ -178,12 +217,12 @@ class RMA(QMainWindow, BasicFunc):
         # sing values plot
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
-        self.plt.addLegend(offset=(0, 100))
         self.plt.setLogMode(False, True)
         p = QVBoxLayout()
         self.sv_plot.setLayout(p)
         p.addWidget(self.plt)
 
+        self.cors_set = []
         self.show()
         self.rma_ready = 0
         self.rm = {}
@@ -196,6 +235,8 @@ class RMA(QMainWindow, BasicFunc):
         self.btn_start_rma.clicked.connect(self.start_rma)
         self.btn_stop_rma.clicked.connect(self.stop_rma)
         self.btn_reverse_rm.clicked.connect(self.reverse_rm)
+
+        self.table = Table(self.cor_set_table)
 
     def start_rma(self):
         print('start_rma')

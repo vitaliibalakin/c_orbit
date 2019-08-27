@@ -119,6 +119,7 @@ class Orbit(QMainWindow):
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
         self.ic_mode_orbit = {'e2v2': None, 'p2v2': None, 'e2v4': None, 'p2v4': None}
+        # plot space for orbits
         self.orbits = {'x_orbit': OrbitPlot('x'), 'z_orbit': OrbitPlot('z')}
         self.eq_orbit = {'x_orbit': np.zeros([1, 16]), 'z_orbit': np.zeros([1, 16])}
         self.cur_orbit = {'x_orbit': np.zeros([1, 16]), 'z_orbit': np.zeros([1, 16])}
@@ -126,6 +127,14 @@ class Orbit(QMainWindow):
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbits.items():
             p.addWidget(plot)
+        # plot space for fft
+        self.plt = pg.PlotWidget(parent=self)
+        self.plt.showGrid(x=True, y=True)
+        self.plt.setLogMode(False, True)
+        self.plt.addLegend()
+        d = QVBoxLayout()
+        self.plot_fft.setLayout(d)
+        d.addWidget(self.plt)
 
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
@@ -202,6 +211,11 @@ class Orbit(QMainWindow):
         f.write(json.dumps(self.ic_mode_orbit))
         f.close()
         self.switch_state(self.chan_ic_mode)
+
+    def fft_plot(self, chan):
+        res = json.loads(chan.val)
+        self.plt.plot(res['freq'], res['z'], pen=pg.mkPen('b', width=2), name='z fft')
+        self.plt.plot(res['freq'], res['x'], pen=pg.mkPen('r', width=2), name='x fft')
 
 
 if __name__ == "__main__":

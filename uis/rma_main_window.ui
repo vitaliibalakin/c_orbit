@@ -17,7 +17,7 @@
    <widget class="QProgressBar" name="prg_bar">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>140</x>
       <y>450</y>
       <width>651</width>
       <height>23</height>
@@ -117,7 +117,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_start_rma">
+   <widget class="QPushButton" name="btn_start_proc">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -127,10 +127,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>Start RMA</string>
+     <string>Start Procedure</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_stop_rma">
+   <widget class="QPushButton" name="btn_stop_proc">
     <property name="geometry">
      <rect>
       <x>800</x>
@@ -140,7 +140,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Stop RMA</string>
+     <string>Stop Procedure</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="log_msg">

@@ -65,8 +65,7 @@ class BpmPreproc(QMainWindow):
         self.bpm_z[bpm_num] = np.mean(chan.val[2*data_len:3*data_len-1])
 
         if bpm_num == 'bpm15':
-            self.for_fft_x = chan.val[data_len:2*data_len-1]
-            self.for_fft_z = chan.val[2*data_len:3*data_len-1]
+            self.fft(x_array=chan.val[data_len:2*data_len-1], z_array=chan.val[2 * data_len:3 * data_len - 1])
 
     def bpm_marker(self, chan):
         self.bpm_val_ren_cur[chan.name.split('.')[-2]] = 1
@@ -84,7 +83,14 @@ class BpmPreproc(QMainWindow):
                     z = np.append(z, 0.0)
             self.chan_x_orbit.setValue(x)
             self.chan_z_orbit.setValue(z)
-            # print(x, z)
+
+    def fft(self, x_array, z_array):
+        res = {}
+        fft = {'x': np.fft.rfft(x_array, len(x_array)), 'z': np.fft.rfft(z_array, len(z_array))}
+        res['freq'] = np.fft.rfftfreq(len(x_array), 1)
+        for coor, val in fft.items():
+            res[coor] = np.sqrt(val.real ** 2 + val.imag ** 2)
+        # SEND
 
 
 if __name__ == "__main__":

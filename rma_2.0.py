@@ -123,11 +123,11 @@ class RMA(BasicFunc):
 
     def cor_magnetization(self):
         for cor_name, elem in self.cor_2_mag.items():
-            elem.magnetiz_proc()
+            elem.proc()
 
     def cor_orbit_response(self):
         if len(self.stack_names):
-            self.cor_2_resp[self.stack_names[0]].cor_proc()
+            self.cor_2_resp[self.stack_names[0]].proc()
         else:
             print('my work is done here')
             self.save_rma()

@@ -13,7 +13,7 @@ class Test(QMainWindow):
         super(Test, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        uic.loadUi("test.ui", self)
+        uic.loadUi("uis/test.ui", self)
         self.show()
 
         self.cur_bpm = 'bpm01'

@@ -90,6 +90,7 @@ class OrbitPlot(pg.PlotWidget):
             self.addItem(bpm_c)
             self.pos['eq'].append(bpm_e)
             self.pos['cur'].append(bpm_c)
+        print(len(self.pos['eq']))
 
     def update_orbit(self, orbit, bpm_list, which_orbit='cur'):
         for i in range(len(self.bpms)):
@@ -109,7 +110,8 @@ class Orbit(QMainWindow):
         uic.loadUi("uis/bpm's.ui", self)
         self.show()
 
-        self.bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09']
+        self.bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
+                     'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.bot_spv = False
         self.rev_rm = {}
         self.cur_iter = 0
@@ -128,21 +130,26 @@ class Orbit(QMainWindow):
         for o_type, plot in self.orbits.items():
             p.addWidget(plot)
         # plot space for fft
-        self.plt = pg.PlotWidget(parent=self)
-        self.plt.showGrid(x=True, y=True)
-        self.plt.setLogMode(False, True)
-        self.plt.addLegend()
+        self.plt_fft = pg.PlotWidget(parent=self)
+        self.plt_fft.showGrid(x=True, y=True)
+        self.plt_fft.setLogMode(False, True)
+        self.plt_fft.addLegend()
         d = QVBoxLayout()
         self.plot_fft.setLayout(d)
-        d.addWidget(self.plt)
+        d.addWidget(self.plt_fft)
 
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
         self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
+        self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
+        self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
+
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(self.load_file)
         self.chan_x_orbit.valueMeasured.connect(self.new_orbit_mes)
         self.chan_z_orbit.valueMeasured.connect(self.new_orbit_mes)
+        self.chan_x_fft.valueMeasured.connect(self.fft_plot)
+        self.chan_z_fft.valueMeasured.connect(self.fft_plot)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
         self.btn_close.clicked.connect(self.close)
@@ -160,7 +167,7 @@ class Orbit(QMainWindow):
             self.rev_rm = json.loads(f.readline())
             f.close()
             self.bot_spv = True
-            print('bot supervision is on')
+            print('bot supervision is off')
 
     def new_orbit_mes(self, chan):
         d_type = chan.name.split('.')[-1]
@@ -213,9 +220,10 @@ class Orbit(QMainWindow):
         self.switch_state(self.chan_ic_mode)
 
     def fft_plot(self, chan):
-        res = json.loads(chan.val)
-        self.plt.plot(res['freq'], res['z'], pen=pg.mkPen('b', width=2), name='z fft')
-        self.plt.plot(res['freq'], res['x'], pen=pg.mkPen('r', width=2), name='x fft')
+        self.plt_fft.clear()
+        freq = np.fft.rfftfreq(2*len(chan.val)-1, 1)
+        self.plt_fft.plot(freq, chan.val, pen=pg.mkPen('b', width=2))
+        # self.plt_fft.plot(freq, chan.val, pen=pg.mkPen('r', width=2), name='x fft')
 
 
 if __name__ == "__main__":

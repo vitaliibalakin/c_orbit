@@ -18,9 +18,8 @@ class BpmPreproc(QMainWindow):
         self.chan_bpm_marker = []
         self.chan_bpm_numpts = []
         self.chan_bpm_vals = []
-        self.for_fft_x = []
-        self.for_fft_z = []
-        self.cur_bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09']
+        self.cur_bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
+                     'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
 
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
@@ -32,7 +31,8 @@ class BpmPreproc(QMainWindow):
 
         self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
         self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
-        self.btn_fft.clicked.connect(self.save_fft)
+        self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
+        self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
         print('start')
 
         for bpm, bpm_coor in self.bpm_val_renew.items():
@@ -51,10 +51,6 @@ class BpmPreproc(QMainWindow):
             chan.valueMeasured.connect(self.bpm_marker)
             self.chan_bpm_marker.append(chan)
 
-    def save_fft(self):
-        time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        np.savetxt("p_for_fft" + " " + time, np.vstack((self.for_fft_x, self.for_fft_z)))
-
     def bpm_numpts(self, chan):
         self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val
 
@@ -65,9 +61,11 @@ class BpmPreproc(QMainWindow):
         self.bpm_z[bpm_num] = np.mean(chan.val[2*data_len:3*data_len-1])
 
         if bpm_num == 'bpm15':
+            print(data_len)
             self.fft(x_array=chan.val[data_len:2*data_len-1], z_array=chan.val[2 * data_len:3 * data_len - 1])
 
     def bpm_marker(self, chan):
+        # print('mark')
         self.bpm_val_ren_cur[chan.name.split('.')[-2]] = 1
         if all(sorted(self.bpm_val_ren_cur.values())):
             for key in self.bpm_val_renew:
@@ -86,11 +84,16 @@ class BpmPreproc(QMainWindow):
 
     def fft(self, x_array, z_array):
         res = {}
+        print(x_array, z_array)
         fft = {'x': np.fft.rfft(x_array, len(x_array)), 'z': np.fft.rfft(z_array, len(z_array))}
         res['freq'] = np.fft.rfftfreq(len(x_array), 1)
         for coor, val in fft.items():
             res[coor] = np.sqrt(val.real ** 2 + val.imag ** 2)
-        # SEND
+        x_freq = res['freq'][np.argmax(res['x'][20:])]
+        z_freq = res['freq'][np.argmax(res['z'][20:])]
+        print(x_freq, z_freq)
+        self.chan_x_fft.setValue(res['x'])
+        self.chan_z_fft.setValue(res['z'])
 
 
 if __name__ == "__main__":

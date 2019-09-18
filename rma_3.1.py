@@ -2,6 +2,7 @@
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QSpinBox, QTableWidgetItem
 from PyQt5 import uic
+from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 
 import sys
@@ -15,7 +16,7 @@ from basic_module_2_1 import BasicFunc
 
 
 class Magnetization(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=500, stop=6, odz=100):
+    def __init__(self, call_upon_completion, name, step, stop, odz, prg):
         super(Magnetization, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None}
@@ -30,6 +31,7 @@ class Magnetization(BasicFunc):
         self.err_flag = False
         self.time_stamp = 0
         self.odz = odz
+        self.prg = prg
         self.callback = call_upon_completion
 
         for chan in ['Iset', 'Imes']:
@@ -53,7 +55,7 @@ class Magnetization(BasicFunc):
                     self.err_verification(self.val, self.proc, self.error, self.odz)
 
     def proc(self):
-        print(self.name, self.counter)
+        print('hmm', self.counter)
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']
@@ -63,6 +65,7 @@ class Magnetization(BasicFunc):
             self.chans['Iset'].setValue(self.init_val)
             self.callback(self.name)
         else:
+            self.prg.setValue(100 * self.counter / (self.stop - 1))
             self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
             self.counter += 1
             self.time_flag = True
@@ -79,7 +82,7 @@ class Magnetization(BasicFunc):
 
 
 class CorMeasure(BasicFunc):
-    def __init__(self, call_upon_completion, name, step=100, n_iter=5, a_bpm=16):
+    def __init__(self, call_upon_completion, name, step, n_iter, a_bpm, prg):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
@@ -88,6 +91,7 @@ class CorMeasure(BasicFunc):
         self.init_val = None
         self.step = step
         self.n_iter = -1 * n_iter
+        self.prg = prg
         self.stop = n_iter + 1
         self.cor_data = np.zeros([2*a_bpm, ])
         self.response = None
@@ -124,6 +128,7 @@ class CorMeasure(BasicFunc):
                     self.err_verification(self.val, self.data_is_ready, self.cor_error, 100)
 
     def proc(self):
+        self.prg.setValue((self.n_iter / 2 / (self.stop-1) + 1 / 2))
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']
@@ -135,8 +140,8 @@ class CorMeasure(BasicFunc):
             self.callback(self.name)
         else:
             self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
-            self.n_iter += 1
             print(self.name, self.n_iter)
+            self.n_iter += 1
             self.time_flag = True
             self.time_stamp = time.time() + 3
 
@@ -168,7 +173,7 @@ class RMSpinBox(QSpinBox):
     def __init__(self, iter=100):
         super(RMSpinBox, self).__init__()
         self.setMaximum(1000)
-        self.setValue(0)
+        self.setValue(5)
         self.setSingleStep(iter)
 
 
@@ -177,12 +182,8 @@ class Table:
         super(Table, self).__init__()
         self.table = table
         self.cors_list = []
-        for cor in ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q']:
+        for cor in ['rst2.crm1', 'rst2.crm2']:
             self.add_row(cor)
-        # print(self.table.rowCount())
-        # self.remove_row('rst3.c1f1_q')
-        # print(self.table.rowCount())
-        # self.remove_row('rst3.c1d3_q')
 
     def add_row(self, name):
         row_num = self.table.rowCount()
@@ -260,17 +261,20 @@ class RMA(QMainWindow, BasicFunc):
         #              'rst4.c3f4_z', 'rst4.c4f4_z']
         main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
         main_2_mag = {main: Magnetization(self.action_loop, main, step=self.mag_range_main.value(),
-                                          stop=self.mag_iter_main.value(), odz=1.2) for main in main_names}
+                                          stop=self.mag_iter_main.value(), odz=1.2, prg=self.elem_prg_bar)
+                      for main in main_names}
         self.stack_names = main_names.copy()
         cor_2_mag = {}
         for cor in self.table.cors_list:
             self.stack_names.append(cor['name'])
             cor_2_mag[cor['name']] = Magnetization(self.action_loop, cor['name'], step=cor['mag_range'].value(),
-                                                   stop=cor['mag_iter'].value(), odz=100)
+                                                   stop=cor['mag_iter'].value(), odz=100, prg=self.elem_prg_bar)
         self.counter = len(self.stack_names)
         self.stack_elems = {**main_2_mag.copy(), **cor_2_mag.copy()}
+        print(self.stack_elems)
         # this command will start MAGN Procedure
-        self.stack_elems[self.stack_names[0]].proc()
+        self.lbl_elem.setText(self.stack_names[0])
+        QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
 
     def start_rma(self):
         self.log_msg.append('start_rma')
@@ -285,8 +289,9 @@ class RMA(QMainWindow, BasicFunc):
         for cor in self.table.cors_list:
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
-                self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], step=cor['rm_step'],
-                                                           n_iter=cor['rm_iter'], a_bpm=16)
+                self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], step=cor['rm_step'].value(),
+                                                           n_iter=cor['rm_iter'].value(), a_bpm=16,
+                                                           prg=self.elem_prg_bar)
         if not len(self.cor_fail):
             self.log_msg.append('Fail List EMPTY')
         else:
@@ -294,7 +299,8 @@ class RMA(QMainWindow, BasicFunc):
             self.cor_fail = []
         self.counter = len(self.stack_names)
         # this command will start RMA Procedure
-        self.stack_elems[self.stack_names[0]].proc()
+        self.lbl_elem.setText(self.stack_names[0])
+        QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
 
     def stop_rma(self):
         self.stop_proc = 1
@@ -303,7 +309,7 @@ class RMA(QMainWindow, BasicFunc):
         if not self.stop_proc:
             self.log_msg.append(name + ": " + self.stack_elems[name].status)
             self.stack_names.remove(name)
-            self.prg_bar.setValue((len(self.stack_names) / self.counter) * 100)
+            self.prg_bar.setValue((1 - len(self.stack_names) / self.counter) * 100)
             if self.stack_elems[name].status == 'fail':
                 self.cor_fail.append(name)
             elif not self.stack_elems[name].status:
@@ -312,8 +318,9 @@ class RMA(QMainWindow, BasicFunc):
             elif self.stack_elems[name].status == 'completed':
                 if self.rma_ready:
                     # if RMA
-                    self.rma_string_calc(name, self.cor_2_resp[name].response)
+                    self.rma_string_calc(name, self.stack_elems[name].response)
             if len(self.stack_names):
+                self.lbl_elem.setText(self.stack_names[0])
                 self.stack_elems[self.stack_names[0]].proc()
             else:
                 self.stack_elems = {}
@@ -342,8 +349,9 @@ class RMA(QMainWindow, BasicFunc):
         info = self.stack_elems[name]
         buffer = []
         cur = np.arange(-1 * info.step * info.n_iter, info.step * (info.n_iter + 1), info.step)
-        for i in range(len(data[0])):
-            const, pcov = optimize.curve_fit(self.lin_fit, cur, data[:, i])
+        print(data)
+        for i in range(len(data[0][0])):
+            const, pcov = optimize.curve_fit(self.lin_fit, cur, data[0][:, i])
             buffer.append(const[0])
         self.resp_matr_dict[name] = buffer
 

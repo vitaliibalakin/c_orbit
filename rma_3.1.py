@@ -106,7 +106,7 @@ class CorMeasure(BasicFunc):
             cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
             cor_chan.valueMeasured.connect(self.val_change)
             self.chans[chan] = cor_chan
-        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=32)
+        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_orbit.valueMeasured.connect(self.bpm_proc)
 
     def val_change(self, chan):
@@ -125,7 +125,7 @@ class CorMeasure(BasicFunc):
                     self.err_verification(self.val, self.data_is_ready, self.cor_error, 100)
 
     def proc(self):
-        self.prg.setValue((self.n_iter / 2 / (self.stop-1) + 1 / 2))
+        self.prg.setValue((self.n_iter / 2 / (self.stop-1) + 1 / 2) * 100)
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']
@@ -157,7 +157,7 @@ class CorMeasure(BasicFunc):
     def bpm_proc(self, chan):
         if not self.data_flag:
             self.data_flag = True
-            self.cor_data = np.vstack(self.cor_data, chan.val)
+            self.cor_data = np.vstack((self.cor_data, chan.val))
             self.proc()
 
 
@@ -225,7 +225,7 @@ class RMA(QMainWindow, BasicFunc):
         self.list_names = []
         self.resp_matr_dict = {}
 
-        self.btn_start_proc.clicked.connect(self.start_magn)
+        self.btn_start_proc.clicked.connect(self.start_rma)
         self.btn_stop_proc.clicked.connect(self.stop_rma)
         self.btn_reverse_rm.clicked.connect(self.reverse_rm)
 
@@ -269,8 +269,10 @@ class RMA(QMainWindow, BasicFunc):
         QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
 
     def start_rma(self):
+        self.rma_ready = 1
         self.log_msg.append('start_rma')
         self.label_type.setText('RMA')
+        self.prg_bar.setValue(0)
         # self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
         #                   'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
         #                   'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
@@ -340,8 +342,8 @@ class RMA(QMainWindow, BasicFunc):
     def rma_string_calc(self, name, data):
         info = self.stack_elems[name]
         buffer = []
-        cur = np.arange(-1 * info.step * info.n_iter, info.step * (info.n_iter + 1), info.step)
-        print(data)
+        cur = np.arange(-1 * info.step * (info.n_iter-1), info.step * info.n_iter, info.step)
+        print(len(data[0][:, 0]), len(cur))
         for i in range(len(data[0][0])):
             const, pcov = optimize.curve_fit(self.lin_fit, cur, data[0][:, i])
             buffer.append(const[0])
@@ -359,19 +361,21 @@ class RMA(QMainWindow, BasicFunc):
     def save_rma(self):
         list_names = []
         rm = []
-        for name, resp in self.resp_matr_dict.values():
+        for name, resp in self.resp_matr_dict.items():
             list_names.append(name)
             rm.append(resp)
         np.savetxt(self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(list_names))
         self.rm = {'rm': np.array(rm), 'cor_names': list_names}
         self.list_names = list_names
         self.log_msg.append('RM saved')
+        self.log_msg.append('RMA process finished')
         self.rm_svd()
 
     def rm_svd(self):
-        self.plt_x.clear()
+        self.plt.clear()
         u, s, vh = np.linalg.svd(self.rm['rm'])
         self.plt.plot(s, pen=None, symbol='o')
+        self.log_msg.append('SV is plotted')
 
     def reverse_rm(self):
         sv_am = self.sv.value()
@@ -384,9 +388,10 @@ class RMA(QMainWindow, BasicFunc):
         s_r = np.zeros((vh.shape[0], u.shape[0]))
         s_r[:sv_am, :sv_am] = np.diag(s)
         rm_rev = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
-        f = open(self.rm_name.text(), 'w')
-        f.write(json.dumps({'rm_rev': rm_rev, 'cor_names': self.list_names}))
+        f = open(self.rm_name.text() + '_reversed_rm.txt', 'w')
+        f.write(json.dumps({'rm_rev': np.ndarray.tolist(rm_rev), 'cor_names': self.list_names}))
         f.close()
+        self.log_msg.append('RM reversed and saved')
 
 
 if __name__ == "__main__":

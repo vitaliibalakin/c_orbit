@@ -86,7 +86,6 @@ class CorMeasure(BasicFunc):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
-        self.bpm_val = {'x_orbit': None, 'z_orbit': None}
         self.name = name
         self.init_val = None
         self.step = step
@@ -99,7 +98,7 @@ class CorMeasure(BasicFunc):
         self.flag = False
         self.time_flag = False
         self.err_flag = False
-        self.data_flag = {'x_orbit': 1, 'z_orbit': 1}
+        self.data_flag = True
         self.time_stamp = 0
         self.callback = call_upon_completion
 
@@ -107,10 +106,8 @@ class CorMeasure(BasicFunc):
             cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
             cor_chan.valueMeasured.connect(self.val_change)
             self.chans[chan] = cor_chan
-        self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
-        self.chan_x_orbit.valueMeasured.connect(self.bpm_proc)
-        self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
-        self.chan_z_orbit.valueMeasured.connect(self.bpm_proc)
+        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=32)
+        self.chan_orbit.valueMeasured.connect(self.bpm_proc)
 
     def val_change(self, chan):
         self.val[chan.name.split('.')[-1]] = chan.val
@@ -155,25 +152,20 @@ class CorMeasure(BasicFunc):
             self.callback(self.name)
 
     def data_is_ready(self):
-        self.data_flag['x_orbit'] = 0
-        self.data_flag['z_orbit'] = 0
+        self.data_flag = False
 
     def bpm_proc(self, chan):
-        otype = chan.name.split('.')[-1]
-        self.bpm_val[otype] = chan.val
-        if not self.data_flag[otype]:
-            self.data_flag[otype] = 1
-            if all(self.data_flag.values()):
-                self.cor_data = np.vstack((self.cor_data, np.append(self.bpm_val['x_orbit'],
-                                                                    self.bpm_val['z_orbit'])))
-                self.proc()
+        if not self.data_flag:
+            self.data_flag = True
+            self.cor_data = np.vstack(self.cor_data, chan.val)
+            self.proc()
 
 
 class RMSpinBox(QSpinBox):
-    def __init__(self, iter=100):
+    def __init__(self, init_val, iter):
         super(RMSpinBox, self).__init__()
         self.setMaximum(1000)
-        self.setValue(5)
+        self.setValue(init_val)
         self.setSingleStep(iter)
 
 
@@ -189,8 +181,8 @@ class Table:
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)
         self.table.setItem(row_num, 0, QTableWidgetItem(name))
-        cor_dict = {'name': name, 'mag_range': RMSpinBox(), 'mag_iter': RMSpinBox(1), 'rm_step': RMSpinBox(),
-                    'rm_iter': RMSpinBox(1)}
+        cor_dict = {'name': name, 'mag_range': RMSpinBox(500, 100), 'mag_iter': RMSpinBox(5, 1),
+                    'rm_step': RMSpinBox(100, 100), 'rm_iter': RMSpinBox(5, 1)}
         self.table.setCellWidget(row_num, 1, cor_dict['mag_range'])
         self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
         self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])

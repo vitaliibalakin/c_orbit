@@ -51,6 +51,7 @@ class Test(QMainWindow):
         self.cur_bpm = self.comboBox.currentText()
 
     def data_proc_env(self, chan):
+        print('her')
         if chan.name.split('.')[-2] == self.cur_bpm:
             self.plot_env.clear()
             self.plot_env.plot(chan.val[:11], pen=pg.mkPen('r'))
@@ -59,6 +60,7 @@ class Test(QMainWindow):
             self.plot_env.plot(chan.val[384:395], pen=pg.mkPen('y'))
 
     def data_proc(self, chan):
+        print('her val')
         if chan.name.split('.')[-2] == self.cur_bpm:
             self.cur_lines[chan.name.split('.')[-1][-1]] = chan.val
             self.plot.clear()

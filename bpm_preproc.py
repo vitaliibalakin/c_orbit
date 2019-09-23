@@ -13,8 +13,8 @@ class BpmPreproc(QMainWindow):
         super(BpmPreproc, self).__init__()
         uic.loadUi("uis/for_fft.ui", self)
         self.show()
-        self.bpm_x = {}
-        self.bpm_z = {}
+        self.av_buffer = np.empty(0)
+        self.bpm = {}
         self.chan_bpm_marker = []
         self.chan_bpm_numpts = []
         self.chan_bpm_vals = []
@@ -29,8 +29,7 @@ class BpmPreproc(QMainWindow):
         self.bpm_numpts_renew = self.bpm_val_renew.copy()
         self.bpm_val_ren_cur = {bpm: 0 for bpm in self.cur_bpm_list}
 
-        self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
-        self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
+        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
         self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
         print('start')
@@ -57,11 +56,9 @@ class BpmPreproc(QMainWindow):
     def data_proc(self, chan):
         bpm_num = chan.name.split('.')[-2]
         data_len = int(self.bpm_numpts_renew[bpm_num][0])
-        self.bpm_x[bpm_num] = np.mean(chan.val[data_len:2*data_len-1])
-        self.bpm_z[bpm_num] = np.mean(chan.val[2*data_len:3*data_len-1])
-
+        self.bpm[bpm_num] = (np.mean(chan.val[data_len:2 * data_len - 1]),
+                             np.mean(chan.val[2 * data_len:3 * data_len - 1]))
         if bpm_num == 'bpm15':
-            print(data_len)
             self.fft(x_array=chan.val[data_len:2*data_len-1], z_array=chan.val[2 * data_len:3 * data_len - 1])
 
     def bpm_marker(self, chan):
@@ -70,17 +67,35 @@ class BpmPreproc(QMainWindow):
         if all(sorted(self.bpm_val_ren_cur.values())):
             for key in self.bpm_val_renew:
                 self.bpm_val_renew[key] = 0
-            x = np.array([])
-            z = np.array([])
+            x_orbit = np.array([])
+            z_orbit = np.array([])
             for key in self.bpms:
                 if key in self.cur_bpm_list:
-                    x = np.append(x, self.bpm_x[key])
-                    z = np.append(z, self.bpm_z[key])
+                    x_orbit = np.append(x_orbit, self.bpm[key][0])
+                    z_orbit = np.append(z_orbit, self.bpm[key][1])
                 else:
-                    x = np.append(x, 0.0)
-                    z = np.append(z, 0.0)
-            self.chan_x_orbit.setValue(x)
-            self.chan_z_orbit.setValue(z)
+                    x_orbit = np.append(x_orbit, 0.0)
+                    z_orbit = np.append(z_orbit, 0.0)
+            orbit = np.append(x_orbit, z_orbit)
+            self.chan_orbit.setValue(orbit)
+            result = self.calc_av(orbit)
+            if result:
+                # result 0 is average, 1 is sigma
+                # send av and sigma
+                pass
+
+    def calc_av(self, orbit):
+        if len(self.av_buffer) == 0:
+            self.av_buffer = orbit
+        elif len(self.av_buffer) == 10:
+            av = np.mean(self.av_buffer, axis=0)
+            sigma = np.sqrt(np.sum((self.av_buffer - av) ** 2, axis=0))
+            self.av_buffer = np.empty(0)
+            return av, sigma
+        elif len(self.av_buffer) > 10:
+            self.av_buffer = np.vstack((self.av_buffer, orbit))
+        elif len(self.av_buffer) < 10:
+            self.av_buffer = np.vstack((self.av_buffer, orbit))
 
     def fft(self, x_array, z_array):
         res = {}

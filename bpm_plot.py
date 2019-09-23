@@ -90,7 +90,6 @@ class OrbitPlot(pg.PlotWidget):
             self.addItem(bpm_c)
             self.pos['eq'].append(bpm_e)
             self.pos['cur'].append(bpm_c)
-        print(len(self.pos['eq']))
 
     def update_orbit(self, orbit, bpm_list, which_orbit='cur'):
         for i in range(len(self.bpms)):
@@ -123,8 +122,8 @@ class Orbit(QMainWindow):
         self.ic_mode_orbit = {'e2v2': None, 'p2v2': None, 'e2v4': None, 'p2v4': None}
         # plot space for orbits
         self.orbits = {'x_orbit': OrbitPlot('x'), 'z_orbit': OrbitPlot('z')}
-        self.eq_orbit = {'x_orbit': np.zeros([1, 16]), 'z_orbit': np.zeros([1, 16])}
-        self.cur_orbit = {'x_orbit': np.zeros([1, 16]), 'z_orbit': np.zeros([1, 16])}
+        self.eq_orbit = np.zeros([1, 32])
+        self.cur_orbit = np.zeros([1, 32])
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbits.items():
@@ -139,15 +138,13 @@ class Orbit(QMainWindow):
         d.addWidget(self.plt_fft)
 
         self.chan_ic_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
-        self.chan_x_orbit = cda.VChan('cxhw:4.bpm_preproc.x_orbit', max_nelems=16)
-        self.chan_z_orbit = cda.VChan('cxhw:4.bpm_preproc.z_orbit', max_nelems=16)
+        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
         self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
 
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(self.load_file)
-        self.chan_x_orbit.valueMeasured.connect(self.new_orbit_mes)
-        self.chan_z_orbit.valueMeasured.connect(self.new_orbit_mes)
+        self.chan_orbit.valueMeasured.connect(self.new_orbit_mes)
         self.chan_x_fft.valueMeasured.connect(self.fft_plot)
         self.chan_z_fft.valueMeasured.connect(self.fft_plot)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
@@ -170,44 +167,44 @@ class Orbit(QMainWindow):
             print('bot supervision is off')
 
     def new_orbit_mes(self, chan):
-        d_type = chan.name.split('.')[-1]
-        self.orbits[d_type].update_orbit(chan.val, self.bpm_list)
-        self.cur_orbit[d_type] = chan.val
+        self.orbits['x_orbit'].update_orbit(chan.val[:16], self.bpm_list)
+        self.orbits['z_orbit'].update_orbit(chan.val[16:], self.bpm_list)
+        self.cur_orbit = chan.val
         # auto correction
         if self.bot_spv:
-            func = np.sum((self.cur_orbit[d_type] - self.eq_orbit[d_type]) ** 2)
+            func = np.sum((self.cur_orbit - self.eq_orbit) ** 2)
             if func > 5:
-                BotOrbitCor.make_orbit_cor(self.cur_orbit[d_type] - self.eq_orbit[d_type], self.rev_rm[d_type],
-                                           self.rev_rm['cor_names'])
+                BotOrbitCor.make_orbit_cor(self.cur_orbit - self.eq_orbit, self.rev_rm, self.rev_rm['cor_names'])
 
     def save_file(self):
         sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
         if sv_file:
             file_name = sv_file[0] + '.txt'
-            np.savetxt(file_name, np.vstack((self.chan_x_orbit.val, self.chan_z_orbit.val)))
+            np.savetxt(file_name, self.chan_orbit.val)
             self.renew_ic_mode_orbit_file(file_name, self.chan_ic_mode.val)
 
     def load_file(self):
         file_name = QFileDialog.getOpenFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')[0]
         self.renew_ic_mode_orbit_file(file_name, self.chan_ic_mode.val)
 
-    def switch_state(self, chan):
+    def switch_state(self, ic_mode_chan):
+        ic_mode = ic_mode_chan.val
         f = open('icmode_file.txt', 'r')
         self.ic_mode_orbit = json.loads(f.read())
         f.close()
         print(self.ic_mode_orbit)
-        if self.ic_mode_orbit[chan.val]:
-            orbit = np.loadtxt(self.ic_mode_orbit[chan.val])
+        if self.ic_mode_orbit[ic_mode]:
+            orbit = np.zeros(32)  # np.loadtxt(self.ic_mode_orbit[ic_mode])
         else:
-            orbit = np.zeros([2, 16])
-        self.orbits['x_orbit'].update_orbit(orbit[0], self.bpm_list, which_orbit='eq')
-        self.orbits['z_orbit'].update_orbit(orbit[1], self.bpm_list, which_orbit='eq')
-        self.eq_orbit['x_orbit'] = np.array(orbit[0])
-        self.eq_orbit['z_orbit'] = np.array(orbit[1])
+            orbit = np.zeros(32)
+        print(orbit)
+        self.orbits['x_orbit'].update_orbit(orbit[:16], self.bpm_list, which_orbit='eq')
+        self.orbits['z_orbit'].update_orbit(orbit[16:], self.bpm_list, which_orbit='eq')
+        self.eq_orbit = orbit
 
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        self.btn_dict[chan.val].setStyleSheet("background-color:rgb(0, 255, 0);")
+        self.btn_dict[ic_mode].setStyleSheet("background-color:rgb(0, 255, 0);")
 
     def renew_ic_mode_orbit_file(self, file_name, mode):
         f = open('icmode_file.txt', 'r')
@@ -223,7 +220,6 @@ class Orbit(QMainWindow):
         self.plt_fft.clear()
         freq = np.fft.rfftfreq(2*len(chan.val)-1, 1)
         self.plt_fft.plot(freq, chan.val, pen=pg.mkPen('b', width=2))
-        # self.plt_fft.plot(freq, chan.val, pen=pg.mkPen('r', width=2), name='x fft')
 
 
 if __name__ == "__main__":

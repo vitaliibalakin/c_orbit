@@ -3,7 +3,7 @@
 import numpy as np
 import pycx4.qcda as cda
 import sys
-import datetime
+import json
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5 import uic
 
@@ -32,6 +32,7 @@ class BpmPreproc(QMainWindow):
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
         self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
+        self.chan_cmd = cda.VChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
         print('start')
 
         for bpm, bpm_coor in self.bpm_val_renew.items():
@@ -80,6 +81,8 @@ class BpmPreproc(QMainWindow):
             self.chan_orbit.setValue(orbit)
             result = self.calc_av(orbit)
             if result:
+                self.chan_cmd.setValue(json.dumps({'av': np.ndarray.tolist(result[0]),
+                                                   'sigma': np.ndarray.tolist(result[1])}))
                 # result 0 is average, 1 is sigma
                 # send av and sigma
                 pass
@@ -106,7 +109,7 @@ class BpmPreproc(QMainWindow):
             res[coor] = np.sqrt(val.real ** 2 + val.imag ** 2)
         x_freq = res['freq'][np.argmax(res['x'][20:])]
         z_freq = res['freq'][np.argmax(res['z'][20:])]
-        print(x_freq, z_freq)
+        # print(x_freq, z_freq)
         self.chan_x_fft.setValue(res['x'])
         self.chan_z_fft.setValue(res['z'])
 

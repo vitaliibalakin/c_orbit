@@ -141,17 +141,23 @@ class Orbit(QMainWindow):
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
         self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
+        self.chan_cmd = cda.VChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
 
+        # callbacks
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(self.load_file)
         self.chan_orbit.valueMeasured.connect(self.new_orbit_mes)
         self.chan_x_fft.valueMeasured.connect(self.fft_plot)
         self.chan_z_fft.valueMeasured.connect(self.fft_plot)
+        self.chan_cmd.valueMeasured.connect(self.cmd_proc)
         self.chan_ic_mode.valueMeasured.connect(self.switch_state)
         self.btn_save.clicked.connect(self.save_file)
         self.btn_close.clicked.connect(self.close)
         self.btn_bot_on.clicked.connect(self.bot_ctrl)
         self.btn_bot_off.clicked.connect(self.bot_ctrl)
+
+    def cmd_proc(self, chan):
+        print(chan.val)
 
     def bot_ctrl(self):
         if self.bot_spv:

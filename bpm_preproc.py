@@ -32,7 +32,7 @@ class BpmPreproc(QMainWindow):
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
         self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
-        self.chan_cmd = cda.VChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
         print('start')
 
         for bpm, bpm_coor in self.bpm_val_renew.items():
@@ -61,6 +61,9 @@ class BpmPreproc(QMainWindow):
                              np.mean(chan.val[2 * data_len:3 * data_len - 1]))
         if bpm_num == 'bpm15':
             self.fft(x_array=chan.val[data_len:2*data_len-1], z_array=chan.val[2 * data_len:3 * data_len - 1])
+        if bpm_num == 'bpm08':
+            self.btn_fft.setText(str(round(chan.val[data_len], 5)))
+            print(chan.val[data_len + +111: data_len+114])
 
     def bpm_marker(self, chan):
         # print('mark')
@@ -102,7 +105,7 @@ class BpmPreproc(QMainWindow):
 
     def fft(self, x_array, z_array):
         res = {}
-        print(x_array, z_array)
+        # print(x_array, z_array)
         fft = {'x': np.fft.rfft(x_array, len(x_array)), 'z': np.fft.rfft(z_array, len(z_array))}
         res['freq'] = np.fft.rfftfreq(len(x_array), 1)
         for coor, val in fft.items():

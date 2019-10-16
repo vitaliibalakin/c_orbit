@@ -10,7 +10,7 @@ import numpy as np
 import pyqtgraph as pg
 import pycx4.qcda as cda
 
-from bot_orbit_cor import BotOrbitCor
+from bot_orb_cor.bot_orbit_cor import BotOrbitCor
 
 
 class BPMPoint(pg.GraphicsObject):

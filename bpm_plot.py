@@ -91,7 +91,7 @@ class OrbitPlot(pg.PlotWidget):
             self.pos['eq'].append(bpm_e)
             self.pos['cur'].append(bpm_c)
 
-    def update_orbit(self, orbit, bpm_list, which_orbit='cur'):
+    def update_orbit(self, orbit, bpm_list, which_orbit='cur', sigma=np.zeros(16)):
         for i in range(len(self.bpms)):
             if self.bpms[i] in bpm_list:
                 self.pos[which_orbit][i].update_pos(orbit[i])
@@ -141,7 +141,7 @@ class Orbit(QMainWindow):
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
         self.chan_x_fft = cda.VChan('cxhw:4.bpm_preproc.x_fft', max_nelems=131072)
         self.chan_z_fft = cda.VChan('cxhw:4.bpm_preproc.z_fft', max_nelems=131072)
-        self.chan_cmd = cda.VChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
 
         # callbacks
         for key, btn in self.btn_dict.items():
@@ -157,7 +157,7 @@ class Orbit(QMainWindow):
         self.btn_bot_off.clicked.connect(self.bot_ctrl)
 
     def cmd_proc(self, chan):
-        print(chan.val)
+        pass
 
     def bot_ctrl(self):
         if self.bot_spv:
@@ -173,8 +173,8 @@ class Orbit(QMainWindow):
             print('bot supervision is off')
 
     def new_orbit_mes(self, chan):
-        self.orbits['x_orbit'].update_orbit(chan.val[:16], self.bpm_list)
-        self.orbits['z_orbit'].update_orbit(chan.val[16:], self.bpm_list)
+        self.orbits['x_orbit'].update_orbit(chan.val[:16], self.bpm_list, chan.val[32:48])
+        self.orbits['z_orbit'].update_orbit(chan.val[16:32], self.bpm_list, chan.val[48:])
         self.cur_orbit = chan.val
         # auto correction
         if self.bot_spv:
@@ -186,7 +186,7 @@ class Orbit(QMainWindow):
         sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.DIR, filter='Text Files (*.txt)')
         if sv_file:
             file_name = sv_file[0] + '.txt'
-            np.savetxt(file_name, self.chan_orbit.val)
+            np.savetxt(file_name, self.chan_orbit.val[:32])
             self.renew_ic_mode_orbit_file(file_name, self.chan_ic_mode.val)
 
     def load_file(self):

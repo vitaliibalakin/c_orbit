@@ -11,16 +11,14 @@ from PyQt5 import uic
 class BpmPreproc(QMainWindow):
     def __init__(self):
         super(BpmPreproc, self).__init__()
-        uic.loadUi("uis/for_fft.ui", self)
-        self.show()
         self.av_buffer = np.empty(0)
         self.bpm = {}
         self.bpm_sigma = {}
         self.chan_bpm_marker = []
         self.chan_bpm_numpts = []
         self.chan_bpm_vals = []
-        self.cur_bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
-                     'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.cur_bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
+                             'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
 
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
@@ -64,9 +62,10 @@ class BpmPreproc(QMainWindow):
                                    np.std(chan.val[2 * data_len:3 * data_len - 1]))
         if bpm_num == 'bpm15':
             self.fft(x_array=chan.val[data_len:2*data_len-1], z_array=chan.val[2 * data_len:3 * data_len - 1])
-        if bpm_num == 'bpm07':
-            self.btn_fft.setText(str(round(chan.val[data_len], 5)))
-            print(chan.val[data_len + +111: data_len+114])
+
+        # if bpm_num == 'bpm07':
+        #     self.btn_fft.setText(str(round(chan.val[data_len], 5)))
+        #     print(chan.val[data_len + +111: data_len+114])
 
     def bpm_marker(self, chan):
         # print('mark')
@@ -89,7 +88,7 @@ class BpmPreproc(QMainWindow):
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)
                     z_orbit = np.append(z_orbit, 0.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
-            orbit = np.append(x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma)
+            orbit = np.array([x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma])
             self.chan_orbit.setValue(orbit)
 
     def fft(self, x_array, z_array):
@@ -99,8 +98,8 @@ class BpmPreproc(QMainWindow):
         res['freq'] = np.fft.rfftfreq(len(x_array), 1)
         for coor, val in fft.items():
             res[coor] = np.sqrt(val.real ** 2 + val.imag ** 2)
-        x_freq = res['freq'][np.argmax(res['x'][20:])]
-        z_freq = res['freq'][np.argmax(res['z'][20:])]
+        # x_freq = res['freq'][np.argmax(res['x'][20:])]
+        # z_freq = res['freq'][np.argmax(res['z'][20:])]
         # print(x_freq, z_freq)
         self.chan_x_fft.setValue(res['x'])
         self.chan_z_fft.setValue(res['z'])

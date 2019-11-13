@@ -16,7 +16,7 @@ class OrbitPlot(pg.PlotWidget):
         self.showGrid(x=True, y=True)
         self.setLabel('left', o_type.upper() + " coordinate", units='mm')
         self.setLabel('bottom', "Position", units='m')
-        self.setRange(yRange=[-48, 48])
+        self.setRange(yRange=[-40, 40])
 
         self.pos = {'cur': [], 'eq': []}
         aper = np.transpose(np.loadtxt(file_name))

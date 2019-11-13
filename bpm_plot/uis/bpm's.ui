@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1033</width>
-    <height>715</height>
+    <width>1384</width>
+    <height>828</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,8 +126,8 @@
      <rect>
       <x>0</x>
       <y>30</y>
-      <width>791</width>
-      <height>641</height>
+      <width>1121</width>
+      <height>751</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -143,20 +143,10 @@
    <widget class="QWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>790</x>
+      <x>1130</x>
       <y>30</y>
       <width>241</width>
       <height>421</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QWidget" name="plot_fft" native="true">
-    <property name="geometry">
-     <rect>
-      <x>790</x>
-      <y>450</y>
-      <width>241</width>
-      <height>211</height>
      </rect>
     </property>
    </widget>
@@ -166,7 +156,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1033</width>
+     <width>1384</width>
      <height>22</height>
     </rect>
    </property>

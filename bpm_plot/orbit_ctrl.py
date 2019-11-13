@@ -40,7 +40,6 @@ class PlotControl(QMainWindow):
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbit_plots.items():
             p.addWidget(plot)
-        d = QVBoxLayout()
 
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}

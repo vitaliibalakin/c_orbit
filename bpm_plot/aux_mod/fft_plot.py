@@ -11,13 +11,18 @@ class FFTPlot(pg.PlotWidget):
         super(FFTPlot, self).__init__(parent=parent)
         self.showGrid(x=True, y=True)
         self.setLogMode(False, True)
-        self.addLegend()
+        self.setLabel('left', "Ampl", units='mm')
+        self.setLabel('bottom', "Freq")
+        self.setRange(xRange=[0, 0.5])
 
-    def fft_plot(self, data_x, data_z):
+    def fft_proc(self, data):
+        h_len = int(len(data) / 2)
+        x_fft = np.sqrt(data[0:h_len].real ** 2 + data[0:h_len].imag ** 2)
+        z_fft = np.sqrt(data[h_len: len(data)].real ** 2 + data[h_len: len(data)].imag ** 2)
         self.clear()
-        freq = np.fft.rfftfreq(2*len(data_x)-1, 1)
-        self.plot(freq, data_x, pen=pg.mkPen('b', width=1))
-        self.plot(freq, data_z, pen=pg.mkPen('r', width=1))
+        freq = np.fft.rfftfreq(len(data)-1, 1)
+        self.plot(freq, x_fft, pen=pg.mkPen('b', width=1))
+        self.plot(freq, z_fft, pen=pg.mkPen('r', width=1))
 
 
 if __name__ == "__main__":

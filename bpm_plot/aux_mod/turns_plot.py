@@ -9,10 +9,13 @@ class TurnsPlot(pg.PlotWidget):
     def __init__(self, parent):
         super(TurnsPlot, self).__init__(parent=parent)
         self.showGrid(x=True, y=True)
-        self.setLogMode(False, True)
-        self.addLegend()
+        self.setLogMode(False, False)
+        self.setLabel('left', "Current", units='mA')
+        self.setLabel('bottom', "Turn", units='num')
+        self.setRange(yRange=[0, 40])
+        self.setRange(xRange=[0, 5000])
 
-    def fft_plot(self, data):
+    def turns_plot(self, data):
         self.clear()
         self.plot(data, pen=pg.mkPen('g', width=1))
 

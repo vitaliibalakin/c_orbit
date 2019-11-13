@@ -7,9 +7,9 @@ import os
 import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
-from bpm_plot.orbit_plot import OrbitPlot
-from bpm_plot.file_data_exchange import FileDataExchange
-from bpm_plot.cx_data_exchange import CXDataExchange
+from bpm_plot.aux_mod.orbit_plot import OrbitPlot
+from bpm_plot.aux_mod.file_data_exchange import FileDataExchange
+from bpm_plot.aux_mod.cx_data_exchange import CXDataExchange
 
 
 class PlotControl(QMainWindow):
@@ -87,6 +87,6 @@ class PlotControl(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(['plot_control'])
+    app = QApplication(['orbit_control'])
     w = PlotControl()
     sys.exit(app.exec_())

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>949</width>
+    <height>635</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>941</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QWidget" name="turns_mes_plot" native="true"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QComboBox" name="turns_mes_box">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>86</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>bpm01</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm02</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm03</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm04</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm05</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm07</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm08</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm09</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm15</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm17</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="fft_box">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>300</y>
+      <width>86</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>bpm01</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm02</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm03</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm04</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm05</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm07</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm08</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm09</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm15</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm17</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>330</y>
+      <width>941</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QWidget" name="fft_plot" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>949</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

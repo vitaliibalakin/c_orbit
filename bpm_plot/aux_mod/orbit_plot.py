@@ -5,8 +5,8 @@ from PyQt5 import QtCore
 import sys
 import numpy as np
 import pyqtgraph as pg
-from bpm_plot.bpm_point import BPMPoint
-from bpm_plot.aper_plot import AperPlot
+from bpm_plot.aux_mod.bpm_point import BPMPoint
+from bpm_plot.aux_mod.aper_plot import AperPlot
 
 
 class OrbitPlot(pg.PlotWidget):

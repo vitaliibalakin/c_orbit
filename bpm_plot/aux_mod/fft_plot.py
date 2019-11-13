@@ -13,10 +13,11 @@ class FFTPlot(pg.PlotWidget):
         self.setLogMode(False, True)
         self.addLegend()
 
-    def fft_plot(self, data, fft_type):
+    def fft_plot(self, data_x, data_z):
         self.clear()
-        freq = np.fft.rfftfreq(2*len(data)-1, 1)
-        self.plot(freq, data, pen=pg.mkPen('b', width=2))
+        freq = np.fft.rfftfreq(2*len(data_x)-1, 1)
+        self.plot(freq, data_x, pen=pg.mkPen('b', width=1))
+        self.plot(freq, data_z, pen=pg.mkPen('r', width=1))
 
 
 if __name__ == "__main__":

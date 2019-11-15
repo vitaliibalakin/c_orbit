@@ -5,6 +5,7 @@ from PyQt5 import uic
 import sys
 import pycx4.qcda as cda
 import numpy as np
+import json
 import pyqtgraph as pg
 from bpm_plot.aux_mod.turns_plot import TurnsPlot
 from bpm_plot.aux_mod.fft_plot import FFTPlot
@@ -16,6 +17,7 @@ class TurnsControl(QMainWindow):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         uic.loadUi("uis/plot's.ui", self)
+        self.setWindowTitle('Orbit Plot')
         self.show()
 
         # fft and turns
@@ -36,18 +38,22 @@ class TurnsControl(QMainWindow):
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
 
         # other ctrl callbacks
-        self.chan_cmd.valueMeasured.connect(self.cmd)
         self.chan_turns.valueMeasured.connect(self.turn_proc)
         self.chan_fft.valueMeasured.connect(self.fft_proc)
+
+        # boxes changes
+        self.turns_mes_box.currentTextChanged.connect(self.bpm_num_changed)
+        self.fft_box.currentTextChanged.connect(self.bpm_num_changed)
+
+    def bpm_num_changed(self):
+        self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_mes_box.currentText(),
+                                           'fft_bpm': self.fft_box.currentText()}))
 
     def turn_proc(self, chan):
         self.turns.turns_plot(chan.val)
 
     def fft_proc(self, chan):
         self.fft.fft_proc(chan.val)
-
-    def cmd(self, chan):
-        pass
 
 
 if __name__ == "__main__":

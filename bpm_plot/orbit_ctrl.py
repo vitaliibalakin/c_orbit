@@ -18,6 +18,7 @@ class PlotControl(QMainWindow):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         uic.loadUi("uis/bpm's.ui", self)
+        self.setWindowTitle('Orbit Plot')
         self.show()
 
         # variables for under control objects init

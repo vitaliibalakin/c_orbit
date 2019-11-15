@@ -58,5 +58,6 @@ class TurnsControl(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(['turns_ctrl'])
+
     w = TurnsControl()
     sys.exit(app.exec_())

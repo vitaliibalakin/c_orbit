@@ -12,11 +12,11 @@ class BpmPreproc(QMainWindow):
     def __init__(self):
         super(BpmPreproc, self).__init__()
         self.fft_bpm = 'bpm15'
-        self.turn_bpm = 'bpm15'
+        self.turns_bpm = 'bpm15'
         self.bpm = {}
         self.bpm_sigma = {}
+        self.chan_bpm_numpts = {}
         self.chan_bpm_marker = []
-        self.chan_bpm_numpts = []
         self.chan_bpm_vals = []
         self.cur_bpm_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                              'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
@@ -32,16 +32,17 @@ class BpmPreproc(QMainWindow):
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024)
 
         self.chan_cmd.valueMeasured.connect(self.cmd)
         print('start')
 
         for bpm, bpm_coor in self.bpm_val_renew.items():
             # bpm numpts init
-            chan = cda.VChan('cxhw:37.ring.' + bpm + '.numpts')
+            chan = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
             chan.valueMeasured.connect(self.bpm_numpts)
-            self.chan_bpm_numpts.append(chan)
+            self.chan_bpm_numpts[bpm] = chan
 
             # bpm channels init
             chan = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
@@ -54,17 +55,21 @@ class BpmPreproc(QMainWindow):
             self.chan_bpm_marker.append(chan)
 
     def bpm_numpts(self, chan):
-        self.bpm_numpts_renew[chan.name.split('.')[-2]] = chan.val
+        bpm_name = chan.name.split('.')[-2]
+        self.bpm_numpts_renew[bpm_name] = chan.val
+        if bpm_name == self.turns_bpm:
+            self.chan_res.setValue(json.dumps({'num_pts': chan.val}))
 
     def data_proc(self, chan):
         bpm_num = chan.name.split('.')[-2]
-        data_len = int(self.bpm_numpts_renew[bpm_num][0])
+
+        data_len = int(self.bpm_numpts_renew[bpm_num])
         self.bpm[bpm_num] = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
         self.bpm_sigma[bpm_num] = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
         if bpm_num == self.fft_bpm:
             self.chan_fft.setValue(chan.val[data_len:3 * data_len])
 
-        if bpm_num == self.turn_bpm:
+        if bpm_num == self.turns_bpm:
             self.chan_turns.setValue(chan.val[3*data_len:4*data_len])
 
         # if bpm_num == 'bpm07':
@@ -98,15 +103,18 @@ class BpmPreproc(QMainWindow):
     def cmd(self, chan):
         try:
             cmd = json.loads(chan.val)
-            turn_bpm = cmd.get('turn_bpm', None)
-            fft_bpm = cmd.get('fft_bpm', None)
+            turn_bpm = cmd.get('turn_bpm', 'bpm015')
+            fft_bpm = cmd.get('fft_bpm', 'bpm015')
+            num_pts = cmd.get('num_pts', 1024)
 
-            if turn_bpm:
-                self.turn_bpm = turn_bpm
-            elif fft_bpm:
-                self.fft_bpm = fft_bpm
+            self.turns_bpm = turn_bpm
+            self.fft_bpm = fft_bpm
+            self.update_num_pts(num_pts)
         except Exception as exp:
             print('cmd chan data err:', exp)
+
+    def update_num_pts(self, num_pts):
+        self.chan_bpm_numpts[self.turns_bpm].setValue(num_pts)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# bpm delay is 20527.89 ns in pickup2 channel
 
 import numpy as np
 import pycx4.qcda as cda
@@ -101,17 +102,26 @@ class BpmPreproc(QMainWindow):
             self.chan_orbit.setValue(orbit)
 
     def cmd(self, chan):
+        cmd = json.loads(chan.val)
         try:
-            cmd = json.loads(chan.val)
-            turn_bpm = cmd.get('turn_bpm', 'bpm015')
-            fft_bpm = cmd.get('fft_bpm', 'bpm015')
-            num_pts = cmd.get('num_pts', 1024)
+            self.turns_bpm = cmd['turn_bpm']
+        except KeyError:
+            pass
 
-            self.turns_bpm = turn_bpm
-            self.fft_bpm = fft_bpm
-            self.update_num_pts(num_pts)
-        except Exception as exp:
-            print('cmd chan data err:', exp)
+        try:
+            self.fft_bpm = cmd['fft_bpm']
+        except KeyError:
+            pass
+
+        try:
+            self.update_num_pts(cmd['num_pts'])
+        except KeyError:
+            pass
+
+        try:
+            self.cur_bpm_list = cmd['cur_bpms']
+        except KeyError:
+            pass
 
     def update_num_pts(self, num_pts):
         self.chan_bpm_numpts[self.turns_bpm].setValue(num_pts)

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PyQt5 import uic
 import sys
 import os
+import json
 import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
@@ -31,6 +32,10 @@ class PlotControl(QMainWindow):
                          20.5216, 22.4566, 23.7111, 25.6156]
         self.cur_bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                          'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.worked_bpms = {bpm: 1 for bpm in self.bpms}
+        self.bpm_btns = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
+                         self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
+                         self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]
         # under control objects init
         self.orbit_plots = {'x_orbit': OrbitPlot('x', 'aper_files/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
                             'z_orbit': OrbitPlot('z', 'aper_files/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
@@ -53,6 +58,8 @@ class PlotControl(QMainWindow):
         self.btn_save.clicked.connect(self.save_file_)
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(self.load_file_)
+        for btn in self.bpm_btns:
+            btn.clicked.connect(self.active_bpm)
 
         # other ordinary channels
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
@@ -60,7 +67,22 @@ class PlotControl(QMainWindow):
 
         # other ctrl callbacks
         self.chan_mode.valueMeasured.connect(self.mode_changed)
-        self.chan_cmd.valueMeasured.connect(self.cmd)
+        # self.chan_cmd.valueMeasured.connect(self.cmd)
+
+    def active_bpm(self):
+        bpm = self.sender().text()
+        if self.worked_bpms[bpm]:
+            self.worked_bpms[bpm] = 0
+            self.sender().setStyleSheet("background-color:rgb(255, 0, 0);")
+            if bpm in self.cur_bpms:
+                self.cur_bpms.remove(bpm)
+        else:
+            self.worked_bpms[bpm] = 1
+            self.sender().setStyleSheet("background-color:rgb(0, 255, 0);")
+            if bpm not in self.cur_bpms:
+                self.cur_bpms.append(bpm)
+        print(self.cur_bpms)
+        self.chan_cmd.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
 
     def data_receiver(self, orbit, std=np.zeros(32), which='cur'):
         self.orbit_plots['x_orbit'].update_orbit(orbit[:16], self.cur_bpms, std=std[32:48], which_orbit=which)

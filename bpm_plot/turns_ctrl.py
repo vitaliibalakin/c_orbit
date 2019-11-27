@@ -24,14 +24,14 @@ class TurnsControl(QMainWindow):
         self.ic_mode = ' '
 
         # fft and turns
-        self.fft_p = FFTPlot(self)
+        self.fft_p = FFTPlot(self, self.status_bar)
         self.coor_p = CoorPlot(self)
         p0 = QVBoxLayout()
         self.fft_plot_p.setLayout(p0)
         p0.addWidget(self.coor_p)
         p0.addWidget(self.fft_p)
 
-        self.fft_e = FFTPlot(self)
+        self.fft_e = FFTPlot(self, self.status_bar)
         self.coor_e = CoorPlot(self)
         p1 = QVBoxLayout()
         self.fft_plot_e.setLayout(p1)

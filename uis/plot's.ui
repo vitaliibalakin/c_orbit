@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -124,7 +124,7 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="2">
+       <item row="0" column="3">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>COORDINATES AND FOURIER PLOT</string>
@@ -144,8 +144,15 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="3">
+       <item row="1" column="0" colspan="4">
         <widget class="QWidget" name="fft_plot_e" native="true"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="lbl_wp">
+         <property name="text">
+          <string>nu_x | nu_z = None | None</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -164,13 +171,6 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>COORDINATES AND FOURIER PLOT</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
@@ -268,7 +268,14 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0" colspan="4">
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>FOURIER PLOT</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
         <widget class="QWidget" name="fft_plot_p" native="true"/>
        </item>
       </layout>
@@ -580,7 +587,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="status_bar"/>
+  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

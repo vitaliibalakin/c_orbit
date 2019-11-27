@@ -12,7 +12,7 @@ class TurnsPlot(pg.PlotWidget):
         self.setLogMode(False, False)
         self.setLabel('left', "Current", units='a.u.')
         self.setLabel('bottom', "Turn")
-        self.setRange(yRange=[0, 40])
+        self.setRange(yRange=[0, 600])
         self.setRange(xRange=[0, 1000])
 
     def turns_plot(self, data):

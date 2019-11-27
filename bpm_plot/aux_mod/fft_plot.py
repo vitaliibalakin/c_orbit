@@ -19,9 +19,9 @@ class FFTPlot(pg.PlotWidget):
     def fft_proc(self, data):
         h_len = int(len(data) / 2)
         # window = sp.nuttall(h_len)
-        x_fft = np.fft.rfft(data[:h_len] - np.mean(data[:h_len]), len(data[:h_len]))
+        x_fft = np.fft.rfft(data[:h_len] - np.mean(data[:h_len]), len(data[:h_len]), norm="ortho")
         x_fft_p = np.sqrt(x_fft.real ** 2 + x_fft.imag ** 2)
-        z_fft = np.fft.rfft(data[h_len: len(data)] - np.mean(data[h_len: len(data)]), len(data[h_len: len(data)]))
+        z_fft = np.fft.rfft(data[h_len: len(data)] - np.mean(data[h_len: len(data)]), len(data[h_len: len(data)]), norm="ortho")
         z_fft_p = np.sqrt(z_fft.real ** 2 + z_fft.imag ** 2)
         self.clear()
         freq = np.fft.rfftfreq(h_len, 1)

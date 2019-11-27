@@ -25,7 +25,7 @@ class PlotControl(QMainWindow):
         # variables for under control objects init
         self.mode = ''
         self.cur_orbit = np.zeros(32)
-        self.dir = "/saved_modes"
+        self.dir = os.getcwd()
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.bpm_coor = [0, 1.908, 3.144, 5.073, 6.7938, 8.7388, 9.9648, 11.8928, 13.7078, 15.6298, 16.8568, 18.8018,

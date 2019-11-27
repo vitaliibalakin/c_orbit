@@ -14,7 +14,8 @@ class FileDataExchange:
 
     def save_file(self, parent, orbit, mode):
         print(mode)
-        sv_file = QFileDialog.getSaveFileName(parent=parent, directory=self.dir, filter='Text Files (*.txt)')
+        sv_file = QFileDialog.getSaveFileName(parent=parent, directory=self.dir + "/saved_modes",
+                                              filter='Text Files (*.txt)')
         if sv_file:
             file_name = sv_file[0] + '.txt'
             np.savetxt(file_name, orbit)
@@ -23,22 +24,23 @@ class FileDataExchange:
 
     def load_file(self, parent, mode):
         print("mode=", mode)
-        file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir, filter='Text Files (*.txt)')[0]
+        file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir + "/saved_modes",
+                                                filter='Text Files (*.txt)')[0]
         self.mode_orbit_file(file_name, mode)
         self.data_receiver(np.loadtxt(file_name), which='eq')
 
     def change_orbit_from_file(self, mode):
-        f = open('mode_file.txt', 'r')
+        f = open(self.dir + '/mode_file.txt', 'r')
         mode_orbit = json.loads(f.read())
         f.close()
-        self.data_receiver(np.loadtxt(mode_orbit[mode]), which='eq')
+        print(mode_orbit[mode])
+        self.data_receiver(np.loadtxt(self.dir + mode_orbit[mode]), which='eq')
 
-    @staticmethod
-    def mode_orbit_file(file_name, mode):
-        f = open('mode_file.txt', 'r')
+    def mode_orbit_file(self, file_name, mode):
+        f = open(self.dir + '/mode_file.txt', 'r')
         mode_orbit = json.loads(f.read())
         f.close()
         mode_orbit[mode] = file_name
-        f = open('mode_file.txt', 'w')
+        f = open(self.dir + '/mode_file.txt', 'w')
         f.write(json.dumps(mode_orbit))
         f.close()

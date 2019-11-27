@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # bpm delay is 20527.89 ns in pickup2 channel - check
 
-import PyQt5
+#import PyQt5
 import numpy as np
-import pycx4.qcda as cda
+import pycx4.pycda as cda
 import json
-from aux.service_daemon import QtService
+from aux.service_daemon import CXService
 
 
 class BpmPreproc:
@@ -131,7 +131,7 @@ class BpmPreproc:
 #     w = BpmPreproc()
 #     sys.exit(app.exec_())
 
-class KMService(QtService):
+class KMService(CXService):
     def main(self):
         print('run main')
         self.w = BpmPreproc()

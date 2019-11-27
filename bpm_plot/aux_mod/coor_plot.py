@@ -17,7 +17,7 @@ class CoorPlot(pg.PlotWidget):
         self.setRange(xRange=[0, 1000])
 
     def coor_proc(self, data):
-        h_len = int(len(data) / 2)
+        h_len = len(data) // 2
         x = data[:h_len]
         z = data[h_len: len(data)]
         self.clear()

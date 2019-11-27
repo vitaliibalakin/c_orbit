@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # bpm delay is 20527.89 ns in pickup2 channel
 
+import PyQt5
 import numpy as np
 import pycx4.qcda as cda
 import json

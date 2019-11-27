@@ -6,10 +6,11 @@ import pycx4.qcda as cda
 import sys
 import json
 from PyQt5.QtWidgets import QApplication, QMainWindow
+from aux.service_daemon import QtService
 from PyQt5 import uic
 
 
-class BpmPreproc(QMainWindow):
+class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
         self.fft_bpm = 'bpm15'
@@ -127,7 +128,18 @@ class BpmPreproc(QMainWindow):
         self.chan_bpm_numpts[self.turns_bpm].setValue(num_pts)
 
 
-if __name__ == "__main__":
-    app = QApplication(['bpm_preproc'])
-    w = BpmPreproc()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     app = QApplication(['bpm_preproc'])
+#     w = BpmPreproc()
+#     sys.exit(app.exec_())
+
+class KMService(QtService):
+    def main(self):
+        print('run main')
+        self.w = BpmPreproc()
+
+    def clean(self):
+        self.log_str('exiting bpm_prepoc')
+
+
+bp = KMService("bpm_preproc")

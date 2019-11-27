@@ -11,9 +11,9 @@ class TurnsPlot(pg.PlotWidget):
         self.showGrid(x=True, y=True)
         self.setLogMode(False, False)
         self.setLabel('left', "Current", units='a.u.')
-        self.setLabel('bottom', "Turn", units='num')
+        self.setLabel('bottom', "Turn")
         self.setRange(yRange=[0, 40])
-        self.setRange(xRange=[0, 1024])
+        self.setRange(xRange=[0, 1000])
 
     def turns_plot(self, data):
         self.clear()

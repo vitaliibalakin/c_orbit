@@ -25,8 +25,8 @@ class FFTPlot(pg.PlotWidget):
         z_fft_p = np.sqrt(z_fft.real ** 2 + z_fft.imag ** 2)
         self.clear()
         freq = np.fft.rfftfreq(h_len, 1)
-        self.plot(data[:h_len] - np.mean(data[:h_len]), pen=pg.mkPen('b', width=1))
-        # self.plot(freq, z_fft_p, pen=pg.mkPen('r', width=1))
+        self.plot(freq, x_fft_p, pen=pg.mkPen('b', width=1))
+        self.plot(freq, z_fft_p, pen=pg.mkPen('r', width=1))
 
 
 if __name__ == "__main__":

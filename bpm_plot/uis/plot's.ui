@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>947</width>
-    <height>689</height>
+    <height>945</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,11 +20,11 @@
       <x>0</x>
       <y>310</y>
       <width>941</width>
-      <height>331</height>
+      <height>591</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -36,7 +36,7 @@
         <x>0</x>
         <y>0</y>
         <width>931</width>
-        <height>291</height>
+        <height>551</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -127,7 +127,7 @@
        <item row="0" column="2">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>FOURIER PLOT</string>
+          <string>COORDINATES AND FOURIER PLOT</string>
          </property>
         </widget>
        </item>
@@ -160,7 +160,7 @@
         <x>0</x>
         <y>0</y>
         <width>931</width>
-        <height>291</height>
+        <height>551</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -414,7 +414,7 @@
        <item row="0" column="3">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>TURNS PLOT</string>
+          <string>CURRENT PLOT</string>
          </property>
         </widget>
        </item>

@@ -18,25 +18,37 @@ class OrbitPlot(pg.PlotWidget):
         self.setLabel('bottom', "Position", units='m')
         self.setRange(yRange=[-40, 40])
 
-        self.pos = {'cur': [], 'eq': []}
+        self.pos = {'cur': [], 'eq': [], 'dis': []}
         aper = np.transpose(np.loadtxt(file_name))
         self.addItem(AperPlot(aper))
 
         for coor in bpm_coor:
             bpm_e = BPMPoint(x=coor, color=QtCore.Qt.blue)
-            bpm_c = BPMPoint(x=coor, color=QtCore.Qt.darkCyan)
+            bpm_c = BPMPoint(x=coor, color=QtCore.Qt.green)
+            bpm_d = BPMPoint(x=coor, color=QtCore.Qt.red)
             self.addItem(bpm_e)
             self.addItem(bpm_c)
+            self.addItem(bpm_d)
             self.pos['eq'].append(bpm_e)
             self.pos['cur'].append(bpm_c)
+            self.pos['dis'].append(bpm_d)
+        for bpm in self.pos['dis']:
+            bpm.update_pos(100.0)
+        self.update_orbit = {'eq': self.update_orbit_eq, 'cur': self.update_orbit_cur}
 
-    def update_orbit(self, orbit, bpm_list, which_orbit='cur', std=np.zeros(16)):
+    def update_orbit_eq(self, orbit, bpm_list, std=np.zeros(16)):
+        for i in range(len(self.bpms)):
+            self.pos['eq'][i].update_pos(orbit[i])
+
+    def update_orbit_cur(self, orbit, bpm_list, std=np.zeros(16)):
         for i in range(len(self.bpms)):
             if self.bpms[i] in bpm_list:
                 # print(orbit)
-                self.pos[which_orbit][i].update_pos(orbit[i])
+                self.pos['cur'][i].update_pos(orbit[i])
+                self.pos['dis'][i].update_pos(100.0)
             else:
-                self.pos[which_orbit][i].update_pos(50.0)
+                self.pos['cur'][i].update_pos(100.0)
+                self.pos['dis'][i].update_pos(0.0)
         # for i in range(len(self.pos[which_orbit])):
         #     self.pos[which_orbit][i].update_pos(orbit[i])
 

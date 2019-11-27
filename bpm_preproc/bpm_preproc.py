@@ -94,9 +94,9 @@ class BpmPreproc(QMainWindow):
                     z_orbit = np.append(z_orbit, self.bpm[key][1])
                     z_orbit_sigma = np.append(z_orbit_sigma, self.bpm_sigma[key][1])
                 else:
-                    x_orbit = np.append(x_orbit, 0.0)
+                    x_orbit = np.append(x_orbit, 100.0)
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)
-                    z_orbit = np.append(z_orbit, 0.0)
+                    z_orbit = np.append(z_orbit, 100.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
             orbit = np.array([x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma])
             self.chan_orbit.setValue(orbit)

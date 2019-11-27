@@ -3,11 +3,8 @@
 
 import numpy as np
 import pycx4.qcda as cda
-import sys
 import json
-from PyQt5.QtWidgets import QApplication, QMainWindow
 from aux.service_daemon import QtService
-from PyQt5 import uic
 
 
 class BpmPreproc:

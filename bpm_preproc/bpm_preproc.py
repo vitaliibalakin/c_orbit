@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# bpm delay is 20527.89 ns in pickup2 channel
+# bpm delay is 20527.89 ns in pickup2 channel - check
 
 import PyQt5
 import numpy as np

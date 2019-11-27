@@ -39,6 +39,7 @@ class PlotControl(QMainWindow):
                          self.lbl_bpm08, self.lbl_bpm09, self.lbl_bpm10, self.lbl_bpm11, self.lbl_bpm12, self.lbl_bpm13,
                          self.lbl_bpm14, self.lbl_bpm15, self.lbl_bpm16, self.lbl_bpm17]
         self.worked_bpms = {bpm: 1 for bpm in self.bpms}
+        self.dict_btns = {self.bpms[i]: self.bpm_btns[i] for i in range(len(self.bpms))}
         self.dict_lbls = {self.bpms[i]: self.bpm_lbls[i] for i in range(len(self.bpms))}
         # under control objects init
         self.orbit_plots = {'x_orbit': OrbitPlot('x', 'aper_files/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
@@ -63,31 +64,37 @@ class PlotControl(QMainWindow):
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(self.load_file_)
         for btn in self.bpm_btns:
-            btn.clicked.connect(self.active_bpm)
+            btn.clicked.connect(self.bpm_btn_clicked)
 
         # other ordinary channels
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
+        self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
 
         # other ctrl callbacks
+        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
         # self.chan_cmd.valueMeasured.connect(self.cmd)
 
-    def active_bpm(self):
+    def bpm_btn_clicked(self):
         bpm = self.sender().text()
+        self.active_bpm(bpm)
+        print(self.worked_bpms)
+        print(self.cur_bpms)
+        self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
+
+    def active_bpm(self, bpm):
         if self.worked_bpms[bpm]:
             self.worked_bpms[bpm] = 0
-            self.sender().setStyleSheet("background-color:rgb(255, 0, 0);")
+            self.dict_btns[bpm].setStyleSheet("background-color:rgb(255, 0, 0);")
             self.dict_lbls[bpm].setStyleSheet("background-color:rgb(255, 0, 0);")
             if bpm in self.cur_bpms:
                 self.cur_bpms.remove(bpm)
         else:
             self.worked_bpms[bpm] = 1
-            self.sender().setStyleSheet("background-color:rgb(0, 255, 0);")
+            self.dict_btns[bpm].setStyleSheet("background-color:rgb(0, 255, 0);")
             self.dict_lbls[bpm].setStyleSheet("background-color:rgb(0, 255, 0);")
             if bpm not in self.cur_bpms:
                 self.cur_bpms.append(bpm)
-        self.chan_cmd.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
         self.orbit_plots['x_orbit'].update_orbit['cur'](self.cur_orbit[:16], self.cur_bpms)  #  , std=std[32:48])
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
@@ -115,8 +122,37 @@ class PlotControl(QMainWindow):
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.btn_dict[self.mode].setStyleSheet("background-color:rgb(0, 255, 0);")
 
-    def cmd(self, chan):
-        pass
+    def act_bpm(self, chan):
+        # try:
+        #     self.turns_bpm = cmd['turn_bpm']
+        # except KeyError:
+        #     pass
+        #
+        # try:
+        #     self.fft_bpm = cmd['fft_bpm']
+        # except KeyError:
+        #     pass
+        #
+        # try:
+        #     self.update_num_pts(cmd['num_pts'])
+        # except KeyError:
+        #     pass
+        try:
+            act_bpm = json.loads(chan.val)
+            new_cur_bpms = act_bpm['cur_bpms']
+            cur_bpms = self.cur_bpms
+            for bpm in self.bpms:
+                if bpm in new_cur_bpms and bpm in cur_bpms:
+                    pass
+                elif bpm not in new_cur_bpms and bpm not in cur_bpms:
+                    pass
+                elif bpm in new_cur_bpms and bpm not in cur_bpms:
+                    self.active_bpm(bpm)
+                elif bpm not in new_cur_bpms and bpm in cur_bpms:
+                    self.active_bpm(bpm)
+            self.orbit_to_lbl(self.cur_orbit[:32])
+        except Exception as exc:
+            print(exc)
 
     def load_file_(self):
         self.file_exchange.load_file(self, self.mode)

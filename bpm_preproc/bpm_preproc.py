@@ -33,8 +33,10 @@ class BpmPreproc:
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024)
 
+        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
         self.chan_cmd.valueMeasured.connect(self.cmd)
         print('start')
 
@@ -117,10 +119,12 @@ class BpmPreproc:
         except KeyError:
             pass
 
+    def act_bpm(self, chan):
         try:
-            self.cur_bpm_list = cmd['cur_bpms']
-        except KeyError:
-            pass
+            act_bpm = json.loads(chan.val)
+            self.cur_bpm_list = act_bpm['cur_bpms']
+        except Exception as exc:
+            print(exc)
 
     def update_num_pts(self, num_pts):
         self.chan_bpm_numpts[self.turns_bpm].setValue(num_pts)

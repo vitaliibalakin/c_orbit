@@ -54,6 +54,8 @@ class PlotControl(QMainWindow):
 
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
+        self.colors = {'e2v4': 'background-color:#55ffff;', 'p2v4': 'background-color:#ff86ff;',
+                       'e2v2': 'background-color:#75ff91;', 'p2v2': 'background-color:#ff6b6b;'}
 
         # self.btn_bot_on.clicked.connect(self.bot_ctrl)
         # self.btn_bot_off.clicked.connect(self.bot_ctrl)
@@ -120,23 +122,9 @@ class PlotControl(QMainWindow):
 
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        self.btn_dict[self.mode].setStyleSheet("background-color:rgb(0, 255, 0);")
+        self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
 
     def act_bpm(self, chan):
-        # try:
-        #     self.turns_bpm = cmd['turn_bpm']
-        # except KeyError:
-        #     pass
-        #
-        # try:
-        #     self.fft_bpm = cmd['fft_bpm']
-        # except KeyError:
-        #     pass
-        #
-        # try:
-        #     self.update_num_pts(cmd['num_pts'])
-        # except KeyError:
-        #     pass
         try:
             act_bpm = json.loads(chan.val)
             new_cur_bpms = act_bpm['cur_bpms']

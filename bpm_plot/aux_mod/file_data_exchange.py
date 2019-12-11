@@ -14,13 +14,17 @@ class FileDataExchange:
 
     def save_file(self, parent, orbit, mode):
         print(mode)
-        sv_file = QFileDialog.getSaveFileName(parent=parent, directory=self.dir + "/saved_modes",
-                                              filter='Text Files (*.txt)')
-        if sv_file:
-            file_name = sv_file[0] + '.txt'
-            np.savetxt(file_name, orbit)
-            self.mode_orbit_file(file_name, mode)
-            self.data_receiver(orbit, which='eq')
+        try:
+            sv_file = QFileDialog.getSaveFileName(parent=parent, directory=self.dir + "/saved_modes",
+                                                  filter='Text Files (*.txt)')
+            if sv_file:
+                file_name = sv_file[0] + '.txt'
+                np.savetxt(file_name, orbit)
+                self.mode_orbit_file(file_name, mode)
+                self.data_receiver(orbit, which='eq')
+        except Exception as exc:
+            print(exc)
+            self.data_receiver(np.zeros(32), which='eq')
 
     def load_file(self, parent, mode):
         print("mode=", mode)

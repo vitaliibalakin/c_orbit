@@ -59,7 +59,7 @@ class TurnsControl(QMainWindow):
         self.chan_turns.valueMeasured.connect(self.turn_proc)
         self.chan_fft_coor.valueMeasured.connect(self.fft_coor_proc)
         self.chan_mode.valueMeasured.connect(self.mode_proc)
-        self.chan_cmd.valueMeasured.connect(self.res)
+        self.chan_cmd.valueMeasured.connect(self.cmd)
 
         # boxes changes
         self.turns_bpm.currentTextChanged.connect(self.settings_changed)
@@ -69,13 +69,16 @@ class TurnsControl(QMainWindow):
         turn_bpm = json.loads(chan.val)['turn_bpm']
         num_pts = json.loads(chan.val)['num_pts']
         if turn_bpm != self.turns_bpm.currentText():
-            self.turns_bpm.setText(turn_bpm)
+            index = self.turns_bpm.findText(turn_bpm)
+            self.turns_bpm.setCurrentIndex(index)
         if num_pts != self.bpm_num_pts.value():
             self.bpm_num_pts.setValue(num_pts)
 
     def settings_changed(self):
-        self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_bpm.currentText(),
-                                           'num_pts': self.bpm_num_pts.value()}))
+        cmd = json.loads(self.chan_cmd.val)
+        if not (cmd == {'turn_bpm': self.turns_bpm.currentText(), 'num_pts': self.bpm_num_pts.value()}):
+            self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_bpm.currentText(),
+                                               'num_pts': self.bpm_num_pts.value()}))
 
     def turn_proc(self, chan):
         if self.ic_mode == 'p':
@@ -97,7 +100,6 @@ class TurnsControl(QMainWindow):
 
     def mode_proc(self, chan):
         self.ic_mode = chan.val[0]
-        self.bpm_num_changed()
         if self.ic_mode == 'p':
             self.tab_fourier.setCurrentIndex(1)
             self.tab_turns.setCurrentIndex(1)

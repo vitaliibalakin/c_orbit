@@ -59,52 +59,23 @@ class TurnsControl(QMainWindow):
         self.chan_turns.valueMeasured.connect(self.turn_proc)
         self.chan_fft_coor.valueMeasured.connect(self.fft_coor_proc)
         self.chan_mode.valueMeasured.connect(self.mode_proc)
-        self.chan_res.valueMeasured.connect(self.res)
+        self.chan_cmd.valueMeasured.connect(self.res)
 
         # boxes changes
-        self.turns_mes_box_p.currentTextChanged.connect(self.bpm_num_changed)
-        self.fft_box_p.currentTextChanged.connect(self.bpm_num_changed)
-        self.turns_mes_box_e.currentTextChanged.connect(self.bpm_num_changed)
-        self.fft_box_e.currentTextChanged.connect(self.bpm_num_changed)
+        self.turns_bpm.currentTextChanged.connect(self.settings_changed)
+        self.bpm_num_pts.valueChanged.connect(self.settings_changed)
 
-        # num pts changes
-        self.num_pts_p.valueChanged.connect(self.num_pts)
-        self.num_pts_e.valueChanged.connect(self.num_pts)
+    def cmd(self, chan):
+        turn_bpm = json.loads(chan.val)['turn_bpm']
+        num_pts = json.loads(chan.val)['num_pts']
+        if turn_bpm != self.turns_bpm.currentText():
+            self.turns_bpm.setText(turn_bpm)
+        if num_pts != self.bpm_num_pts.value():
+            self.bpm_num_pts.setValue(num_pts)
 
-    def res(self, chan):
-        try:
-            res = json.loads(chan.val)
-            num_pts = res.get('num_pts', 1024)
-            if self.ic_mode == 'p':
-                self.num_pts_p.setValue(num_pts)
-            elif self.ic_mode == 'e':
-                self.num_pts_e.setValue(num_pts)
-            else:
-                print('WTF res')
-        except Exception as exp:
-            print(exp)
-
-    def num_pts(self):
-        if self.ic_mode == 'p':
-            self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_mes_box_p.currentText(),
-                                               'fft_bpm': self.fft_box_p.currentText(),
-                                               'num_pts': self.num_pts_p.value()}))
-        elif self.ic_mode == 'e':
-            self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_mes_box_e.currentText(),
-                                               'fft_bpm': self.fft_box_e.currentText(),
-                                               'num_pts': self.num_pts_e.value()}))
-        else:
-            print('WTF num_pts')
-
-    def bpm_num_changed(self):
-        if self.ic_mode == 'p':
-            self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_mes_box_p.currentText(),
-                                               'fft_bpm': self.fft_box_p.currentText()}))
-        elif self.ic_mode == 'e':
-            self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_mes_box_e.currentText(),
-                                               'fft_bpm': self.fft_box_e.currentText()}))
-        else:
-            print('WTF bpm_num_ch')
+    def settings_changed(self):
+        self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_bpm.currentText(),
+                                           'num_pts': self.bpm_num_pts.value()}))
 
     def turn_proc(self, chan):
         if self.ic_mode == 'p':

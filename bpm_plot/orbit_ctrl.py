@@ -80,8 +80,6 @@ class PlotControl(QMainWindow):
     def bpm_btn_clicked(self):
         bpm = self.sender().text()
         self.active_bpm(bpm)
-        print(self.worked_bpms)
-        print(self.cur_bpms)
         self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
 
     def active_bpm(self, bpm):

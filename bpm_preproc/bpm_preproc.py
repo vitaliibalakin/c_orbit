@@ -105,12 +105,7 @@ class BpmPreproc:
     def cmd(self, chan):
         cmd = json.loads(chan.val)
         try:
-            self.turns_bpm = cmd['turn_bpm']
-        except KeyError:
-            pass
-
-        try:
-            self.fft_bpm = cmd['fft_bpm']
+            self.fft_bpm = self.turns_bpm = cmd['turn_bpm']
         except KeyError:
             pass
 

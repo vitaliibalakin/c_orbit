@@ -29,6 +29,10 @@ class CurrentConverter:
     # CURRENT ---> FIELD
     @staticmethod
     def i_2_field_rm_dip(*currents):
+        """
+        :param currents: main current, then corrector current
+        :return: the value of the field
+        """
         try:
             i_main = currents[0]
             i_cor = currents[1]
@@ -40,6 +44,10 @@ class CurrentConverter:
 
     @staticmethod
     def i_2_field_rm_quad(*currents):
+        """
+        :param currents: main current, then corrector current
+        :return: the value of the field
+        """
         try:
             i_main = currents[0]
             i_cor = currents[1]
@@ -51,6 +59,10 @@ class CurrentConverter:
 
     @staticmethod
     def i_2_field_du60(*currents):
+        """
+        :param currents: main current, then corrector current
+        :return: the value of the field
+        """
         try:
             i_main = currents[0]
             i_cor = currents[1]
@@ -62,6 +74,10 @@ class CurrentConverter:
 
     @staticmethod
     def i_2_field_du80(*currents):
+        """
+        :param currents: main current, then corrector current
+        :return: the value of the field
+        """
         try:
             i_main = currents[0]
             i_cor = currents[1]

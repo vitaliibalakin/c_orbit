@@ -28,10 +28,9 @@ class PlotControl(QMainWindow):
         self.dir = os.getcwd()
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.cur_bpms = self.bpms.copy()
         self.bpm_coor = [0, 1.908, 3.144, 5.073, 6.7938, 8.7388, 9.9648, 11.8928, 13.7078, 15.6298, 16.8568, 18.8018,
                          20.5216, 22.4566, 23.7111, 25.6156]
-        self.cur_bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
-                         'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.bpm_btns = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
                          self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
                          self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]
@@ -41,6 +40,9 @@ class PlotControl(QMainWindow):
         self.worked_bpms = {bpm: 1 for bpm in self.bpms}
         self.dict_btns = {self.bpms[i]: self.bpm_btns[i] for i in range(len(self.bpms))}
         self.dict_lbls = {self.bpms[i]: self.bpm_lbls[i] for i in range(len(self.bpms))}
+        for btn in self.bpm_btns:
+            btn.clicked.connect(self.bpm_btn_clicked)
+
         # under control objects init
         self.orbit_plots = {'x_orbit': OrbitPlot('x', 'aper_files/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
                             'z_orbit': OrbitPlot('z', 'aper_files/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
@@ -54,6 +56,9 @@ class PlotControl(QMainWindow):
 
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
+        for key, btn in self.btn_dict.items():
+            btn.clicked.connect(self.load_file_)
+
         self.colors = {'e2v4': 'background-color:#55ffff;', 'p2v4': 'background-color:#ff86ff;',
                        'e2v2': 'background-color:#75ff91;', 'p2v2': 'background-color:#ff6b6b;'}
 
@@ -63,10 +68,6 @@ class PlotControl(QMainWindow):
         # action btn ctrl
         self.btn_close.clicked.connect(self.close)
         self.btn_save.clicked.connect(self.save_file_)
-        for key, btn in self.btn_dict.items():
-            btn.clicked.connect(self.load_file_)
-        for btn in self.bpm_btns:
-            btn.clicked.connect(self.bpm_btn_clicked)
 
         # other ordinary channels
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)

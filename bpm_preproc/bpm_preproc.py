@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# bpm delay is 20527.89 ns in pickup2 channel - check
+# bpm delay is 20527.89 (???) ns in pickup2 channel - check
 
 import numpy as np
 import pycx4.pycda as cda

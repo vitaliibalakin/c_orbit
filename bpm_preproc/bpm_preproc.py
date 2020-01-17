@@ -22,18 +22,22 @@ class BPM:
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
         self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
+        self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
         self.chan_datatxzi.valueMeasured.connect(self.data_proc)
+        self.chan_marker.valueMeasured.connect(self.marker_proc)
+
+    def marker_proc(self, chan):
+        print(chan.val)
+        self.marker = 1
+        self.receiver()
 
     def data_proc(self, chan):
         data_len = len(chan.val)
         if self.turns_mes:
             self.chan_fft.setValue(chan.val[data_len:3 * data_len])
             self.chan_turns.setValue(chan.val[3*data_len:4*data_len])
-        if not self.marker:
-            self.marker = 1
             self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
             self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
-            self.receiver()
 
 
 class BpmPreproc:

@@ -24,7 +24,6 @@ class FileDataExchange:
                 self.data_receiver(orbit, which='eq')
         except Exception as exc:
             print(exc)
-            self.data_receiver(np.zeros(32), which='eq')
 
     def load_file(self, parent, mode):
         print("mode=", mode)
@@ -38,7 +37,11 @@ class FileDataExchange:
         mode_orbit = json.loads(f.read())
         f.close()
         print(mode_orbit[mode])
-        self.data_receiver(np.loadtxt(self.dir + mode_orbit[mode]), which='eq')
+        try:
+            self.data_receiver(np.loadtxt(self.dir + mode_orbit[mode]), which='eq')
+        except Exception as exc:
+            self.data_receiver(np.zeros(32), which='eq')
+            print(exc)
 
     def mode_orbit_file(self, file_name, mode):
         f = open(self.dir + '/mode_file.txt', 'r')

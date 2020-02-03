@@ -66,13 +66,16 @@ class TurnsControl(QMainWindow):
         self.bpm_num_pts.valueChanged.connect(self.settings_changed)
 
     def cmd(self, chan):
-        turn_bpm = json.loads(chan.val)['turn_bpm']
-        num_pts = json.loads(chan.val)['num_pts']
-        if turn_bpm != self.turns_bpm.currentText():
-            index = self.turns_bpm.findText(turn_bpm)
-            self.turns_bpm.setCurrentIndex(index)
-        if num_pts != self.bpm_num_pts.value():
-            self.bpm_num_pts.setValue(num_pts)
+        try:
+            turn_bpm = json.loads(chan.val)['turn_bpm']
+            num_pts = json.loads(chan.val)['num_pts']
+            if turn_bpm != self.turns_bpm.currentText():
+                index = self.turns_bpm.findText(turn_bpm)
+                self.turns_bpm.setCurrentIndex(index)
+            if num_pts != self.bpm_num_pts.value():
+                self.bpm_num_pts.setValue(num_pts)
+        except Exception as exc:
+            print(exc)
 
     def settings_changed(self):
         cmd = json.loads(self.chan_cmd.val)

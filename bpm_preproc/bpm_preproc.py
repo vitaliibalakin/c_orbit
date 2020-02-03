@@ -27,17 +27,18 @@ class BPM:
         self.chan_marker.valueMeasured.connect(self.marker_proc)
 
     def marker_proc(self, chan):
-        print(chan.val)
+        # print(chan.val)
         self.marker = 1
         self.receiver()
 
     def data_proc(self, chan):
-        data_len = len(chan.val)
+        data_len = int(len(chan.val) / 4)
+        self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
+        self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
+        # print(chan.name, data_len)
         if self.turns_mes:
             self.chan_fft.setValue(chan.val[data_len:3 * data_len])
             self.chan_turns.setValue(chan.val[3*data_len:4*data_len])
-            self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
-            self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
 
 
 class BpmPreproc:
@@ -45,10 +46,12 @@ class BpmPreproc:
         super(BpmPreproc, self).__init__()
         self.fft_bpm = 'bpm15'
         self.turns_bpm = 'bpm15'
-
         self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                           'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.bpms = [BPM(bpm, self.bpm_marker) for bpm in self.bpms_list]
+        for bpm in self.bpms:
+            if bpm.name == 'bpm15':
+                bpm.turns_mes = 1
 
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
@@ -90,20 +93,22 @@ class BpmPreproc:
             self.chan_orbit.setValue(orbit)
 
     def cmd(self, chan):
-        cmd = json.loads(chan.val)
         try:
-            for bpm in self.bpms:
-                if bpm.name == cmd['turn_bpm']:
-                    bpm.turns_mes = 1
-                else:
-                    bpm.turns_mes = 0
-        except KeyError:
-            pass
-
-        try:
-            self.update_num_pts(cmd['num_pts'])
-        except KeyError:
-            pass
+            cmd = json.loads(chan.val)
+            try:
+                for bpm in self.bpms:
+                    if bpm.name == cmd['turn_bpm']:
+                        bpm.turns_mes = 1
+                    else:
+                        bpm.turns_mes = 0
+            except KeyError:
+                pass
+            try:
+                self.update_num_pts(cmd['num_pts'])
+            except KeyError:
+                pass
+        except Exception as exc:
+            print(exc)
 
     def act_bpm(self, chan):
         try:

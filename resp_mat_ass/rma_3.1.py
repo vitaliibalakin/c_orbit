@@ -12,7 +12,7 @@ import time
 from scipy import optimize
 import json
 
-from basic_module_2_1 import BasicFunc
+from c_orbit.base_modules.basic_module_2_1 import BasicFunc
 
 
 class Magnetization(BasicFunc):
@@ -209,7 +209,10 @@ class RMA(QMainWindow, BasicFunc):
         # sing values plot
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
-        self.plt.setLogMode(False, True)
+        self.plt.setLogMode(False, False)
+        self.plt.setRange(yRange=[0, 6])
+        self.sing_reg = pg.LinearRegionItem(values=[0.5, 1], orientation=pg.LinearRegionItem.Horizontal)
+        self.plt.addItem(self.sing_reg)
         p = QVBoxLayout()
         self.sv_plot.setLayout(p)
         p.addWidget(self.plt)
@@ -219,6 +222,7 @@ class RMA(QMainWindow, BasicFunc):
         self.counter = 0
         self.stop_proc = 0
         self.rm = {}
+        self.sing_val_range = []
         self.stack_names = []
         self.stack_elems = {}
         self.cor_fail = []
@@ -228,6 +232,7 @@ class RMA(QMainWindow, BasicFunc):
         self.btn_start_proc.clicked.connect(self.start_rma)
         self.btn_stop_proc.clicked.connect(self.stop_rma)
         self.btn_reverse_rm.clicked.connect(self.reverse_rm)
+        self.sing_reg.sigRegionChangeFinished.connect(self.sing_reg_upd)
 
         self.table = Table(self.cor_set_table)
 
@@ -373,20 +378,25 @@ class RMA(QMainWindow, BasicFunc):
 
     def rm_svd(self):
         self.plt.clear()
-        u, s, vh = np.linalg.svd(self.rm['rm'])
-        self.plt.plot(s, pen=None, symbol='o')
+        u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
+        self.plt.plot(sing_vals, pen=None, symbol='o')
         self.log_msg.append('SV is plotted')
 
+    def sing_reg_upd(self, region_item):
+        self.sing_val_range = region_item.getRegion()
+
     def reverse_rm(self):
-        sv_am = self.sv.value()
-        u, s, vh = np.linalg.svd(self.rm['rm'])
+        u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
+        counter = 0
         # small to zero, needed to 1 /
-        for i in range(sv_am, len(s) - 1):
-            s[i] = 0
-        for i in range(sv_am):
-            s[i] = 1 / s[i]
+        for i in range(len(sing_vals)):
+            if self.sing_val_range[0] < sing_vals[i] < self.sing_val_range[1]:
+                sing_vals[i] = 1 / sing_vals[i]
+                counter += 1
+            else:
+                sing_vals[i] = 0
         s_r = np.zeros((vh.shape[0], u.shape[0]))
-        s_r[:sv_am, :sv_am] = np.diag(s)
+        s_r[:counter, :counter] = np.diag(sing_vals)
         rm_rev = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
         f = open(self.rm_name.text() + '_reversed_rm.txt', 'w')
         f.write(json.dumps({'rm_rev': np.ndarray.tolist(rm_rev), 'cor_names': self.list_names}))

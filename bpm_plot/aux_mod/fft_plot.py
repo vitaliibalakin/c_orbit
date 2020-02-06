@@ -49,8 +49,8 @@ class FFTPlot(pg.PlotWidget):
         z_arr = freq[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))]
         x_index = np.argmax(np.abs(x_fft)[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))])
         z_index = np.argmax(np.abs(z_fft)[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))])
-        self.stat_bar.showMessage("nu_x | nu_z =" + str(x_arr[x_index]) + "|" + str(z_arr[z_index]))
-        # print("working point = ", [x_arr[x_index], z_arr[z_index]])
+        self.stat_bar.showMessage("nu_x | nu_z =" + str(x_arr[x_index]) + "|" + str(1 - z_arr[z_index]))
+        # print("working point = ", [x_arr[x_index], 1 - z_arr[z_index]])
         # print(max(np.abs(x_fft)))
 
     def x_bound_update(self, region_item):

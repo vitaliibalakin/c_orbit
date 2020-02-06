@@ -78,10 +78,8 @@ class TurnsControl(QMainWindow):
             print(exc)
 
     def settings_changed(self):
-        cmd = json.loads(self.chan_cmd.val)
-        if not (cmd == {'turn_bpm': self.turns_bpm.currentText(), 'num_pts': self.bpm_num_pts.value()}):
-            self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_bpm.currentText(),
-                                               'num_pts': self.bpm_num_pts.value()}))
+        self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_bpm.currentText(),
+                                           'num_pts': self.bpm_num_pts.value()}))
 
     def turn_proc(self, chan):
         if self.ic_mode == 'p':

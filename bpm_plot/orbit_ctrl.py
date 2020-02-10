@@ -117,7 +117,7 @@ class PlotControl(QMainWindow):
 
     def mode_changed(self, chan):
         self.mode = chan.val
-
+        print(self.mode)
         self.file_exchange.change_orbit_from_file(self.mode)
 
         for key in self.btn_dict:

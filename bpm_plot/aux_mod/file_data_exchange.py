@@ -13,7 +13,6 @@ class FileDataExchange:
         self.bpm_count = bpm_count
 
     def save_file(self, parent, orbit, mode):
-        print(mode)
         try:
             sv_file = QFileDialog.getSaveFileName(parent=parent, directory=self.dir + "/saved_modes",
                                                   filter='Text Files (*.txt)')
@@ -23,25 +22,27 @@ class FileDataExchange:
                 self.mode_orbit_file(file_name, mode)
                 self.data_receiver(orbit, which='eq')
         except Exception as exc:
-            print(exc)
+            print('func: save_file:', exc)
 
     def load_file(self, parent, mode):
         print("mode=", mode)
-        file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir + "/saved_modes",
-                                                filter='Text Files (*.txt)')[0]
-        self.mode_orbit_file(file_name, mode)
-        self.data_receiver(np.loadtxt(file_name), which='eq')
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir + "/saved_modes",
+                                                    filter='Text Files (*.txt)')[0]
+            self.mode_orbit_file(file_name, mode)
+            self.data_receiver(np.loadtxt(file_name), which='eq')
+        except Exception as exc:
+            print('func: load_file:', exc)
 
     def change_orbit_from_file(self, mode):
         f = open(self.dir + '/mode_file.txt', 'r')
         mode_orbit = json.loads(f.read())
         f.close()
-        print(mode_orbit[mode])
         try:
-            self.data_receiver(np.loadtxt(self.dir + mode_orbit[mode]), which='eq')
+            self.data_receiver(np.loadtxt(mode_orbit[mode]), which='eq')
         except Exception as exc:
             self.data_receiver(np.zeros(32), which='eq')
-            print(exc)
+            print('func: change_orbit_from_file:', exc)
 
     def mode_orbit_file(self, file_name, mode):
         f = open(self.dir + '/mode_file.txt', 'r')

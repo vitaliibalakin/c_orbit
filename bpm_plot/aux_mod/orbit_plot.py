@@ -5,7 +5,7 @@ from PyQt5 import QtCore
 import sys
 import numpy as np
 import pyqtgraph as pg
-from bpm_plot.aux_mod.bpm_point import BPMPoint
+from bpm_plot.aux_mod.bpm_point import BPMMarker
 from bpm_plot.aux_mod.aper_plot import AperPlot
 
 
@@ -23,9 +23,9 @@ class OrbitPlot(pg.PlotWidget):
         self.addItem(AperPlot(aper))
 
         for coor in bpm_coor:
-            bpm_e = BPMPoint(x=coor, color=QtCore.Qt.blue)
-            bpm_c = BPMPoint(x=coor, color=QtCore.Qt.green)
-            bpm_d = BPMPoint(x=coor, color=QtCore.Qt.red)
+            bpm_e = BPMMarker(x=coor, color=QtCore.Qt.blue)
+            bpm_c = BPMMarker(x=coor, color=QtCore.Qt.green)
+            bpm_d = BPMMarker(x=coor, color=QtCore.Qt.red)
             self.addItem(bpm_e)
             self.addItem(bpm_c)
             self.addItem(bpm_d)

@@ -6,7 +6,7 @@ import sys
 import pyqtgraph as pg
 
 
-class BPMPoint(pg.GraphicsObject):
+class BPMMarker(pg.GraphicsObject):
     def __init__(self, **kwargs):
         pg.GraphicsObject.__init__(self)
         self.picture = None
@@ -22,7 +22,22 @@ class BPMPoint(pg.GraphicsObject):
 
         p.setBrush(self.color)
         p.setPen(QtCore.Qt.NoPen)
-        p.drawEllipse(QtCore.QPointF(self.x, self.y), 0.3, 3)
+        # p.drawEllipse(QtCore.QPointF(self.x, self.y), 0.3, 3)
+        # p.setPen(QtGui.QPen(QtCore.Qt.black, 5, QtCore.Qt.SolidLine))
+        # p.setBrush(QtGui.QBrush(self.color, QtCore.Qt.SolidPattern))
+        points = [
+            QtCore.QPointF(self.x - 0.5, self.y),
+            QtCore.QPointF(self.x - 0.5, self.y + 2),
+            QtCore.QPointF(self.x - 0.25, self.y + 0.5),
+            QtCore.QPointF(self.x + 0.25, self.y + 0.5),
+            QtCore.QPointF(self.x + 0.5, self.y + 2),
+            QtCore.QPointF(self.x + 0.5, self.y - 2),
+            QtCore.QPointF(self.x + 0.25, self.y - 0.5),
+            QtCore.QPointF(self.x - 0.25, self.y - 0.5),
+            QtCore.QPointF(self.x - 0.5, self.y - 2),
+            QtCore.QPointF(self.x - 0.5, self.y)]
+        poly = QtGui.QPolygonF(points)
+        p.drawPolygon(poly)
         p.end()
 
     def update_pos(self, y_pos):
@@ -37,5 +52,5 @@ class BPMPoint(pg.GraphicsObject):
 
 if __name__ == "__main__":
     app = QApplication(['bpm_point'])
-    w = BPMPoint()
+    w = BPMMarker()
     sys.exit(app.exec_())

@@ -103,7 +103,7 @@ class PlotControl(QMainWindow):
         self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
         self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
         if which == 'cur':
-            print(orbit)
+            # print(orbit)
             self.cur_orbit = orbit
             self.orbit_to_lbl(orbit[:32])
 

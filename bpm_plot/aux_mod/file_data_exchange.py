@@ -25,7 +25,6 @@ class FileDataExchange:
             print('func: save_file:', exc)
 
     def load_file(self, parent, mode):
-        print("mode=", mode)
         try:
             file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir + "/saved_modes",
                                                     filter='Text Files (*.txt)')[0]

@@ -9,6 +9,7 @@ class FileDataExchange:
     def __init__(self, directory, data_receiver, save_dir='/saved_modes', mode_file='/mode_file.txt'):
         super(FileDataExchange, self).__init__()
         self.dir, self.data_receiver, self.save_dir, self.mode_file = directory, data_receiver, save_dir, mode_file
+        print(save_dir, mode_file)
 
     def save_file(self, parent, orbit, mode):
         try:
@@ -32,7 +33,7 @@ class FileDataExchange:
             print('func: load_file:', exc)
 
     def change_data_from_file(self, mode):
-        f = open(self.dir + '/mode_file.txt', 'r')
+        f = open(self.dir + self.mode_file, 'r')
         data_mode = json.loads(f.read())
         f.close()
         try:

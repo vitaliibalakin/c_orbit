@@ -100,6 +100,10 @@ class PlotControl(QMainWindow):
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
     def data_receiver(self, orbit, std=np.zeros(32), which='cur'):
+        if isinstance(orbit, np.ndarray):
+            pass
+        elif isinstance(orbit, str):
+            orbit = np.zeros(32)
         self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
         self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
         if which == 'cur':
@@ -118,7 +122,7 @@ class PlotControl(QMainWindow):
     def mode_changed(self, chan):
         self.mode = chan.val
         print(self.mode)
-        self.file_exchange.change_orbit_from_file(self.mode)
+        self.file_exchange.change_data_from_file(self.mode)
 
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")

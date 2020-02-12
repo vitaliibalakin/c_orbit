@@ -11,9 +11,9 @@ import pycx4.qcda as cda
 from bpm_plot.aux_mod.file_data_exchange import FileDataExchange
 
 
-class WPControl(QMainWindow):
+class TunesControl(QMainWindow):
     def __init__(self):
-        super(WPControl, self).__init__()
+        super(TunesControl, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         uic.loadUi("uis/wp's.ui", self)
@@ -21,10 +21,10 @@ class WPControl(QMainWindow):
         self.show()
 
         self.mode = ''
-        self.cur_wp = np.zeros(2)
+        self.cur_tunes = np.zeros(2)
         self.dir = os.getcwd()
 
-        self.file_exchange = FileDataExchange(self.dir, self.data_receiver, '/saved_wp', '/mode_wp_file.txt')
+        self.file_exchange = FileDataExchange(self.dir, self.data_receiver, '/saved_tunes', '/mode_tunes_file.txt')
 
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
@@ -46,26 +46,26 @@ class WPControl(QMainWindow):
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
 
-    def data_receiver(self, wp, which='cur'):
-        if isinstance(wp, np.ndarray):
+    def data_receiver(self, tunes, which='cur'):
+        if isinstance(tunes, np.ndarray):
             pass
-        elif isinstance(wp, str):
-            wp = np.zeros(2)
+        elif isinstance(tunes, str):
+            tunes = np.zeros(2)
 
         # here update code
 
         if which == 'cur':
-            # print(wp)
-            self.cur_wp = wp
+            # print(tunes)
+            self.cur_tunes = tunes
 
     def load_file_(self):
         self.file_exchange.load_file(self, self.mode)
 
     def save_file_(self):
-        self.file_exchange.save_file(self, self.cur_wp, self.mode)
+        self.file_exchange.save_file(self, self.cur_tunes, self.mode)
 
 
 if __name__ == "__main__":
-    app = QApplication(['wp_ctrl'])
-    w = WPControl()
+    app = QApplication(['tunes_ctrl'])
+    w = TunesControl()
     sys.exit(app.exec_())

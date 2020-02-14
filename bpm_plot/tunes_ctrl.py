@@ -93,12 +93,14 @@ class TunesControl(QMainWindow):
         if which == 'cur':
             self.cur_tunes = tunes
             self.tunes[which].update_pos(tunes)
+            self.lbl_dict[which].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
         elif which == 'eq':
             self.tunes[mode].update_pos(tunes)
             self.lbl_dict[mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
 
     def load_file_(self):
-        self.file_exchange.load_file(self, self.mode)
+        mode = self.sender().text()
+        self.file_exchange.load_file(self, mode)
 
     def save_file_(self):
         self.file_exchange.save_file(self, self.cur_tunes, self.mode)

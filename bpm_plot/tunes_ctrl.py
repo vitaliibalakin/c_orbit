@@ -31,7 +31,7 @@ class TunesControl(QMainWindow):
         self.wp_plot.setLayout(p)
         p.addWidget(self.tunes_plot)
 
-        # res_diag tune properties
+        # res_diag tune properties set
         self.tunes_plot.setRange(yRange=[0, 1])
         self.tunes_plot.setRange(xRange=[0, 1])
         self.tunes_plot.addItem(eltools.LinesPlot(eltools.Converter.res_diag(4), order=4, color=QtGui.QColor('#852EBA')))

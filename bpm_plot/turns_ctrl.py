@@ -18,7 +18,7 @@ class TurnsControl(QMainWindow):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         uic.loadUi("uis/plot's.ui", self)
-        self.setWindowTitle('Orbit Plot')
+        self.setWindowTitle('Turns Plot')
         self.show()
 
         self.ic_mode = ' '
@@ -51,6 +51,7 @@ class TurnsControl(QMainWindow):
         # other ordinary channels
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024)
+        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_fft_coor = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
@@ -91,10 +92,12 @@ class TurnsControl(QMainWindow):
 
     def fft_coor_proc(self, chan):
         if self.ic_mode == 'p':
-            self.fft_p.fft_proc(chan.val)
+            tunes = self.fft_p.fft_proc(chan.val)
+            self.chan_tunes.setValue(tunes)
             self.coor_p.coor_proc(chan.val)
         elif self.ic_mode == 'e':
-            self.fft_e.fft_proc(chan.val)
+            tunes = self.fft_e.fft_proc(chan.val)
+            self.chan_tunes.setValue(tunes)
             self.coor_e.coor_proc(chan.val)
         else:
             print('WTF fft_proc')

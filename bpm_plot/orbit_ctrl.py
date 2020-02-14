@@ -99,7 +99,8 @@ class PlotControl(QMainWindow):
         self.orbit_plots['x_orbit'].update_orbit['cur'](self.cur_orbit[:16], self.cur_bpms)  #  , std=std[32:48])
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
-    def data_receiver(self, orbit, std=np.zeros(32), which='cur'):
+    def data_receiver(self, orbit, std=np.zeros(32), **kwargs):
+        which = kwargs.get('which', 'cur')
         if isinstance(orbit, np.ndarray):
             pass
         elif isinstance(orbit, str):

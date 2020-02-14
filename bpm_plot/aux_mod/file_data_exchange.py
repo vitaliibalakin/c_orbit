@@ -19,7 +19,7 @@ class FileDataExchange:
                 file_name = sv_file[0] + '.txt'
                 np.savetxt(file_name, orbit)
                 self.mode_data_file(file_name, mode)
-                self.data_receiver(orbit, which='eq')
+                self.data_receiver(orbit, which='eq', mode=mode)
         except Exception as exc:
             print('func: save_file:', exc)
 
@@ -28,7 +28,7 @@ class FileDataExchange:
             file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir + self.save_dir,
                                                     filter='Text Files (*.txt)')[0]
             self.mode_data_file(file_name, mode)
-            self.data_receiver(np.loadtxt(file_name), which='eq')
+            self.data_receiver(np.loadtxt(file_name), which='eq', mode=mode)
         except Exception as exc:
             print('func: load_file:', exc)
 
@@ -37,9 +37,9 @@ class FileDataExchange:
         data_mode = json.loads(f.read())
         f.close()
         try:
-            self.data_receiver(np.loadtxt(data_mode[mode]), which='eq')
+            self.data_receiver(np.loadtxt(data_mode[mode]), which='eq', mode=mode)
         except Exception as exc:
-            self.data_receiver('incorrect_data_file', which='eq')
+            self.data_receiver('incorrect_data_file', which='eq', mode=mode)
             print('func: change_data_from_file:', exc)
 
     def mode_data_file(self, file_name, mode):

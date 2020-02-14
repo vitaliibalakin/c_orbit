@@ -6,103 +6,142 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
-    <height>437</height>
+    <width>618</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="gridLayoutWidget">
+   <widget class="QWidget" name="wp_plot" native="true">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>611</width>
-      <height>50</height>
+      <x>10</x>
+      <y>60</y>
+      <width>600</width>
+      <height>600</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="3">
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>601</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="1" column="2">
+      <widget class="QLabel" name="lbl_e2v2">
+       <property name="styleSheet">
+        <string notr="true">background-color:#75ff91;</string>
+       </property>
+       <property name="text">
+        <string>0.0 | 0.0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QLabel" name="lbl_cur">
+       <property name="styleSheet">
+        <string notr="true">background-color:#808285;</string>
+       </property>
+       <property name="text">
+        <string>0.0 | 0.0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
       <widget class="QPushButton" name="btn_sel_e2v4">
        <property name="text">
         <string>e2v4</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="7">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="4">
+     <item row="0" column="1">
       <widget class="QPushButton" name="btn_sel_p2v4">
        <property name="text">
         <string>p2v4</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="12">
-      <widget class="QPushButton" name="btn_close">
+     <item row="1" column="1">
+      <widget class="QLabel" name="lbl_p2v4">
+       <property name="styleSheet">
+        <string notr="true">background-color:#ff86ff;</string>
+       </property>
        <property name="text">
-        <string>Close</string>
+        <string>0.0 | 0.0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="5">
+     <item row="0" column="4">
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>CURRENT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
       <widget class="QPushButton" name="btn_sel_e2v2">
        <property name="text">
         <string>e2v2</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="10">
-      <widget class="QPushButton" name="btn_save">
+     <item row="1" column="3">
+      <widget class="QLabel" name="lbl_p2v2">
+       <property name="styleSheet">
+        <string notr="true">background-color:#ff6b6b;</string>
+       </property>
        <property name="text">
-        <string>Save</string>
+        <string>0.0 | 0.0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="6">
+     <item row="1" column="0">
+      <widget class="QLabel" name="lbl_e2v4">
+       <property name="styleSheet">
+        <string notr="true">background-color:#55ffff;</string>
+       </property>
+       <property name="text">
+        <string>0.0 | 0.0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
       <widget class="QPushButton" name="btn_sel_p2v2">
        <property name="text">
         <string>p2v2</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="11">
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <item row="0" column="5" rowspan="2">
+      <widget class="QPushButton" name="btn_save">
+       <property name="text">
+        <string>Save</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
-   </widget>
-   <widget class="QWidget" name="wp_plot" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>50</y>
-      <width>611</width>
-      <height>341</height>
-     </rect>
-    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -110,7 +149,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>616</width>
+     <width>618</width>
      <height>22</height>
     </rect>
    </property>

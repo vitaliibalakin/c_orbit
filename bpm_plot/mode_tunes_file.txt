@@ -1,0 +1,1 @@
+{"e2v2": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_tunes/e_v2_curr.txt", "p2v2": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_tunes/current_v2k_e.txt", "e2v4": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_tunes/current_p_tunes.txt", "p2v4": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_tunes/current_p_tunes.txt"}

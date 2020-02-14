@@ -10,7 +10,7 @@ import numpy as np
 import pycx4.qcda as cda
 
 from bpm_plot.aux_mod.file_data_exchange import FileDataExchange
-import eltools
+from bpm_plot.aux_mod.wrapper import LinesPlot, TunesMarker, Converter
 
 
 class TunesControl(QMainWindow):
@@ -34,15 +34,15 @@ class TunesControl(QMainWindow):
         # res_diag tune properties set
         self.tunes_plot.setRange(yRange=[0, 1])
         self.tunes_plot.setRange(xRange=[0, 1])
-        self.tunes_plot.addItem(eltools.LinesPlot(eltools.Converter.res_diag(4), order=4, color=QtGui.QColor('#852EBA')))
-        self.tunes_plot.addItem(eltools.LinesPlot(eltools.Converter.res_diag(3), order=3, color=QtGui.QColor('#B5FBDD')))
-        self.tunes_plot.addItem(eltools.LinesPlot(eltools.Converter.res_diag(2), order=2, color=QtGui.QColor('#FFA96B')))
-        self.tunes_plot.addItem(eltools.LinesPlot(eltools.Converter.res_diag(1), order=1, color=QtCore.Qt.black))
-        self.tunes = {'e2v4': eltools.TunesMarker(color=QtGui.QColor('#55ffff')),
-                      'p2v4': eltools.TunesMarker(color=QtGui.QColor('#ff86ff')),
-                      'e2v2': eltools.TunesMarker(color=QtGui.QColor('#75ff91')),
-                      'p2v2': eltools.TunesMarker(color=QtGui.QColor('#ff6b6b')),
-                      'cur': eltools.TunesMarker(color=QtGui.QColor('#808285'))}
+        self.tunes_plot.addItem(LinesPlot(Converter.res_diag(4), order=4, color=QtGui.QColor('#852EBA')))
+        self.tunes_plot.addItem(LinesPlot(Converter.res_diag(3), order=3, color=QtGui.QColor('#B5FBDD')))
+        self.tunes_plot.addItem(LinesPlot(Converter.res_diag(2), order=2, color=QtGui.QColor('#FFA96B')))
+        self.tunes_plot.addItem(LinesPlot(Converter.res_diag(1), order=1, color=QtCore.Qt.black))
+        self.tunes = {'e2v4': TunesMarker(color=QtGui.QColor('#55ffff')),
+                      'p2v4': TunesMarker(color=QtGui.QColor('#ff86ff')),
+                      'e2v2': TunesMarker(color=QtGui.QColor('#75ff91')),
+                      'p2v2': TunesMarker(color=QtGui.QColor('#ff6b6b')),
+                      'cur': TunesMarker(color=QtGui.QColor('#808285'))}
         for t_type, tune_marker in self.tunes.items():
             self.tunes_plot.addItem(tune_marker)
         self.legend = pg.LegendItem()

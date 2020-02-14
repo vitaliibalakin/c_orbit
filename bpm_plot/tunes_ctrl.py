@@ -57,7 +57,8 @@ class TunesControl(QMainWindow):
         self.btn_save.clicked.connect(self.save_file_)
         self.colors = {'e2v4': 'background-color:#55ffff;', 'p2v4': 'background-color:#ff86ff;',
                        'e2v2': 'background-color:#75ff91;', 'p2v2': 'background-color:#ff6b6b;'}
-        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2}
+        self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2,
+                         'cur': self.lbl_cur}
 
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_changed)

@@ -129,16 +129,16 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-!/bpm_plot/saved_modes/
-!/bpm_plot/saved_tunes/
-!/bpm_plot/mode_tunes_file.txt
-!/bpm_plot/mode_file.txt
-!/cooked_rm/
-!/old/
-!/old_parts/
-!/p orbit response/
-!/resp_mat_ass/
-!/rma/
-!/rms/
-!/saved_modes/
-!/trash/
+/bpm_plot/saved_modes/
+/bpm_plot/saved_tunes/
+/bpm_plot/mode_tunes_file.txt
+/bpm_plot/mode_file.txt
+/cooked_rm/
+/old/
+/old_parts/
+/p orbit response/
+/resp_mat_ass/
+/rma/
+/rms/
+/saved_modes/
+/trash/

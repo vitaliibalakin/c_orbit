@@ -1,1 +1,0 @@
-{"e2v2": null, "p2v2": "/home/vbalakin/PycharmProjects/c_orbit/saved_modes/p2v2_+400_8mA_ok.txt", "e2v4": "/home/vbalakin/PycharmProjects/c_orbit/saved_modes/v3_17_sep.txt", "p2v4": "/home/vbalakin/PycharmProjects/c_orbit/saved_modes/positron_v3_cur.txt"}

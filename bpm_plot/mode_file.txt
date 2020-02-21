@@ -1,1 +1,0 @@
-{"e2v2": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_modes/qqqqqqqqqqqqq.txt", "p2v2": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_modes/asdf.txt", "e2v4": "/home/vbalakin/PycharmProjects/c_orbit/bpm_plot/saved_modes/asd.txt", "p2v4": "/saved_modes/v3_now_now.txt"}

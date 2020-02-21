@@ -68,6 +68,7 @@ class TunesControl(QMainWindow):
         self.service_start()
 
     def service_start(self):
+        # put IC mode tunes into their place on res_diag
         for key, val in self.colors.items():
             self.file_exchange.change_data_from_file(key)
 

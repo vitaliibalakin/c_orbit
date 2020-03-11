@@ -3,7 +3,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PyQt5 import uic
 import sys
-import os
 import json
 import pycx4.qcda as cda
 import numpy as np
@@ -72,8 +71,8 @@ class PlotControl(QMainWindow):
         # data chans
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
-        self.chan_orbit.valueMeasured(self.new_orbit)
-        self.chan_orbit.valueMeasured(self.new_ctrl_orbit)
+        self.chan_orbit.valueMeasured.connect(self.new_orbit)
+        self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
 
         # other ctrl callbacks
         self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
@@ -102,8 +101,9 @@ class PlotControl(QMainWindow):
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
     def data_receiver(self, orbit, std=np.zeros(64), which='cur'):
-        self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
-        self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
+        if len(orbit):
+            self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
+            self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
 
     def orbit_to_lbl(self, orbit):
         for i in range(0, 16):

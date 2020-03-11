@@ -63,13 +63,13 @@ class TurnsControl(QMainWindow):
         self.chan_cmd.valueMeasured.connect(self.cmd)
 
         # boxes changes
-        self.turns_bpm.currentTextChanged.connect(self.settings_changed)
-        self.bpm_num_pts.valueChanged.connect(self.settings_changed)
+        self.turns_bpm.currentTextChanged.connect(self.bpm_changed)
+        self.bpm_num_pts.valueChanged.connect(self.num_pts_changed)
 
     def cmd(self, chan):
         try:
-            turn_bpm = json.loads(chan.val)['turn_bpm']
-            num_pts = json.loads(chan.val)['num_pts']
+            turn_bpm = json.loads(chan.val).get('turn_bpm', 'bpm01')
+            num_pts = json.loads(chan.val).get('num_pts', 1024)
             if turn_bpm != self.turns_bpm.currentText():
                 index = self.turns_bpm.findText(turn_bpm)
                 self.turns_bpm.setCurrentIndex(index)
@@ -78,9 +78,12 @@ class TurnsControl(QMainWindow):
         except Exception as exc:
             print(exc)
 
-    def settings_changed(self):
-        self.chan_cmd.setValue(json.dumps({'turn_bpm': self.turns_bpm.currentText(),
-                                           'num_pts': self.bpm_num_pts.value()}))
+    def bpm_changed(self):
+        self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'act': self.turns_bpm.currentText()}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'act': self.bpm_num_pts.value()}))
+
+    def num_pts_changed(self):
+        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'act': self.bpm_num_pts.value()}))
 
     def turn_proc(self, chan):
         if self.ic_mode == 'p':

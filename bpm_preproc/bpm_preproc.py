@@ -38,7 +38,7 @@ class BpmPreproc:
 
         self.orbits = {'cur': self.chan_orbit, 'eq': self.chan_ctrl_orbit}
         self.cmd_table = {'load_orbit': self.load_file_, 'save_orbit': self.save_file_, 'cur_bpms': self.act_bpm_,
-                          'no_cmd': self.no_cmd_}
+                          'turn_bpm': self.turn_bpm_, 'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_}
 
         print('start')
 
@@ -90,31 +90,22 @@ class BpmPreproc:
         command = json.loads(chan.val).get('cmd', 'no_cmd')
         action = json.loads(chan.val).get('act', 'act')
         self.cmd_table[command](action)
-        # try:
-        #     cmd = json.loads(chan.val)
-        #     try:
-        #         for bpm in self.bpms:
-        #             if bpm.name == cmd['turn_bpm']:
-        #                 bpm.turns_mes = 1
-        #             else:
-        #                 bpm.turns_mes = 0
-        #     except KeyError:
-        #         pass
-        #     try:
-        #         self.update_num_pts(cmd['num_pts'])
-        #     except KeyError:
-        #         pass
-        # except Exception as exc:
-        #     print(exc)
-
-    def update_num_pts(self, num_pts):
-        for bpm in self.bpms:
-            if bpm.turns_mes:
-                bpm.chan_numpts.setValue(num_pts)
 
     def mode_changed(self, chan):
         self.mode = chan.val
         self.file_exchange.change_data_from_file(self.mode)
+
+    def turn_bpm_(self, turn_bpm):
+        for bpm in self.bpms:
+            if bpm.name == turn_bpm:
+                bpm.turns_mes = 1
+            else:
+                bpm.turns_mes = 0
+
+    def turn_bpm_num_pts_(self, num_pts):
+        for bpm in self.bpms:
+            if bpm.turns_mes:
+                bpm.chan_numpts.setValue(num_pts)
 
     def load_file_(self, act):
         self.file_exchange.load_file(self, self.mode)

@@ -9,8 +9,6 @@ import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
 from bpm_plot.aux_mod.orbit_plot import OrbitPlot
-from bpm_plot.aux_mod.file_data_exchange import FileDataExchange
-from bpm_plot.aux_mod.cx_data_exchange import CXDataExchange
 
 
 class PlotControl(QMainWindow):
@@ -25,7 +23,6 @@ class PlotControl(QMainWindow):
         # variables for under control objects init
         self.mode = ''
         self.cur_orbit = np.zeros(32)
-        self.dir = os.getcwd()
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.cur_bpms = self.bpms.copy()
@@ -46,8 +43,6 @@ class PlotControl(QMainWindow):
         # under control objects init
         self.orbit_plots = {'x_orbit': OrbitPlot('x', 'aper_files/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
                             'z_orbit': OrbitPlot('z', 'aper_files/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
-        self.file_exchange = FileDataExchange(self.dir, self.data_receiver)
-        self.cx_exchange = CXDataExchange(self.data_receiver)
 
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
@@ -72,16 +67,23 @@ class PlotControl(QMainWindow):
         # other ordinary channels
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+
+        # data chans
+        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
+        self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
+        self.chan_orbit.valueMeasured(self.new_orbit)
+        self.chan_orbit.valueMeasured(self.new_ctrl_orbit)
 
         # other ctrl callbacks
         self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
-        # self.chan_cmd.valueMeasured.connect(self.cmd)
 
     def bpm_btn_clicked(self):
         bpm = self.sender().text()
         self.active_bpm(bpm)
         self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'cur_bpms', 'act': self.cur_bpms}))
 
     def active_bpm(self, bpm):
         if self.worked_bpms[bpm]:
@@ -99,18 +101,9 @@ class PlotControl(QMainWindow):
         self.orbit_plots['x_orbit'].update_orbit['cur'](self.cur_orbit[:16], self.cur_bpms)  #  , std=std[32:48])
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
-    def data_receiver(self, orbit, std=np.zeros(32), **kwargs):
-        which = kwargs.get('which', 'cur')
-        if isinstance(orbit, np.ndarray):
-            pass
-        elif isinstance(orbit, str):
-            orbit = np.zeros(32)
+    def data_receiver(self, orbit, std=np.zeros(64), which='cur'):
         self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
         self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
-        if which == 'cur':
-            # print(orbit)
-            self.cur_orbit = orbit
-            self.orbit_to_lbl(orbit[:32])
 
     def orbit_to_lbl(self, orbit):
         for i in range(0, 16):
@@ -122,9 +115,6 @@ class PlotControl(QMainWindow):
 
     def mode_changed(self, chan):
         self.mode = chan.val
-        print(self.mode)
-        self.file_exchange.change_data_from_file(self.mode)
-
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
@@ -148,10 +138,17 @@ class PlotControl(QMainWindow):
             print(exc)
 
     def load_file_(self):
-        self.file_exchange.load_file(self, self.mode)
+        self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit'})))
 
     def save_file_(self):
-        self.file_exchange.save_file(self, self.cur_orbit, self.mode)
+        self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit'})))
+
+    def new_orbit(self, chan):
+        self.cur_orbit = chan.val
+        self.data_receiver(self.cur_orbit)
+
+    def new_ctrl_orbit(self, chan):
+        self.data_receiver(chan.val, which='eq')
 
 
 if __name__ == "__main__":

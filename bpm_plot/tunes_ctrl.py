@@ -9,7 +9,7 @@ import os
 import numpy as np
 import pycx4.qcda as cda
 
-from bpm_plot.aux_mod.file_data_exchange import FileDataExchange
+from base_modules.file_data_exchange import FileDataExchange
 from bpm_plot.aux_mod.wrapper_tunes import LinesPlot, TunesMarker, Converter
 
 

@@ -4,46 +4,18 @@
 import numpy as np
 import pycx4.pycda as cda
 import json
+import os
+import re
+import datetime
 from aux.service_daemon import CXService
-
-
-class BPM:
-    def __init__(self, bpm, receiver):
-        super(BPM, self).__init__()
-        self.receiver = receiver
-        self.name = bpm
-        self.turns_mes = 0
-        self.act_state = 1
-        self.marker = 0
-        self.coor = (0, 0)
-        self.sigma = (0, 0)
-
-        self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
-        self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
-        self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
-        self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
-        self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
-        self.chan_datatxzi.valueMeasured.connect(self.data_proc)
-        self.chan_marker.valueMeasured.connect(self.marker_proc)
-
-    def marker_proc(self, chan):
-        # print(chan.val)
-        self.marker = 1
-        self.receiver()
-
-    def data_proc(self, chan):
-        data_len = int(len(chan.val) / 4)
-        self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
-        self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
-        # print(chan.name, data_len)
-        if self.turns_mes:
-            self.chan_fft.setValue(chan.val[data_len:3 * data_len])
-            self.chan_turns.setValue(chan.val[3*data_len:4*data_len])
+from base_modules.file_data_exchange import FileDataExchange
+from .bpm import BPM
 
 
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
+        self.mode = ''
         self.fft_bpm = 'bpm15'
         self.turns_bpm = 'bpm15'
         self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
@@ -53,14 +25,30 @@ class BpmPreproc:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
 
-        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
+        self.file_exchange = FileDataExchange(DIR, self.data_receiver)
+
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        self.chan_cmd.valueMeasured.connect(self.cmd)
+        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024)
+        self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
+        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=1024)
 
-        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
-        self.chan_cmd.valueMeasured.connect(self.cmd)
+        self.orbits = {'cur': self.chan_orbit, 'eq': self.chan_ctrl_orbit}
+        self.cmd_table = {'load_orbit': self.load_file_, 'save_orbit': self.save_file_, 'cur_bpms': self.act_bpm_,
+                          'no_cmd': self.no_cmd_}
+
         print('start')
+
+    def data_receiver(self, orbit, **kwargs):
+        which = kwargs.get('which', 'cur')
+        if isinstance(orbit, np.ndarray):
+            pass
+        elif isinstance(orbit, str):
+            orbit = np.zeros(32)
+        self.orbits[which].setValue(orbit)
 
     def bpm_marker(self):
         permission = 0
@@ -92,39 +80,69 @@ class BpmPreproc:
             orbit = np.array([x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma])
             self.chan_orbit.setValue(orbit)
 
-    def cmd(self, chan):
-        try:
-            cmd = json.loads(chan.val)
-            try:
-                for bpm in self.bpms:
-                    if bpm.name == cmd['turn_bpm']:
-                        bpm.turns_mes = 1
-                    else:
-                        bpm.turns_mes = 0
-            except KeyError:
-                pass
-            try:
-                self.update_num_pts(cmd['num_pts'])
-            except KeyError:
-                pass
-        except Exception as exc:
-            print(exc)
+    #########################################################
+    #                     command part                      #
+    #########################################################
 
-    def act_bpm(self, chan):
-        try:
-            act_bpm = json.loads(chan.val)['cur_bpms']
-            for bpm in self.bpms:
-                if bpm.name in act_bpm:
-                    bpm.act_state = 1
-                else:
-                    bpm.act_state = 0
-        except Exception as exc:
-            print(exc)
+    def cmd(self, chan):
+        # cmd = chan.val
+        # if cmd:
+        command = json.loads(chan.val).get('cmd', 'no_cmd')
+        action = json.loads(chan.val).get('act', 'act')
+        self.cmd_table[command](action)
+        # try:
+        #     cmd = json.loads(chan.val)
+        #     try:
+        #         for bpm in self.bpms:
+        #             if bpm.name == cmd['turn_bpm']:
+        #                 bpm.turns_mes = 1
+        #             else:
+        #                 bpm.turns_mes = 0
+        #     except KeyError:
+        #         pass
+        #     try:
+        #         self.update_num_pts(cmd['num_pts'])
+        #     except KeyError:
+        #         pass
+        # except Exception as exc:
+        #     print(exc)
 
     def update_num_pts(self, num_pts):
         for bpm in self.bpms:
             if bpm.turns_mes:
                 bpm.chan_numpts.setValue(num_pts)
+
+    def mode_changed(self, chan):
+        self.mode = chan.val
+        self.file_exchange.change_data_from_file(self.mode)
+
+    def load_file_(self, act):
+        self.file_exchange.load_file(self, self.mode)
+        self.send_cmd_res_(act + ' -> load -> ')
+
+    def save_file_(self, act):
+        self.file_exchange.save_file(self, self.chan_orbit.val, self.mode)
+        self.send_cmd_res_(act + ' -> save -> ')
+
+    def act_bpm_(self, act_bpm):
+        for bpm in self.bpms:
+            if bpm.name in act_bpm:
+                bpm.act_state = 1
+            else:
+                bpm.act_state = 0
+
+        self.send_cmd_res_('act -> act_bpm -> ')
+
+    def no_cmd_(self, act):
+        self.send_cmd_res_(act + '-> no_cmd ->')
+
+    def send_cmd_res_(self, res):
+        time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.chan_res.setValue(json.dumps(res + time_stamp))
+
+
+DIR = os.getcwd()
+DIR = re.sub('bpm_preproc', 'bpm_plot', DIR)
 
 
 class KMService(CXService):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
 from PyQt5 import uic
 import sys
 import json
+import re
 import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
@@ -67,16 +68,16 @@ class PlotControl(QMainWindow):
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
+        self.chan_mode.valueMeasured.connect(self.mode_changed)
+        self.chan_res.valueMeasured.connect(self.cmd_res)
 
         # data chans
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
-
-        # other ctrl callbacks
-        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
-        self.chan_mode.valueMeasured.connect(self.mode_changed)
 
     def bpm_btn_clicked(self):
         bpm = self.sender().text()
@@ -138,10 +139,24 @@ class PlotControl(QMainWindow):
             print(exc)
 
     def load_file_(self):
-        self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit'})))
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=self.dir + self.save_dir,
+                                                    filter='Text Files (*.txt)')[0]
+            self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit', 'act': file_name})))
+        except Exception as exc:
+            self.status_bar.showMessage(exc)
 
     def save_file_(self):
-        self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit'})))
+        try:
+            sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.dir + self.save_dir,
+                                                  filter='Text Files (*.txt)')
+            if sv_file:
+                file_name = sv_file[0]
+                file_name = re.sub('.txt', '', file_name)
+                file_name = file_name + '.txt'
+                self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit', 'act': file_name})))
+        except Exception as exc:
+            self.status_bar.showMessage(exc)
 
     def new_orbit(self, chan):
         self.cur_orbit = chan.val
@@ -149,6 +164,12 @@ class PlotControl(QMainWindow):
 
     def new_ctrl_orbit(self, chan):
         self.data_receiver(chan.val, which='eq')
+
+    def cmd_res(self, chan):
+        rec = json.loads(chan.val).get('rec', 'no_rec')
+        if rec == 'orbit_ctrl':
+            res = json.loads(chan.val).get('res', 'no_res')
+            self.status_bar.showMessage(res)
 
 
 if __name__ == "__main__":

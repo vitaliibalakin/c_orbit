@@ -8,8 +8,8 @@ import os
 import re
 import datetime
 from aux.service_daemon import CXService
-from base_modules.file_data_exchange import FileDataExchange
-from .bpm import BPM
+from base_modules.file_data_exchange_v2 import FileDataExchange
+from base_modules.bpm import BPM
 
 
 class BpmPreproc:
@@ -107,13 +107,13 @@ class BpmPreproc:
             if bpm.turns_mes:
                 bpm.chan_numpts.setValue(num_pts)
 
-    def load_file_(self, act):
-        self.file_exchange.load_file(self, self.mode)
-        self.send_cmd_res_(act + ' -> load -> ')
+    def load_file_(self, file_name):
+        self.file_exchange.load_file(file_name, self.mode)
+        self.send_cmd_res_('act -> load -> ', rec='orbit_ctrl')
 
-    def save_file_(self, act):
-        self.file_exchange.save_file(self, self.chan_orbit.val, self.mode)
-        self.send_cmd_res_(act + ' -> save -> ')
+    def save_file_(self, file_name):
+        self.file_exchange.save_file(file_name, self.chan_orbit.val, self.mode)
+        self.send_cmd_res_('act -> save -> ', rec='orbit_ctrl')
 
     def act_bpm_(self, act_bpm):
         for bpm in self.bpms:
@@ -122,14 +122,14 @@ class BpmPreproc:
             else:
                 bpm.act_state = 0
 
-        self.send_cmd_res_('act -> act_bpm -> ')
+        self.send_cmd_res_('act -> act_bpm -> ', rec='orbit_ctrl')
 
     def no_cmd_(self, act):
-        self.send_cmd_res_(act + '-> no_cmd ->')
+        self.send_cmd_res_(act + '-> no_cmd ->', rec='orbit_ctrl')
 
-    def send_cmd_res_(self, res):
+    def send_cmd_res_(self, res, rec):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.chan_res.setValue(json.dumps(res + time_stamp))
+        self.chan_res.setValue(json.dumps({'rec': rec, 'res': res + time_stamp}))
 
 
 DIR = os.getcwd()

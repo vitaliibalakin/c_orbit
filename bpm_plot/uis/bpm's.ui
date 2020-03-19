@@ -970,7 +970,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="status_bar"/>
  </widget>
  <resources/>
  <connections/>

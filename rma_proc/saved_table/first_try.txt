@@ -1,0 +1,1 @@
+[{"name": "try", "mag_range": 500, "mag_iter": 5, "rm_step": 100, "rm_iter": 5}, {"name": "trtr", "mag_range": 500, "mag_iter": 5, "rm_step": 100, "rm_iter": 5}]

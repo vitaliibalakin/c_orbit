@@ -87,8 +87,9 @@ class BpmPreproc:
     def cmd(self, chan):
         # cmd = chan.val
         # if cmd:
-        command = json.loads(chan.val).get('cmd', 'no_cmd')
-        action = json.loads(chan.val).get('act', 'act')
+        chan_val = json.loads(chan.val)
+        command = chan_val.get('cmd', 'no_cmd')
+        action = chan_val.get('act', 'act')
         self.cmd_table[command](action)
 
     def mode_changed(self, chan):

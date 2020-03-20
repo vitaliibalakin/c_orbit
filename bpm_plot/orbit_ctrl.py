@@ -5,6 +5,7 @@ from PyQt5 import uic
 import sys
 import json
 import re
+import os
 import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
@@ -140,7 +141,7 @@ class PlotControl(QMainWindow):
 
     def load_file_(self):
         try:
-            file_name = QFileDialog.getOpenFileName(parent=self, directory=self.dir + self.save_dir,
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_orbits',
                                                     filter='Text Files (*.txt)')[0]
             self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit', 'act': file_name})))
         except Exception as exc:
@@ -148,7 +149,7 @@ class PlotControl(QMainWindow):
 
     def save_file_(self):
         try:
-            sv_file = QFileDialog.getSaveFileName(parent=self, directory=self.dir + self.save_dir,
+            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_orbits',
                                                   filter='Text Files (*.txt)')
             if sv_file:
                 file_name = sv_file[0]

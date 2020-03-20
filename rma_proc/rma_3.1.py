@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QSpinBox, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QSpinBox, QTableWidgetItem, QFileDialog
+import re
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
@@ -164,11 +165,11 @@ class CorMeasure(BasicFunc):
 
 
 class RMSpinBox(QSpinBox):
-    def __init__(self, init_val, iter):
+    def __init__(self, init_val, iter_r):
         super(RMSpinBox, self).__init__()
         self.setMaximum(1000)
         self.setValue(init_val)
-        self.setSingleStep(iter)
+        self.setSingleStep(iter_r)
 
 
 class Table:
@@ -177,14 +178,21 @@ class Table:
         self.table = table
         self.cors_list = []
         for cor in ['rst2.crm1', 'rst2.crm2']:
-            self.add_row(cor)
+            self.add_row(name=cor)
 
-    def add_row(self, name):
+    def add_row(self, **params):
+        # params
+        name = params.get('name', 'noname')
+        mag_range = params.get('mag_range', 500)
+        mag_iter = params.get('mag_iter', 5)
+        rm_step = params.get('rm_step', 100)
+        rm_iter = params.get('rm_iter', 5)
+        cor_dict = {'name': name, 'mag_range': RMSpinBox(mag_range, 100), 'mag_iter': RMSpinBox(mag_iter, 1),
+                    'rm_step': RMSpinBox(rm_step, 100), 'rm_iter': RMSpinBox(rm_iter, 1)}
+        # new line
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)
         self.table.setItem(row_num, 0, QTableWidgetItem(name))
-        cor_dict = {'name': name, 'mag_range': RMSpinBox(500, 100), 'mag_iter': RMSpinBox(5, 1),
-                    'rm_step': RMSpinBox(100, 100), 'rm_iter': RMSpinBox(5, 1)}
         self.table.setCellWidget(row_num, 1, cor_dict['mag_range'])
         self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
         self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])
@@ -194,12 +202,17 @@ class Table:
     def remove_row(self, name):
         i = 0
         for elem in self.cors_list:
-            print(elem['name'], name)
+            # print(elem['name'], name)
             if elem['name'] == name:
                 self.table.removeRow(i)
                 del(self.cors_list[i])
                 break
             i += 1
+
+    def free(self):
+        list_f = self.cors_list.copy()
+        for elem in list_f:
+            self.remove_row(elem['name'])
 
 
 class RMA(QMainWindow, BasicFunc):
@@ -430,13 +443,39 @@ class RMA(QMainWindow, BasicFunc):
         pass
 
     def save_table(self):
-        pass
+        table = self.table.cors_list.copy()
+        for table_line in table:
+            for key in table_line:
+                if not (key == 'name'):
+                    table_line[key] = table_line[key].value()
+        try:
+            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_table',
+                                                  filter='Text Files (*.txt)')
+            if sv_file:
+                file_name = re.sub('.txt', '', sv_file[0]) + '.txt'
+                f = open(file_name, 'w')
+                f.write(json.dumps(table))
+                f.close()
+                self.log_msg.append('TABLE saved')
+        except Exception as exc:
+            self.log_msg.append(str(exc))
 
     def load_table(self):
-        pass
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_table',
+                                                    filter='Text Files (*.txt)')[0]
+            f = open(file_name, 'r')
+            table = json.loads(f.readline())
+            f.close()
+            self.table.free()
+            for line in table:
+                self.table.add_row(**line)
+            self.log_msg.append('TABLE loaded')
+        except Exception as exc:
+            self.log_msg.append(str(exc))
 
     # reverse response matrix
-    def deta_receiver_rev_rm(self):
+    def data_receiver_rev_rm(self):
         pass
 
     def save_rev_rm(self):

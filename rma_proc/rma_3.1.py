@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QSpinBox, QT
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
-
+import os
 import sys
 import pycx4.qcda as cda
 import numpy as np
@@ -14,6 +14,7 @@ from scipy import optimize
 import json
 
 from c_orbit.base_modules.basic_module_2_1 import BasicFunc
+from base_modules.file_data_exchange_v2 import FileDataExchange
 
 
 class Magnetization(BasicFunc):
@@ -229,13 +230,23 @@ class RMA(QMainWindow, BasicFunc):
         self.cor_fail = []
         self.list_names = []
         self.resp_matr_dict = {}
+        self.rev_rm = np.array([])
 
         self.btn_start_proc.clicked.connect(self.start_rma)
         self.btn_stop_proc.clicked.connect(self.stop_rma)
         self.btn_reverse_rm.clicked.connect(self.reverse_rm)
         self.sing_reg.sigRegionChangeFinished.connect(self.sing_reg_upd)
+        self.btn_save_table.clicked.connect(self.save_table)
+        self.btn_load_table.clicked.connect(self.load_table)
+        self.btn_save_rev_rm.clicked.connect(self.save_rev_rm)
 
         self.table = Table(self.cor_set_table)
+        self.file_table = FileDataExchange(os.getcwd() + '/saved_table', self.data_receiver_t)
+        self.file_rev_rm = FileDataExchange(os.getcwd() + '/saved_rev_rm', self.data_receiver_rev_rm)
+
+    ###########################################
+    #               MAGNETIZATION             #
+    ###########################################
 
     def start_magn(self):
         self.log_msg.clear()
@@ -273,6 +284,10 @@ class RMA(QMainWindow, BasicFunc):
         # this command will start MAGN Procedure
         self.lbl_elem.setText(self.stack_names[0])
         QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
+
+    ###########################################
+    #                ASSEMBLING               #
+    ###########################################
 
     def start_rma(self):
         self.rma_ready = 1
@@ -377,6 +392,10 @@ class RMA(QMainWindow, BasicFunc):
         self.log_msg.append('RMA process finished')
         self.rm_svd()
 
+    ###########################################
+    #                REVERSING                #
+    ###########################################
+
     def rm_svd(self):
         self.plt.clear()
         u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
@@ -398,11 +417,33 @@ class RMA(QMainWindow, BasicFunc):
                 sing_vals[i] = 0
         s_r = np.zeros((vh.shape[0], u.shape[0]))
         s_r[:counter, :counter] = np.diag(sing_vals)
-        rm_rev = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
+        self.rev_rm = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
+        self.save_rev_rm()
+        self.log_msg.append('RM reversed')
+
+    ###########################################
+    #              FILE WORKING               #
+    ###########################################
+
+    # table
+    def data_receiver_t(self):
+        pass
+
+    def save_table(self):
+        pass
+
+    def load_table(self):
+        pass
+
+    # reverse response matrix
+    def deta_receiver_rev_rm(self):
+        pass
+
+    def save_rev_rm(self):
         f = open(self.rm_name.text() + '_reversed_rm.txt', 'w')
-        f.write(json.dumps({'rm_rev': np.ndarray.tolist(rm_rev), 'cor_names': self.list_names}))
+        f.write(json.dumps({'rm_rev': np.ndarray.tolist(self.rev_rm), 'cor_names': self.list_names}))
         f.close()
-        self.log_msg.append('RM reversed and saved')
+        self.log_msg.append('RM saved')
 
 
 if __name__ == "__main__":

@@ -1,218 +1,20 @@
 #!/usr/bin/env python3
-
-
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QSpinBox, QTableWidgetItem, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
 import re
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 import os
 import sys
-import pycx4.qcda as cda
 import numpy as np
-import time
 from scipy import optimize
 import json
 
 from c_orbit.base_modules.basic_module_2_1 import BasicFunc
 from base_modules.file_data_exchange_v2 import FileDataExchange
-
-
-class Magnetization(BasicFunc):
-    def __init__(self, call_upon_completion, name, step, stop, odz, prg):
-        super(Magnetization, self).__init__()
-        self.chans = {'Iset': None, 'Imes': None}
-        self.val = {'Iset': None, 'Imes': None}
-        self.name = name
-        self.init_val = None
-        self.step = step
-        self.stop = stop
-        self.counter = 0
-        self.status = None
-        self.flag = False
-        self.time_flag = False
-        self.err_flag = False
-        self.time_stamp = 0
-        self.odz = odz
-        self.prg = prg
-        self.callback = call_upon_completion
-
-        for chan in ['Iset', 'Imes']:
-            cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
-            cor_chan.valueMeasured.connect(self.val_change)
-            self.chans[chan] = cor_chan
-
-    def val_change(self, chan):
-        self.val[chan.name.split('.')[-1]] = chan.val
-
-        if self.time_flag:
-            if time.time() > self.time_stamp:
-                if chan.name.split('.')[-1] == 'Imes':
-                    self.time_flag = False
-                    self.checking_equality(self.val, self.proc, self.error, self.odz)
-
-        if self.err_flag:
-            if time.time() > self.time_stamp:
-                if chan.name.split('.')[-1] == 'Imes':
-                    self.err_flag = False
-                    self.err_verification(self.val, self.proc, self.error, self.odz)
-
-    def proc(self):
-        print('hmm', self.counter)
-        if not self.flag:
-            self.flag = True
-            self.init_val = self.val['Iset']
-        if self.counter == self.stop:
-            self.flag = False
-            self.status = 'completed'
-            self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name)
-        else:
-            self.prg.setValue(100 * self.counter / (self.stop - 1))
-            self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
-            self.counter += 1
-            self.time_flag = True
-            self.time_stamp = time.time() + 3
-
-    def error(self, reason):
-        if reason == 'check_eq':
-            self.err_flag = True
-            self.time_stamp = time.time() + 3
-        if reason == 'verif':
-            self.status = 'fail'
-            self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name)
-
-
-class CorMeasure(BasicFunc):
-    def __init__(self, call_upon_completion, name, step, n_iter, a_bpm, prg):
-        super(CorMeasure, self).__init__()
-        self.chans = {'Iset': None, 'Imes': None}
-        self.val = {'Iset': None, 'Imes': None, 'time': None}
-        self.name = name
-        self.init_val = None
-        self.step = step
-        self.n_iter = -1 * n_iter
-        self.prg = prg
-        self.stop = n_iter + 1
-        self.cor_data = np.zeros([2*a_bpm, ])
-        self.response = None
-        self.status = None
-        self.flag = False
-        self.time_flag = False
-        self.err_flag = False
-        self.data_flag = True
-        self.time_stamp = 0
-        self.callback = call_upon_completion
-
-        for chan in ['Iset', 'Imes']:
-            cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
-            cor_chan.valueMeasured.connect(self.val_change)
-            self.chans[chan] = cor_chan
-        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32)
-        self.chan_orbit.valueMeasured.connect(self.bpm_proc)
-
-    def val_change(self, chan):
-        self.val[chan.name.split('.')[-1]] = chan.val
-
-        if self.time_flag:
-            if time.time() > self.time_stamp:
-                if chan.name.split('.')[-1] == 'Imes':
-                    self.time_flag = False
-                    self.checking_equality(self.val, self.data_is_ready, self.cor_error, 100)
-
-        if self.err_flag:
-            if time.time() > self.time_stamp:
-                if chan.name.split('.')[-1] == 'Imes':
-                    self.err_flag = False
-                    self.err_verification(self.val, self.data_is_ready, self.cor_error, 100)
-
-    def proc(self):
-        self.prg.setValue((self.n_iter / 2 / (self.stop-1) + 1 / 2) * 100)
-        if not self.flag:
-            self.flag = True
-            self.init_val = self.val['Iset']
-        if self.n_iter == self.stop:
-            self.flag = False
-            self.status = 'completed'
-            self.chans['Iset'].setValue(self.init_val)
-            self.response = [self.cor_data[1:], self.init_val]
-            self.callback(self.name)
-        else:
-            self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
-            print(self.name, self.n_iter)
-            self.n_iter += 1
-            self.time_flag = True
-            self.time_stamp = time.time() + 3
-
-    def cor_error(self, reason):
-        if reason == 'check_eq':
-            self.err_flag = True
-            self.time_stamp = time.time() + 3
-        if reason == 'verif':
-            self.status = 'fail'
-            self.chans['Iset'].setValue(self.init_val)
-            self.callback(self.name)
-
-    def data_is_ready(self):
-        self.data_flag = False
-
-    def bpm_proc(self, chan):
-        if not self.data_flag:
-            self.data_flag = True
-            self.cor_data = np.vstack((self.cor_data, chan.val))
-            self.proc()
-
-
-class RMSpinBox(QSpinBox):
-    def __init__(self, init_val, iter_r):
-        super(RMSpinBox, self).__init__()
-        self.setMaximum(1000)
-        self.setValue(init_val)
-        self.setSingleStep(iter_r)
-
-
-class Table:
-    def __init__(self, table):
-        super(Table, self).__init__()
-        self.table = table
-        self.cors_list = []
-        for cor in ['rst2.crm1', 'rst2.crm2']:
-            self.add_row(name=cor)
-
-    def add_row(self, **params):
-        # params
-        name = params.get('name', 'noname')
-        mag_range = params.get('mag_range', 500)
-        mag_iter = params.get('mag_iter', 5)
-        rm_step = params.get('rm_step', 100)
-        rm_iter = params.get('rm_iter', 5)
-        cor_dict = {'name': name, 'mag_range': RMSpinBox(mag_range, 100), 'mag_iter': RMSpinBox(mag_iter, 1),
-                    'rm_step': RMSpinBox(rm_step, 100), 'rm_iter': RMSpinBox(rm_iter, 1)}
-        # new line
-        row_num = self.table.rowCount()
-        self.table.insertRow(row_num)
-        self.table.setItem(row_num, 0, QTableWidgetItem(name))
-        self.table.setCellWidget(row_num, 1, cor_dict['mag_range'])
-        self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
-        self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])
-        self.table.setCellWidget(row_num, 4, cor_dict['rm_iter'])
-        self.cors_list.append(cor_dict)
-
-    def remove_row(self, name):
-        i = 0
-        for elem in self.cors_list:
-            # print(elem['name'], name)
-            if elem['name'] == name:
-                self.table.removeRow(i)
-                del(self.cors_list[i])
-                break
-            i += 1
-
-    def free(self):
-        list_f = self.cors_list.copy()
-        for elem in list_f:
-            self.remove_row(elem['name'])
+from .magnetiz import Magnetization
+from .cor_proc import CorMeasure
+from .table import Table
 
 
 class RMA(QMainWindow, BasicFunc):
@@ -318,8 +120,7 @@ class RMA(QMainWindow, BasicFunc):
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
                 self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], step=cor['rm_step'].value(),
-                                                           n_iter=cor['rm_iter'].value(), a_bpm=16,
-                                                           prg=self.elem_prg_bar)
+                                                           n_iter=cor['rm_iter'].value(), prg=self.elem_prg_bar)
         if not len(self.cor_fail):
             self.log_msg.append('Fail List EMPTY')
         else:
@@ -347,6 +148,7 @@ class RMA(QMainWindow, BasicFunc):
                 if self.rma_ready:
                     # if RMA
                     self.rma_string_calc(name, self.stack_elems[name].response)
+            # continue make response
             if len(self.stack_names):
                 self.lbl_elem.setText(self.stack_names[0])
                 self.stack_elems[self.stack_names[0]].proc()

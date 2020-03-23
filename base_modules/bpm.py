@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import pycx4.pycda as cda
+import scipy.signal as sp
 
 
 class BPM:
@@ -13,12 +14,18 @@ class BPM:
         self.marker = 0
         self.coor = (0, 0)
         self.sigma = (0, 0)
+        self.x_bound = [0.345, 0.365]
+        self.z_bound = [0.2, 0.4]
 
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
+        self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
         self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
         self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
         self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
+        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range')
+        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
+        self.chan_tunes_range.valueMeasured.connect(self.tunes_range)
         self.chan_datatxzi.valueMeasured.connect(self.data_proc)
         self.chan_marker.valueMeasured.connect(self.marker_proc)
 
@@ -33,5 +40,28 @@ class BPM:
         self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
         # print(chan.name, data_len)
         if self.turns_mes:
-            self.chan_fft.setValue(chan.val[data_len:3 * data_len])
+            self.fft_proc(chan.val[data_len:3 * data_len])
             self.chan_turns.setValue(chan.val[3*data_len:4*data_len])
+
+    def fft_proc(self, data):
+        self.chan_coor.setValue(data)
+        h_len = len(data) // 2
+        window = sp.nuttall(h_len)
+        x_fft = np.fft.rfft((data[:h_len] - np.mean(data[:h_len])) * window, len(data[:h_len]), norm='ortho')
+        z_fft = np.fft.rfft((data[h_len: len(data)] - np.mean(data[h_len: len(data)])) * window, len(data[h_len: len(data)]), norm='ortho')
+        freq = np.fft.rfftfreq(h_len, 1)
+        self.chan_fft.setValue(np.array([freq, np.abs(x_fft), np.abs(z_fft)]))
+
+        # searching of working DR point
+        x_arr = freq[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))]
+        z_arr = freq[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))]
+        x_index = np.argmax(np.abs(x_fft)[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))])
+        z_index = np.argmax(np.abs(z_fft)[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))])
+        x_tune = round(x_arr[x_index], 3)
+        z_tune = round((1 - z_arr[z_index]), 3)
+        self.chan_tunes.setValue(np.array([x_tune, z_tune]))
+
+    def tunes_range(self, chan):
+        bounds = chan.val
+        self.x_bound = bounds[0:2]
+        self.z_bound = bounds[2:4]

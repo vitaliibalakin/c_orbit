@@ -16,7 +16,7 @@ class CoorPlot(pg.PlotWidget):
         self.setLabel('bottom', "Turn")
         self.setRange(xRange=[0, 1000])
 
-    def coor_proc(self, data):
+    def coor_plot(self, data):
         h_len = len(data) // 2
         x = data[:h_len]
         z = data[h_len: len(data)]

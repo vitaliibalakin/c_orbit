@@ -6,13 +6,12 @@ import sys
 import numpy as np
 import scipy.signal as sp
 import pyqtgraph as pg
-from scipy.fftpack import fft
+import pycx4.qcda as cda
 
 
 class FFTPlot(pg.PlotWidget):
-    def __init__(self, parent, stat_bar):
+    def __init__(self, parent):
         super(FFTPlot, self).__init__(parent=parent)
-        self.stat_bar = stat_bar
         self.showGrid(x=True, y=True)
         # self.setLogMode(False, True)
         self.setLabel('left', "Ampl")
@@ -32,33 +31,26 @@ class FFTPlot(pg.PlotWidget):
         self.x_bound = [0.345, 0.365]
         self.z_bound = [0.2, 0.4]
 
+        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range')
+
         self.x_lin_reg.sigRegionChangeFinished.connect(self.x_bound_update)
         self.z_lin_reg.sigRegionChangeFinished.connect(self.z_bound_update)
 
-    def fft_proc(self, data):
-        h_len = len(data) // 2
-        window = sp.nuttall(h_len)
-        x_fft = np.fft.rfft((data[:h_len] - np.mean(data[:h_len])) * window, len(data[:h_len]), norm='ortho')
-        z_fft = np.fft.rfft((data[h_len: len(data)] - np.mean(data[h_len: len(data)])) * window, len(data[h_len: len(data)]), norm='ortho')
-        freq = np.fft.rfftfreq(h_len, 1)
-        self.x_plot.setData(freq, np.abs(x_fft), pen=pg.mkPen('b', width=1))
-        self.z_plot.setData(freq, np.abs(z_fft), pen=pg.mkPen('r', width=1))
-
-        # searching of working DR point
-        x_arr = freq[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))]
-        z_arr = freq[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))]
-        x_index = np.argmax(np.abs(x_fft)[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))])
-        z_index = np.argmax(np.abs(z_fft)[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))])
-        x_tune = round(x_arr[x_index], 3)
-        z_tune = round((1 - z_arr[z_index]), 3)
-        self.stat_bar.showMessage("nu_x | nu_z =" + str(x_tune) + "|" + str(z_tune))
-        return np.array([x_tune, z_tune])
+    def fft_plot(self, data):
+        f_len = len(data) // 3
+        freq = data[:f_len]
+        x_fft = data[f_len:2 * f_len]
+        z_fft = data[2 * f_len:3 * f_len]
+        self.x_plot.setData(freq, x_fft, pen=pg.mkPen('b', width=1))
+        self.z_plot.setData(freq, z_fft, pen=pg.mkPen('r', width=1))
 
     def x_bound_update(self, region_item):
         self.x_bound = region_item.getRegion()
+        self.chan_tunes_range.setValue(np.array([self.x_bound, self.z_bound]))
 
     def z_bound_update(self, region_item):
         self.z_bound = region_item.getRegion()
+        self.chan_tunes_range.setValue(np.array([self.x_bound, self.z_bound]))
 
 
 if __name__ == "__main__":

@@ -32,9 +32,7 @@ class BpmPreproc:
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
-        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=1024)
 
         self.orbits = {'cur': self.chan_orbit, 'eq': self.chan_ctrl_orbit}
         self.cmd_table = {'load_orbit': self.load_file_, 'save_orbit': self.save_file_, 'cur_bpms': self.act_bpm_,

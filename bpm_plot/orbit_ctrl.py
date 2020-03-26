@@ -10,6 +10,8 @@ import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
 from bpm_plot.aux_mod.orbit_plot import OrbitPlot
+from bpm_plot.aux_mod.structure_parser import PyQtStructureParser
+from bpm_plot.aux_mod.wrapper_tunes import Converter
 
 
 class PlotControl(QMainWindow):
@@ -49,6 +51,10 @@ class PlotControl(QMainWindow):
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbit_plots.items():
             p.addWidget(plot)
+
+        stru = Converter().sdds_to_pandas('ElementName', 'ElementType', 's', 'Profile')
+        pars = PyQtStructureParser(stru, parent=self)
+        p.addWidget(pars)
 
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}

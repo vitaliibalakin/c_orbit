@@ -83,9 +83,13 @@ class LinesPlot(pg.GraphicsObject):
         self.lines_coor = lines_coor
         self.order = kwargs.get('order', 3)
         self.color = kwargs.get('color', QtCore.Qt.darkCyan)
-        self.point_obj()
+        self.l_type = kwargs.get('l_type', 'res_diag')
+        if self.l_type == 'res_diag':
+            self.point_obj_res()
+        else:
+            self.point_obj_s()
 
-    def point_obj(self):
+    def point_obj_res(self):
         self.picture = pg.QtGui.QPicture()
         p = pg.QtGui.QPainter(self.picture)
         p.setRenderHint(QtGui.QPainter.Antialiasing, True)
@@ -100,6 +104,15 @@ class LinesPlot(pg.GraphicsObject):
         p.drawLines(lines)
         p.end()
 
+    def point_obj_s(self):
+        self.picture = pg.QtGui.QPicture()
+        p = pg.QtGui.QPainter(self.picture)
+        p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        p.setPen(QtGui.QPen(self.color, 0.3))
+        p.drawLines([QtCore.QLineF(QtCore.QPointF(self.lines_coor[0][0], self.lines_coor[0][1]),
+                                   QtCore.QPointF(self.lines_coor[1][0], self.lines_coor[1][1]))])
+        p.end()
+
     def paint(self, p, *args):
         p.drawPicture(0, 0, self.picture)
 
@@ -108,11 +121,13 @@ class LinesPlot(pg.GraphicsObject):
 
 
 class PyQtElemPlot(pg.GraphicsObject):
-    def __init__(self, beg, end, c_type):
+    def __init__(self, beg, end, c_type, anchor):
         pg.GraphicsObject.__init__(self)
         self.picture = None
-        self.colors = {'QUAD_F': QtCore.Qt.blue, 'QUAD_D': QtCore.Qt.blue}
-        self.coors = {'QUAD_F': [1, 0], 'QUAD_D': [0, -1]}
+        self.colors = {'QUAD_F': QtCore.Qt.blue, 'QUAD_D': QtCore.Qt.blue, 'KSBEND': QtCore.Qt.green,
+                       'RFCA': QtCore.Qt.red}
+        self.coors = {'QUAD_F': [4, 0], 'QUAD_D': [0, -4], 'KSBEND': [2, -2], 'RFCA': [2, -2]}
+        self.anchor = anchor
         self.point_obj(beg, end, c_type)
 
     def point_obj(self, beg, end, c_type):
@@ -123,10 +138,10 @@ class PyQtElemPlot(pg.GraphicsObject):
         p.setPen(QtCore.Qt.NoPen)
         p.setBrush(self.colors[c_type])
         coors = self.coors[c_type]
-        points = [QtCore.QPointF(beg, coors[0]), QtCore.QPointF(end, coors[0]),
-                  QtCore.QPointF(end, coors[0]), QtCore.QPointF(end, coors[1]),
-                  QtCore.QPointF(end, coors[1]), QtCore.QPointF(beg, coors[1]),
-                  QtCore.QPointF(beg, coors[1]), QtCore.QPointF(beg, coors[0])]
+        points = [QtCore.QPointF(beg, coors[0] + self.anchor), QtCore.QPointF(end, coors[0] + self.anchor),
+                  QtCore.QPointF(end, coors[0] + self.anchor), QtCore.QPointF(end, coors[1] + self.anchor),
+                  QtCore.QPointF(end, coors[1] + self.anchor), QtCore.QPointF(beg, coors[1] + self.anchor),
+                  QtCore.QPointF(beg, coors[1] + self.anchor), QtCore.QPointF(beg, coors[0] + self.anchor)]
         poly = QtGui.QPolygonF(points)
         p.drawPolygon(poly)
         p.end()

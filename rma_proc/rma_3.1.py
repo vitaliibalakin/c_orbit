@@ -60,7 +60,7 @@ class RMA(QMainWindow, BasicFunc):
         self.file_rev_rm = FileDataExchange(os.getcwd() + '/saved_rev_rm', self.data_receiver_rev_rm)
 
     ###########################################
-    #               MAGNETIZATION             #
+    #               MAGNETIZATION!            #
     ###########################################
 
     def start_magn(self):

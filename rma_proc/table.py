@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from PyQt5.QtWidgets import QTableWidgetItem
+from rma_proc.rm_spin_box import RMSpinBox
 
 
 class Table:

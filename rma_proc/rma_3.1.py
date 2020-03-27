@@ -12,9 +12,9 @@ import json
 
 from c_orbit.base_modules.basic_module_2_1 import BasicFunc
 from base_modules.file_data_exchange_v2 import FileDataExchange
-from .magnetiz import Magnetization
-from .cor_proc import CorMeasure
-from .table import Table
+from rma_proc.magnetiz import Magnetization
+from rma_proc.cor_proc import CorMeasure
+from rma_proc.table import Table
 
 
 class RMA(QMainWindow, BasicFunc):
@@ -120,7 +120,8 @@ class RMA(QMainWindow, BasicFunc):
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
                 self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], step=cor['rm_step'].value(),
-                                                           n_iter=cor['rm_iter'].value(), prg=self.elem_prg_bar)
+                                                           n_iter=cor['rm_iter'].value(), prg=self.elem_prg_bar,
+                                                           resp_type=self.resp_type.currentText)
         if not len(self.cor_fail):
             self.log_msg.append('Fail List EMPTY')
         else:

@@ -84,6 +84,8 @@ class LinesPlot(pg.GraphicsObject):
         self.order = kwargs.get('order', 3)
         self.color = kwargs.get('color', QtCore.Qt.darkCyan)
         self.l_type = kwargs.get('l_type', 'res_diag')
+        a = pg.TextItem('a')
+
         if self.l_type == 'res_diag':
             self.point_obj_res()
         else:
@@ -137,6 +139,8 @@ class PyQtElemPlot(pg.GraphicsObject):
 
         p.setPen(QtCore.Qt.NoPen)
         p.setBrush(self.colors[c_type])
+        p.setFont(QtGui.QFont('Arial', 40))
+        p.drawText(QtCore.QPointF(0, 0), 'grkkkkkkkkkkkkkkkkkkk')
         coors = self.coors[c_type]
         points = [QtCore.QPointF(beg, coors[0] + self.anchor), QtCore.QPointF(end, coors[0] + self.anchor),
                   QtCore.QPointF(end, coors[0] + self.anchor), QtCore.QPointF(end, coors[1] + self.anchor),

@@ -18,13 +18,12 @@ class BPMMarker(pg.GraphicsObject):
     def point_obj(self):
         self.picture = pg.QtGui.QPicture()
         p = pg.QtGui.QPainter(self.picture)
+        # p.setFont(QtGui.QFont('Arial', 1))
+        # p.drawText(QtCore.QPointF(0, 0), 'kek')
         p.setRenderHint(QtGui.QPainter.Antialiasing, True)
 
         p.setBrush(self.color)
         p.setPen(QtCore.Qt.NoPen)
-        # p.drawEllipse(QtCore.QPointF(self.x, self.y), 0.3, 3)
-        # p.setPen(QtGui.QPen(QtCore.Qt.black, 5, QtCore.Qt.SolidLine))
-        # p.setBrush(QtGui.QBrush(self.color, QtCore.Qt.SolidPattern))
         points = [
             QtCore.QPointF(self.x - 0.5, self.y),
             QtCore.QPointF(self.x - 0.5, self.y + 2),

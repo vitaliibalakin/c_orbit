@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QGraphicsTextItem
 from PyQt5 import QtCore
 import sys
 import numpy as np

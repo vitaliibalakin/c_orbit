@@ -27,8 +27,8 @@ class PlotControl(QMainWindow):
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.cur_bpms = self.bpms.copy()
-        self.bpm_coor = [0, 1.908, 3.144, 5.073, 6.7938, 8.7388, 9.9648, 11.8928, 13.7078, 15.6298, 16.8568, 18.8018,
-                         20.5216, 22.4566, 23.7111, 25.6156]
+        self.bpm_coor = [21.4842, 23.39292, 24.6282, 26.5572, 0.8524, 2.7974, 4.0234, 5.9514, 7.7664, 9.6884,
+                         10.9154, 12.8604, 14.5802, 16.5152, 17.7697, 19.6742]
         self.bpm_btns = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
                          self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
                          self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]

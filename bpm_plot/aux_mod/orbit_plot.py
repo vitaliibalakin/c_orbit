@@ -8,7 +8,7 @@ import pyqtgraph as pg
 from bpm_plot.aux_mod.bpm_point import BPMMarker
 from bpm_plot.aux_mod.aper_plot import AperPlot
 from bpm_plot.aux_mod.wrapper_tunes import Converter
-from bpm_plot.aux_mod.wrapper_tunes import PyQtElemPlot, LinesPlot
+from bpm_plot.aux_mod.wrapper_tunes import PyQtElemPlot, LinesPlot, TextLabel
 
 
 class OrbitPlot(pg.PlotWidget):
@@ -81,6 +81,7 @@ class OrbitPlot(pg.PlotWidget):
                     self.addItem(PyQtElemPlot(e_beg, e_end, c_type, anchor))
                 elif structure['ElementType'][line_counter - 1] == 'RFCA':
                     c_type = 'RFCA'
+                    self.addItem(TextLabel(text='CAVITY'))
                     self.addItem(PyQtElemPlot(e_beg, e_end, c_type, anchor))
                 e_beg = -1
             line_counter += 1

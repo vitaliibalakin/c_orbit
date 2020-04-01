@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QApplication
 from PyQt5 import QtCore, QtGui
 import sys
+import numpy as np
 import pandas as pd
 import subprocess
 from io import StringIO
@@ -139,8 +140,6 @@ class PyQtElemPlot(pg.GraphicsObject):
 
         p.setPen(QtCore.Qt.NoPen)
         p.setBrush(self.colors[c_type])
-        p.setFont(QtGui.QFont('Arial', 40))
-        p.drawText(QtCore.QPointF(0, 0), 'grkkkkkkkkkkkkkkkkkkk')
         coors = self.coors[c_type]
         points = [QtCore.QPointF(beg, coors[0] + self.anchor), QtCore.QPointF(end, coors[0] + self.anchor),
                   QtCore.QPointF(end, coors[0] + self.anchor), QtCore.QPointF(end, coors[1] + self.anchor),
@@ -182,6 +181,43 @@ class TunesMarker(pg.GraphicsObject):
 
     def update_pos(self, pos):
         self.setPos(pos[0], pos[1])
+
+    def paint(self, p, *args):
+        p.drawPicture(0, 0, self.picture)
+
+    def boundingRect(self):
+        return pg.QtCore.QRectF(self.picture.boundingRect())
+
+
+class TextLabel(pg.GraphicsObject):
+    def __init__(self, **kwargs):
+        pg.GraphicsObject.__init__(self)
+        self.picture = None
+        self.x = kwargs.get('x', 0)
+        self.y = kwargs.get('y', 1)
+        self.text = kwargs.get('text', 'UN')
+        self.point_text()
+
+    def point_text(self):
+        self.picture = pg.QtGui.QPicture()
+        p = pg.QtGui.QPainter(self.picture)
+        rect = QtCore.QRectF(0, 0, 10, 10)
+        font = QtGui.QFont()
+        font.setPointSizeF(1)
+        p.setFont(font)
+        p.scale(1, 10)
+        tr = QtGui.QTransform()
+        tr.setMatrix(tr.m11(), tr.m12(), tr.m13(), tr.m21(), -1, tr.m23(), tr.m31(), tr.m32(), tr.m33())
+        p.setTransform(tr)
+
+        p.drawText(rect, self.text)
+        # p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        # p.setBrush(self.color)
+        # p.setPen(QtCore.Qt.NoPen)
+        p.end()
+
+    def update_pos(self, y_pos):
+        self.setPos(0, y_pos)
 
     def paint(self, p, *args):
         p.drawPicture(0, 0, self.picture)

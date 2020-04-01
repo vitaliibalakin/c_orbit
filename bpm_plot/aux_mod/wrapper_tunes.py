@@ -124,14 +124,16 @@ class LinesPlot(pg.GraphicsObject):
 
 
 class PyQtElemPlot(pg.GraphicsObject):
-    def __init__(self, beg, end, c_type, anchor):
+    def __init__(self, beg, end, **kwargs):
         pg.GraphicsObject.__init__(self)
         self.picture = None
         self.colors = {'QUAD_F': QtCore.Qt.blue, 'QUAD_D': QtCore.Qt.blue, 'KSBEND': QtCore.Qt.green,
                        'RFCA': QtCore.Qt.red}
         self.coors = {'QUAD_F': [4, 0], 'QUAD_D': [0, -4], 'KSBEND': [2, -2], 'RFCA': [2, -2]}
-        self.anchor = anchor
-        self.point_obj(beg, end, c_type)
+
+        self.anchor = kwargs.get('anchor', 0)
+        self.c_type = kwargs.get('c_type', 'KSBEND')
+        self.point_obj(beg, end, self.c_type)
 
     def point_obj(self, beg, end, c_type):
         self.picture = pg.QtGui.QPicture()
@@ -196,24 +198,21 @@ class TextLabel(pg.GraphicsObject):
         self.x = kwargs.get('x', 0)
         self.y = kwargs.get('y', 1)
         self.text = kwargs.get('text', 'UN')
+        self.anchor = kwargs.get('anchor', 0)
+        self.pos = kwargs.get('pos', 0)
         self.point_text()
 
     def point_text(self):
         self.picture = pg.QtGui.QPicture()
         p = pg.QtGui.QPainter(self.picture)
-        rect = QtCore.QRectF(0, 0, 10, 10)
-        font = QtGui.QFont()
-        font.setPointSizeF(1)
-        p.setFont(font)
-        p.scale(1, 10)
+        rect = QtCore.QRectF(self.pos * 10 - 4, -self.anchor, 8, 8)
         tr = QtGui.QTransform()
         tr.setMatrix(tr.m11(), tr.m12(), tr.m13(), tr.m21(), -1, tr.m23(), tr.m31(), tr.m32(), tr.m33())
+        tr.scale(0.1, 1)
         p.setTransform(tr)
-
+        p.setFont(QtGui.QFont("Helvetica", 3))
+        p.setPen(QtGui.QPen(QtCore.Qt.black, 1))
         p.drawText(rect, self.text)
-        # p.setRenderHint(QtGui.QPainter.Antialiasing, True)
-        # p.setBrush(self.color)
-        # p.setPen(QtCore.Qt.NoPen)
         p.end()
 
     def update_pos(self, y_pos):

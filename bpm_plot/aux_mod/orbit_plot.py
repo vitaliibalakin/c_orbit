@@ -75,14 +75,15 @@ class OrbitPlot(pg.PlotWidget):
                         c_type = 'QUAD_F'
                     else:
                         c_type = 'QUAD_D'
-                    self.addItem(PyQtElemPlot(e_beg, e_end, c_type, anchor))
+                    self.addItem(PyQtElemPlot(e_beg, e_end, c_type=c_type, anchor=anchor))
                 elif structure['ElementType'][line_counter - 1] == 'KSBEND':
                     c_type = 'KSBEND'
-                    self.addItem(PyQtElemPlot(e_beg, e_end, c_type, anchor))
+                    self.addItem(TextLabel(text=structure['ElementName'][line_counter - 1], anchor=anchor - 3, pos=(e_end + e_beg) / 2))
+                    self.addItem(PyQtElemPlot(e_beg, e_end, c_type=c_type, anchor=anchor))
                 elif structure['ElementType'][line_counter - 1] == 'RFCA':
                     c_type = 'RFCA'
-                    self.addItem(TextLabel(text='CAVITY'))
-                    self.addItem(PyQtElemPlot(e_beg, e_end, c_type, anchor))
+                    self.addItem(TextLabel(text='CAV', anchor=anchor-3, pos=(e_end + e_beg) / 2))
+                    self.addItem(PyQtElemPlot(e_beg, e_end, c_type=c_type, anchor=anchor))
                 e_beg = -1
             line_counter += 1
 

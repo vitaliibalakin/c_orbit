@@ -35,7 +35,7 @@ class CorMeasure(BasicFunc):
             self.chans[chan] = cor_chan
 
         self.cor_data = self.cor_data_resps[resp_type]
-        self.chan_data = self.chans[resp_type]
+        self.chan_data = self.chan_resps[resp_type]
         self.chan_data.valueMeasured.connect(self.data_proc)
 
     def val_change(self, chan):

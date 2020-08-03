@@ -10,11 +10,13 @@ import numpy as np
 from scipy import optimize
 import json
 
+# instruments for main procedure
 from c_orbit.base_modules.basic_module_2_1 import BasicFunc
 from base_modules.file_data_exchange_v2 import FileDataExchange
 from rma_proc.magnetiz import Magnetization
 from rma_proc.cor_proc import CorMeasure
 from rma_proc.table import Table
+from rma_proc.tree_table import TreeTableCom
 
 
 class RMA(QMainWindow, BasicFunc):
@@ -23,7 +25,8 @@ class RMA(QMainWindow, BasicFunc):
         uic.loadUi("uis/rma_main_window.ui", self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        # sing values plot
+
+        # sing values plot def
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
         self.plt.setLogMode(False, False)
@@ -34,6 +37,13 @@ class RMA(QMainWindow, BasicFunc):
         self.sv_plot.setLayout(p)
         p.addWidget(self.plt)
         self.show()
+
+        # table def
+        self.table = Table(self.cor_set_table)
+        self.file_table = FileDataExchange(os.getcwd() + '/saved_table', self.data_receiver_t)
+        self.file_rev_rm = FileDataExchange(os.getcwd() + '/saved_rev_rm', self.data_receiver_rev_rm)
+        # tree def
+        self.tree = TreeTableCom(self.table, 40, self.tree_widget)
 
         self.rma_ready = 0
         self.counter = 0
@@ -54,10 +64,6 @@ class RMA(QMainWindow, BasicFunc):
         self.btn_save_table.clicked.connect(self.save_table)
         self.btn_load_table.clicked.connect(self.load_table)
         self.btn_save_rev_rm.clicked.connect(self.save_rev_rm)
-
-        self.table = Table(self.cor_set_table)
-        self.file_table = FileDataExchange(os.getcwd() + '/saved_table', self.data_receiver_t)
-        self.file_rev_rm = FileDataExchange(os.getcwd() + '/saved_rev_rm', self.data_receiver_rev_rm)
 
     ###########################################
     #               MAGNETIZATION!            #
@@ -89,7 +95,7 @@ class RMA(QMainWindow, BasicFunc):
                       for main in main_names}
         self.stack_names = main_names.copy()
         cor_2_mag = {}
-        for cor in self.table.cors_list:
+        for cor in self.table.cor_list:
             self.stack_names.append(cor['name'])
             cor_2_mag[cor['name']] = Magnetization(self.action_loop, cor['name'], step=cor['mag_range'].value(),
                                                    stop=cor['mag_iter'].value(), odz=100, prg=self.elem_prg_bar)
@@ -116,7 +122,7 @@ class RMA(QMainWindow, BasicFunc):
         #                   'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
 
         # deleting from stack FAIL elems
-        for cor in self.table.cors_list:
+        for cor in self.table.cor_list:
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
                 self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], step=cor['rm_step'].value(),
@@ -246,7 +252,7 @@ class RMA(QMainWindow, BasicFunc):
         pass
 
     def save_table(self):
-        table = self.table.cors_list.copy()
+        table = self.table.cor_list.copy()
         for table_line in table:
             for key in table_line:
                 if not (key == 'name'):

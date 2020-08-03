@@ -10,23 +10,28 @@ class FileDataExchange:
         self.dir, self.data_receiver, self.save_dir, self.mode_file = directory, data_receiver, save_dir, mode_file
         print(save_dir, mode_file)
 
-    def save_file(self, file_name, orbit, mode):
-        np.savetxt(file_name, orbit)
+    def save_file(self, file_name, data, mode, service):
+        np.savetxt(file_name, data)
         self.mode_data_file(file_name, mode)
-        self.data_receiver(orbit, which='eq', mode=mode)
+        self.data_receiver(data, mode=mode, service=service)
 
-    def load_file(self, file_name, mode):
+    def load_file(self, file_name, mode, service):
         self.mode_data_file(file_name, mode)
-        self.data_receiver(np.loadtxt(file_name), which='eq', mode=mode)
+        self.data_receiver(np.loadtxt(file_name), mode=mode, service=service)
 
-    def change_data_from_file(self, mode):
+    def change_data_from_file(self, mode, service):
         f = open(self.dir + self.mode_file, 'r')
         data_mode = json.loads(f.read())
         f.close()
         try:
-            self.data_receiver(np.loadtxt(data_mode[mode]), which='eq', mode=mode)
+            self.data_receiver(np.loadtxt(data_mode[mode]), mode=mode)
         except Exception as exc:
-            self.data_receiver(np.zeros(32), which='eq', mode=mode, msg='file_mistake | check')
+            if service == 'orbit':
+                data = np.zeros(64)
+                self.data_receiver(data, mode=mode, msg='file_mistake | check ' + service)
+            elif service == 'tunes':
+                data = np.zeros(2)
+                self.data_receiver(data, mode=mode, msg='file_mistake | check ' + service)
             print('func: change_data_from_file:', exc)
 
     def mode_data_file(self, file_name, mode):

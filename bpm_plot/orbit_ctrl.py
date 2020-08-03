@@ -165,8 +165,7 @@ class PlotControl(QMainWindow):
             self.status_bar.showMessage(exc)
 
     def new_orbit(self, chan):
-        self.cur_orbit = chan.val
-        self.data_receiver(self.cur_orbit)
+        self.data_receiver(chan.val)
 
     def new_ctrl_orbit(self, chan):
         self.data_receiver(chan.val, which='eq')

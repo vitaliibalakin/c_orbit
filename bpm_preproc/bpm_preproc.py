@@ -33,19 +33,25 @@ class BpmPreproc:
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
+        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
+        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
+        self.chan_mode.valueMeasured.connect(self.mode_changed)
 
-        self.orbits = {'cur': self.chan_orbit, 'eq': self.chan_ctrl_orbit}
         self.cmd_table = {'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
                           'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
                           'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
-                          'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_}
+                          'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
+                          'start_tunes': self.start_tunes_}
 
         print('start')
 
-    def data_receiver(self, orbit, **kwargs):
-        which = kwargs.get('which', 'cur')
+    def data_receiver(self, data, **kwargs):
         msg = kwargs.get('msg', None)
-        self.orbits[which].setValue(orbit)
+        service = kwargs.get('service', None)
+        if service == 'orbit':
+            self.chan_ctrl_orbit.setValue(data)
+        if service == 'tunes':
+            self.chan_tunes.setValue(data)
         if msg is not None:
             self.no_cmd_(**{'service': 'change_data_from_file_func', 'msg': msg})
 
@@ -92,7 +98,8 @@ class BpmPreproc:
 
     def mode_changed(self, chan):
         self.mode = chan.val
-        self.file_exchange.change_data_from_file(self.mode)
+        self.file_exchange.change_data_from_file(self.mode, 'orbit')
+        self.file_exchange.change_data_from_file(self.mode, 'tunes')
 
     def turn_bpm_(self, **kwargs):
         turn_bpm = kwargs.get('turn_bpm')
@@ -111,14 +118,14 @@ class BpmPreproc:
     def load_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
-        self.file_exchange.load_file(file_name, self.mode)  # fix here
-        self.send_cmd_res_('act -> load -> ', rec=service)
+        self.file_exchange.load_file(file_name, self.mode, service)  # fix here
+        self.send_cmd_res_('action -> load -> ', rec=service)
 
     def save_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
-        self.file_exchange.save_file(file_name, self.chan_orbit.val, self.mode)  # and here
-        self.send_cmd_res_('act -> save -> ', rec=service)
+        self.file_exchange.save_file(file_name, self.chan_orbit.val, self.mode, service)  # and here
+        self.send_cmd_res_('action -> save -> ', rec=service)
 
     def act_bpm_(self, **kwargs):
         act_bpm = kwargs.get('act_bpm')
@@ -128,8 +135,10 @@ class BpmPreproc:
                 bpm.act_state = 1
             else:
                 bpm.act_state = 0
+        self.send_cmd_res_('action -> act_bpm -> ', rec=service)
 
-        self.send_cmd_res_('act -> act_bpm -> ', rec=service)
+    def start_tunes_(self, **kwargs):
+        pass
 
     def no_cmd_(self, **kwargs):
         service = kwargs.get('service', 'no_service')

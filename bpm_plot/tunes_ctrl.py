@@ -11,7 +11,6 @@ import json
 import numpy as np
 import pycx4.qcda as cda
 
-from base_modules.file_data_exchange import FileDataExchange
 from bpm_plot.aux_mod.wrapper_tunes import LinesPlot, TunesMarker, Converter
 
 
@@ -52,8 +51,6 @@ class TunesControl(QMainWindow):
         self.legend = pg.LegendItem()
         self.legend.setParentItem(self.tunes_plot.getPlotItem())
 
-        self.file_exchange = FileDataExchange(self.dir, self.data_receiver, '/saved_tunes', '/mode_tunes_file.txt')
-
         self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
                          'p2v2': self.btn_sel_p2v2}
         for key, btn in self.btn_dict.items():
@@ -68,41 +65,18 @@ class TunesControl(QMainWindow):
         self.chan_mode.valueMeasured.connect(self.mode_changed)
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)
         self.chan_tunes.valueMeasured.connect(self.tunes_update)
-
-        self.service_start()
-
-    def service_start(self):
         # put IC mode tunes into their place on res_diag
-        for key, val in self.colors.items():
-            self.file_exchange.change_data_from_file(key)
-
-    def tunes_update(self, chan):
-        self.data_receiver(chan.val)
+        self.chan_cmd.setValue((json.dumps({'cmd': 'start_tunes', 'service': 'tunes'})))
 
     def mode_changed(self, chan):
         self.mode = chan.val
-        self.file_exchange.change_data_from_file(self.mode)
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
 
-    def data_receiver(self, tunes, **kwargs):
-        which = kwargs.get('which', 'cur')
-        mode = kwargs.get('mode', self.mode)
-        if isinstance(tunes, np.ndarray):
-            if len(tunes) == 2:
-                pass
-            else:
-                tunes = np.zeros(2)
-        elif isinstance(tunes, str):
-            tunes = np.zeros(2)
-        if which == 'cur':
-            self.cur_tunes = tunes
-            self.tunes[which].update_pos(tunes)
-            self.lbl_dict[which].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
-        elif which == 'eq':
-            self.tunes[mode].update_pos(tunes)
-            self.lbl_dict[mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
+    def tunes_update(self, tunes):
+        self.tunes[self.mode].update_pos(tunes)
+        self.lbl_dict[self.mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
 
     def load_file_(self):
         try:

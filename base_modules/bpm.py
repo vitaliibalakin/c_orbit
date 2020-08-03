@@ -24,7 +24,6 @@ class BPM:
         self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
         self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
         self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range')
-        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
         self.chan_tunes_range.valueMeasured.connect(self.tunes_range)
         self.chan_datatxzi.valueMeasured.connect(self.data_proc)
         self.chan_marker.valueMeasured.connect(self.marker_proc)

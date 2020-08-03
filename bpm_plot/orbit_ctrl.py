@@ -86,7 +86,7 @@ class PlotControl(QMainWindow):
         bpm = self.sender().text()
         self.active_bpm(bpm)
         self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
-        self.chan_cmd.setValue(json.dumps({'cmd': 'cur_bpms', 'act': self.cur_bpms}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'cur_bpms', 'service': 'orbit', 'act_bpm': self.cur_bpms}))
 
     def active_bpm(self, bpm):
         if self.worked_bpms[bpm]:
@@ -121,7 +121,10 @@ class PlotControl(QMainWindow):
         self.mode = chan.val
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
+        try:
+            self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
+        except Exception as exc:
+            print(exc)
 
     def act_bpm(self, chan):
         try:
@@ -143,21 +146,21 @@ class PlotControl(QMainWindow):
 
     def load_file_(self):
         try:
-            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_orbits',
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_modes',
                                                     filter='Text Files (*.txt)')[0]
-            self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit', 'act': file_name})))
+            self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit', 'service': 'orbit', 'file_name': file_name})))
         except Exception as exc:
             self.status_bar.showMessage(exc)
 
     def save_file_(self):
         try:
-            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_orbits',
+            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_modes',
                                                   filter='Text Files (*.txt)')
             if sv_file:
                 file_name = sv_file[0]
                 file_name = re.sub('.txt', '', file_name)
                 file_name = file_name + '.txt'
-                self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit', 'act': file_name})))
+                self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit', 'service': 'orbit', 'file_name': file_name})))
         except Exception as exc:
             self.status_bar.showMessage(exc)
 
@@ -169,10 +172,13 @@ class PlotControl(QMainWindow):
         self.data_receiver(chan.val, which='eq')
 
     def cmd_res(self, chan):
-        rec = json.loads(chan.val).get('rec', 'no_rec')
-        if rec == 'orbit_ctrl':
-            res = json.loads(chan.val).get('res', 'no_res')
-            self.status_bar.showMessage(res)
+        try:
+            rec = json.loads(chan.val).get('rec', 'no_rec')
+            if rec == 'orbit':
+                res = json.loads(chan.val).get('res', 'no_res')
+                self.status_bar.showMessage(res)
+        except Exception as exc:
+            print(exc)
 
 
 if __name__ == "__main__":

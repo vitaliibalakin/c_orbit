@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QFileDialog
 import numpy as np
 import json
 
@@ -11,26 +10,14 @@ class FileDataExchange:
         self.dir, self.data_receiver, self.save_dir, self.mode_file = directory, data_receiver, save_dir, mode_file
         print(save_dir, mode_file)
 
-    def save_file(self, parent, orbit, mode):
-        try:
-            sv_file = QFileDialog.getSaveFileName(parent=parent, directory=self.dir + self.save_dir,
-                                                  filter='Text Files (*.txt)')
-            if sv_file:
-                file_name = sv_file[0] + '.txt'
-                np.savetxt(file_name, orbit)
-                self.mode_data_file(file_name, mode)
-                self.data_receiver(orbit, which='eq', mode=mode)
-        except Exception as exc:
-            print('func: save_file:', exc)
+    def save_file(self, file_name, orbit, mode):
+        np.savetxt(file_name, orbit)
+        self.mode_data_file(file_name, mode)
+        self.data_receiver(orbit, which='eq', mode=mode)
 
-    def load_file(self, parent, mode):
-        try:
-            file_name = QFileDialog.getOpenFileName(parent=parent, directory=self.dir + self.save_dir,
-                                                    filter='Text Files (*.txt)')[0]
-            self.mode_data_file(file_name, mode)
-            self.data_receiver(np.loadtxt(file_name), which='eq', mode=mode)
-        except Exception as exc:
-            print('func: load_file:', exc)
+    def load_file(self, file_name, mode):
+        self.mode_data_file(file_name, mode)
+        self.data_receiver(np.loadtxt(file_name), which='eq', mode=mode)
 
     def change_data_from_file(self, mode):
         f = open(self.dir + self.mode_file, 'r')
@@ -39,7 +26,7 @@ class FileDataExchange:
         try:
             self.data_receiver(np.loadtxt(data_mode[mode]), which='eq', mode=mode)
         except Exception as exc:
-            self.data_receiver('incorrect_data_file', which='eq', mode=mode)
+            self.data_receiver(np.zeros(32), which='eq', mode=mode, msg='file_mistake')
             print('func: change_data_from_file:', exc)
 
     def mode_data_file(self, file_name, mode):

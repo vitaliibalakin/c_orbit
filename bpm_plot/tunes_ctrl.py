@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow,QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 import sys
 import re
 import pyqtgraph as pg
 import os
+import json
 import numpy as np
 import pycx4.qcda as cda
 
@@ -104,11 +105,24 @@ class TunesControl(QMainWindow):
             self.lbl_dict[mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
 
     def load_file_(self):
-        mode = self.sender().text()
-        self.file_exchange.load_file(self, mode)
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_tunes',
+                                                    filter='Text Files (*.txt)')[0]
+            self.chan_cmd.setValue((json.dumps({'cmd': 'load_tunes', 'service': 'tunes', 'act': file_name})))
+        except Exception as exc:
+            self.status_bar.showMessage(exc)
 
     def save_file_(self):
-        self.file_exchange.save_file(self, self.cur_tunes, self.mode)
+        try:
+            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_tunes',
+                                                  filter='Text Files (*.txt)')
+            if sv_file:
+                file_name = sv_file[0]
+                file_name = re.sub('.txt', '', file_name)
+                file_name = file_name + '.txt'
+                self.chan_cmd.setValue((json.dumps({'cmd': 'save_tunes', 'service': 'tunes', 'act': file_name})))
+        except Exception as exc:
+            self.status_bar.showMessage(exc)
 
 
 if __name__ == "__main__":

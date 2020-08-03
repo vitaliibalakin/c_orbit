@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>947</width>
-    <height>945</height>
+    <height>995</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>310</y>
+      <y>350</y>
       <width>941</width>
       <height>591</height>
      </rect>
@@ -40,97 +40,6 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QComboBox" name="fft_box_e">
-         <item>
-          <property name="text">
-           <string>bpm01</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm02</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm03</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm04</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm05</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm07</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm08</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm09</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm10</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm11</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm12</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm13</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm14</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm15</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm16</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm17</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>COORDINATES AND FOURIER PLOT</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <spacer name="horizontalSpacer">
          <property name="orientation">
@@ -144,13 +53,13 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="4">
+       <item row="1" column="0" colspan="3">
         <widget class="QWidget" name="fft_plot_e" native="true"/>
        </item>
        <item row="0" column="2">
-        <widget class="QLabel" name="lbl_wp">
+        <widget class="QPushButton" name="pushButton_3">
          <property name="text">
-          <string>nu_x | nu_z = None | None</string>
+          <string>COORDINATES AND FOURIER PLOT</string>
          </property>
         </widget>
        </item>
@@ -184,99 +93,15 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="fft_box_p">
-         <item>
-          <property name="text">
-           <string>bpm01</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm02</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm03</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm04</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm05</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm07</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm08</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm09</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm10</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm11</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm12</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm13</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm14</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm15</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm16</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm17</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>FOURIER PLOT</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0" colspan="3">
         <widget class="QWidget" name="fft_plot_p" native="true"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>COORDINATES AND FOURIER PLOT</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -299,7 +124,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
+      <y>40</y>
       <width>941</width>
       <height>311</height>
      </rect>
@@ -321,91 +146,7 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QComboBox" name="turns_mes_box_e">
-         <item>
-          <property name="text">
-           <string>bpm01</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm02</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm03</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm04</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm05</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm07</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm08</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm09</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm10</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm11</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm12</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm13</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm14</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm15</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm16</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm17</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="0" column="2">
+       <item row="0" column="1">
         <spacer name="horizontalSpacer_3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -418,23 +159,13 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>CURRENT PLOT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="4">
+       <item row="1" column="0" colspan="3">
         <widget class="QWidget" name="turns_mes_plot_e" native="true"/>
        </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="num_pts_e">
-         <property name="maximum">
-          <number>131072</number>
-         </property>
-         <property name="value">
-          <number>1024</number>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>CURRENT PLOT</string>
          </property>
         </widget>
        </item>
@@ -455,101 +186,10 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0" colspan="4">
+       <item row="1" column="0" colspan="3">
         <widget class="QWidget" name="turns_mes_plot_p" native="true"/>
        </item>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="turns_mes_box_p">
-         <item>
-          <property name="text">
-           <string>bpm01</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm02</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm03</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm04</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm05</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm07</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm08</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm09</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm10</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm11</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm12</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm13</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm14</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm15</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm16</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bpm17</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>TURNS PLOT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
+       <item row="0" column="1">
         <spacer name="horizontalSpacer_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -562,19 +202,122 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="num_pts_p">
-         <property name="maximum">
-          <number>131072</number>
-         </property>
-         <property name="value">
-          <number>1024</number>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="text">
+          <string>CURRENT PLOT</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </widget>
+   </widget>
+   <widget class="QComboBox" name="turns_bpm">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>74</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>bpm01</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm02</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm03</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm04</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm05</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm07</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm08</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm09</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm15</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm16</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>bpm17</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QSpinBox" name="bpm_num_pts">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>10</y>
+      <width>82</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>131072</number>
+    </property>
+    <property name="value">
+     <number>1024</number>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -587,7 +330,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="status_bar"/>
  </widget>
  <resources/>
  <connections/>

@@ -3,8 +3,9 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PyQt5 import uic
 import sys
+import os
+import re
 import pycx4.qcda as cda
-import numpy as np
 import json
 import pyqtgraph as pg
 from bpm_plot.aux_mod.turns_plot import TurnsPlot
@@ -17,7 +18,9 @@ class TurnsControl(QMainWindow):
         super(TurnsControl, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        uic.loadUi("uis/plot's.ui", self)
+        direc = os.getcwd()
+        direc = re.sub('bpm_plot', 'uis', direc)
+        uic.loadUi(direc + "/plot's.ui", self)
         self.setWindowTitle('Turns Plot')
         self.show()
 

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow,QVBoxLayout
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 import sys
+import re
 import pyqtgraph as pg
 import os
 import numpy as np
@@ -18,7 +19,9 @@ class TunesControl(QMainWindow):
         super(TunesControl, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        uic.loadUi("uis/wp's.ui", self)
+        direc = os.getcwd()
+        direc = re.sub('bpm_plot', 'uis', direc)
+        uic.loadUi(direc + "/wp's.ui", self)
         self.setWindowTitle('Tunes Plot')
         self.show()
 

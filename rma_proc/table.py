@@ -8,8 +8,6 @@ class Table:
         super(Table, self).__init__()
         self.table = table
         self.cor_list = []
-        # for cor in ['rst2.crm1', 'rst2.crm2']:
-        #     self.add_row(name=cor)
 
     def add_row(self, **params):
         # params
@@ -26,9 +24,9 @@ class Table:
         self.table.insertRow(row_num)
         self.table.setItem(row_num, 0, QTableWidgetItem(name.split('.')[-1]))
         self.table.setCellWidget(row_num, 1, cor_dict['mag_range'])
-        # self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
-        # self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])
-        # self.table.setCellWidget(row_num, 4, cor_dict['rm_iter'])
+        self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
+        self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])
+        self.table.setCellWidget(row_num, 4, cor_dict['rm_iter'])
         self.cor_list.append(cor_dict)
 
     def remove_row(self, it_id):

@@ -5,6 +5,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 import os
+import re
 import sys
 import numpy as np
 from scipy import optimize
@@ -22,7 +23,9 @@ from rma_proc.tree_table import TreeTableCom
 class RMA(QMainWindow, BasicFunc):
     def __init__(self):
         super(RMA, self).__init__()
-        uic.loadUi("uis/rma_main_window.ui", self)
+        direc = os.getcwd()
+        direc = re.sub('rma_proc', 'uis', direc)
+        uic.loadUi(direc + "/rma_main_window.ui", self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
 

@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>674</width>
+    <height>602</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTreeWidget" name="treeWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>181</width>
+      <height>401</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+background-color: rgb(249, 250, 255);</string>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+    </property>
+    <column>
+     <property name="text">
+      <string>Lens</string>
+     </property>
+     <property name="font">
+      <font>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="background">
+      <color>
+       <red>180</red>
+       <green>27</green>
+       <blue>45</blue>
+      </color>
+     </property>
+     <property name="foreground">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </property>
+    </column>
+    <item>
+     <property name="text">
+      <string>F</string>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>240</red>
+        <green>200</green>
+        <blue>200</blue>
+       </color>
+      </brush>
+     </property>
+     <item>
+      <property name="text">
+       <string>F1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>F2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>F3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>F4</string>
+      </property>
+     </item>
+    </item>
+    <item>
+     <property name="text">
+      <string>D</string>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>240</red>
+        <green>200</green>
+        <blue>200</blue>
+       </color>
+      </brush>
+     </property>
+     <item>
+      <property name="text">
+       <string>D1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>D2</string>
+      </property>
+      <property name="foreground">
+       <brush brushstyle="Dense7Pattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>D3</string>
+      </property>
+     </item>
+    </item>
+    <item>
+     <property name="text">
+      <string>F cor</string>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>240</red>
+        <green>200</green>
+        <blue>200</blue>
+       </color>
+      </brush>
+     </property>
+     <item>
+      <property name="text">
+       <string>F1</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>F2</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>F3</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>F4</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+    </item>
+    <item>
+     <property name="text">
+      <string>D cor</string>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>240</red>
+        <green>200</green>
+        <blue>200</blue>
+       </color>
+      </brush>
+     </property>
+     <item>
+      <property name="text">
+       <string>D1</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>D2</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>D3</string>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>248</red>
+         <green>225</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4</string>
+       </property>
+      </item>
+     </item>
+    </item>
+   </widget>
+   <widget class="QTableWidget" name="table_elem">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>10</y>
+      <width>461</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>Name LENS</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignVCenter</set>
+     </property>
+     <property name="background">
+      <color>
+       <red>180</red>
+       <green>27</green>
+       <blue>45</blue>
+      </color>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Delta-I</string>
+     </property>
+     <property name="background">
+      <color>
+       <red>180</red>
+       <green>27</green>
+       <blue>45</blue>
+      </color>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Heandles</string>
+     </property>
+     <property name="background">
+      <color>
+       <red>180</red>
+       <green>27</green>
+       <blue>45</blue>
+      </color>
+     </property>
+    </column>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>290</y>
+      <width>113</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>delta Qx</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>330</y>
+      <width>113</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>delta Qy</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spin_delta_qx">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>290</y>
+      <width>87</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spin_delta_qy">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>330</y>
+      <width>87</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_freq_down">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>330</y>
+      <width>71</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_freq_up">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>330</y>
+      <width>71</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Add_Hendles">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>290</y>
+      <width>71</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(160, 255, 88);</string>
+    </property>
+    <property name="text">
+     <string>Add</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Delete_Hendles">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>290</y>
+      <width>71</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 65, 116);</string>
+    </property>
+    <property name="text">
+     <string>Del</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>370</y>
+      <width>115</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>674</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

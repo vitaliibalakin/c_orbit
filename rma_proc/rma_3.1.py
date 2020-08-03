@@ -12,8 +12,7 @@ from scipy import optimize
 import json
 
 # instruments for main procedure
-from c_orbit.base_modules.basic_module_2_1 import BasicFunc
-from base_modules.file_data_exchange_v2 import FileDataExchange
+from c_orbit.base_modules.basic_module import BasicFunc
 from rma_proc.magnetiz import Magnetization
 from rma_proc.cor_proc import CorMeasure
 from rma_proc.table import Table
@@ -43,8 +42,6 @@ class RMA(QMainWindow, BasicFunc):
 
         # table def
         self.table = Table(self.cor_set_table)
-        self.file_table = FileDataExchange(os.getcwd() + '/saved_table', self.data_receiver_t)
-        self.file_rev_rm = FileDataExchange(os.getcwd() + '/saved_rev_rm', self.data_receiver_rev_rm)
         # tree def
         self.tree = TreeTableCom(self.table, 40, self.tree_widget)
 

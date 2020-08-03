@@ -5,9 +5,9 @@ import sys
 import pyqtgraph as pg
 
 
-class TurnsPlot(pg.PlotWidget):
+class CurPlot(pg.PlotWidget):
     def __init__(self, parent):
-        super(TurnsPlot, self).__init__(parent=parent)
+        super(CurPlot, self).__init__(parent=parent)
         self.showGrid(x=True, y=True)
         self.setLogMode(False, False)
         self.setLabel('left', "Current", units='a.u.')
@@ -22,5 +22,5 @@ class TurnsPlot(pg.PlotWidget):
 
 if __name__ == "__main__":
     app = QApplication(['turns_plot'])
-    w = TurnsPlot(None)
+    w = CurPlot(None)
     sys.exit(app.exec_())

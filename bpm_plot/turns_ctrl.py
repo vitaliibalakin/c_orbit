@@ -8,7 +8,7 @@ import re
 import pycx4.qcda as cda
 import json
 import pyqtgraph as pg
-from bpm_plot.aux_mod.turns_plot import TurnsPlot
+from bpm_plot.aux_mod.cur_plot import CurPlot
 from bpm_plot.aux_mod.fft_plot import FFTPlot
 from bpm_plot.aux_mod.coor_plot import CoorPlot
 
@@ -41,12 +41,12 @@ class TurnsControl(QMainWindow):
         p1.addWidget(self.coor_e)
         p1.addWidget(self.fft_e)
 
-        self.turns_p = TurnsPlot(self)
+        self.turns_p = CurPlot(self)
         p2 = QVBoxLayout()
         self.turns_mes_plot_p.setLayout(p2)
         p2.addWidget(self.turns_p)
 
-        self.turns_e = TurnsPlot(self)
+        self.turns_e = CurPlot(self)
         p3 = QVBoxLayout()
         self.turns_mes_plot_e.setLayout(p3)
         p3.addWidget(self.turns_e)

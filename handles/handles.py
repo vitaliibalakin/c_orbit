@@ -12,8 +12,8 @@ class Some(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         direc = os.getcwd()
-        direc = re.sub('bpm_plot', 'uis', direc)
-        uic.loadUi(direc + "/lenswindow.ui", self)
+        direc = re.sub('handles', 'uis', direc)
+        uic.loadUi(direc + "/handle_window.ui", self)
         self.show()
         self.marked_row = None
         self.dict_handles = {}

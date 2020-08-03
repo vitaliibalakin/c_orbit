@@ -59,20 +59,20 @@ class BasicFunc:
         print(chan.val)
         values[chan.name.split('.')[-1]][chan.name.split('.')[-2]] = chan.val
 
-    def checking_equality(self, val_dict, call_ok, call_err):
+    def checking_equality(self, val_dict, call_ok, call_err, diff):
         print('check')
-        if abs(val_dict['Iset'] - val_dict['Imes']) < 100:
+        if abs(val_dict['Iset'] - val_dict['Imes']) < diff:
             call_ok()
         else:
-            QTimer.singleShot(3000, functools.partial(self.err_verification, val_dict, call_ok, call_err))
+            call_err('check_eq')
 
     @staticmethod
-    def err_verification(val_dict, call_ok, call_err):
+    def err_verification(val_dict, call_ok, call_err, diff):
         print('recheck')
-        if abs(val_dict['Iset'] - val_dict['Imes']) < 100:
+        if abs(val_dict['Iset'] - val_dict['Imes']) < diff:
             call_ok()
         else:
-            call_err()
+            call_err('verif')
 
 
 if __name__ == "__main__":

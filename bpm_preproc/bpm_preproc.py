@@ -28,6 +28,8 @@ class BpmPreproc:
                 bpm.turns_mes = 1
 
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
+        self.chan_ctrl_tunes = cda.StrChan('cxhw:4.bpm_preproc.control_tunes', max_nelems=1024)
+        # order: p2v2, e2v2, p2v4, e2v4
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
@@ -38,8 +40,6 @@ class BpmPreproc:
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
-
-        # self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
 
         self.cmd_table = {'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
                           'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
@@ -149,7 +149,19 @@ class BpmPreproc:
     #########################################################
 
     def start_tunes_(self, **kwargs):
-        pass
+        ic_modes = ['p2v2', 'e2v2', 'p2v4', 'e2v4']
+        f = open(self.mode_d['tunes'], 'r')
+        data_mode = json.loads(f.read())
+        f.close()
+        for mode in ic_modes:
+            try:
+                data = np.loadtxt(data_mode[mode])
+                msg = 'action -> load -> '
+            except Exception as exc:
+                data = np.zeros(2)
+                msg = 'action -> load -> error ' + str(exc) + '-> '
+            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: data}))
+            self.send_cmd_res_(msg, rec='tunes')
 
     def mode_file_edit_(self, file_name, mode_file):
         f = open(mode_file, 'r')
@@ -178,7 +190,7 @@ class BpmPreproc:
             np.savetxt(file_name, data)
         elif service == 'tunes':
             data = self.current_tunes
-            # change current positions of tunes is needed
+            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: data}))
             np.savetxt(file_name, data)
         self.mode_file_edit_(file_name, self.mode_d[service])
         self.send_cmd_res_('action -> save -> ', rec=service)
@@ -188,20 +200,19 @@ class BpmPreproc:
         service = kwargs.get('service')
         try:
             data = np.loadtxt(file_name)
+            msg = 'action -> load -> '
         except Exception as exc:
             if service == 'orbit':
                 data = np.zeros(64)
             elif service == 'tunes':
                 data = np.zeros(2)
-            self.send_cmd_res_('action -> load -> error ' + str(exc) + '-> ', rec=service)
+            msg = 'action -> load -> error ' + str(exc) + '-> '
         if service == 'orbit':
             self.chan_ctrl_orbit.setValue(data)
         if service == 'tunes':
-            pass
-            # self.chan_tunes.setValue(data)
-            # change current positions of tunes is needed
+            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: data}))
         self.mode_file_edit_(file_name, self.mode_d[service])
-        self.send_cmd_res_('action -> load -> ', rec=service)
+        self.send_cmd_res_(msg, rec=service)
 
 
 DIR = os.getcwd()

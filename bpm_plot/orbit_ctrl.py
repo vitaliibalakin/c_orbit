@@ -160,6 +160,7 @@ class PlotControl(QMainWindow):
                 file_name = sv_file[0]
                 file_name = re.sub('.txt', '', file_name)
                 file_name = file_name + '.txt'
+                print(file_name)
                 self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit', 'service': 'orbit', 'file_name': file_name})))
         except Exception as exc:
             self.status_bar.showMessage(exc)

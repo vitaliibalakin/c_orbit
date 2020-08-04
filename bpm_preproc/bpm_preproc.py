@@ -8,14 +8,14 @@ import os
 import re
 import datetime
 from aux.service_daemon import CXService
-from base_modules.file_data_exchange import FileDataExchange
 from base_modules.bpm import BPM
 
 
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
-        self.mode = ''
+        self.mode_d = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
+        self.ic_mode = ''
         self.fft_bpm = 'bpm15'
         self.turns_bpm = 'bpm15'
         self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
@@ -24,8 +24,6 @@ class BpmPreproc:
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
-
-        self.file_exchange = FileDataExchange(DIR, self.data_receiver)
 
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
         self.chan_cmd.valueMeasured.connect(self.cmd)
@@ -44,16 +42,6 @@ class BpmPreproc:
                           'start_tunes': self.start_tunes_}
 
         print('start')
-
-    def data_receiver(self, data, **kwargs):
-        msg = kwargs.get('msg', None)
-        service = kwargs.get('service', None)
-        if service == 'orbit':
-            self.chan_ctrl_orbit.setValue(data)
-        if service == 'tunes':
-            self.chan_tunes.setValue(data)
-        if msg is not None:
-            self.no_cmd_(**{'service': 'change_data_from_file_func', 'msg': msg})
 
     def bpm_marker(self):
         permission = 0
@@ -97,9 +85,8 @@ class BpmPreproc:
         self.cmd_table[command](**chan_val)
 
     def mode_changed(self, chan):
-        self.mode = chan.val
-        self.file_exchange.change_data_from_file(self.mode, 'orbit')
-        self.file_exchange.change_data_from_file(self.mode, 'tunes')
+        self.ic_mode = chan.val
+        self.to_another_ic_mode_('orbit')
 
     def turn_bpm_(self, **kwargs):
         turn_bpm = kwargs.get('turn_bpm')
@@ -114,18 +101,6 @@ class BpmPreproc:
         for bpm in self.bpms:
             if bpm.turns_mes:
                 bpm.chan_numpts.setValue(num_pts)
-
-    def load_file_(self, **kwargs):
-        file_name = kwargs.get('file_name')
-        service = kwargs.get('service')
-        self.file_exchange.load_file(file_name, self.mode, service)  # fix here
-        self.send_cmd_res_('action -> load -> ', rec=service)
-
-    def save_file_(self, **kwargs):
-        file_name = kwargs.get('file_name')
-        service = kwargs.get('service')
-        self.file_exchange.save_file(file_name, self.chan_orbit.val, self.mode, service)  # and here
-        self.send_cmd_res_('action -> save -> ', rec=service)
 
     def act_bpm_(self, **kwargs):
         act_bpm = kwargs.get('act_bpm')
@@ -147,6 +122,52 @@ class BpmPreproc:
     def send_cmd_res_(self, res, rec):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.chan_res.setValue(json.dumps({'rec': rec, 'res': res + time_stamp}))
+
+    #########################################################
+    #                     file exchange                     #
+    #########################################################
+
+    def mode_file_edit_(self, file_name, mode_file):
+        f = open(mode_file, 'r')
+        data_mode = json.loads(f.read())
+        f.close()
+        data_mode[self.ic_mode] = file_name
+        f = open(mode_file, 'w')
+        f.write(json.dumps(data_mode))
+        f.close()
+
+    def to_another_ic_mode_(self, service):
+        f = open(self.mode_d[service], 'r')
+        data_mode = json.loads(f.read())
+        f.close()
+        self.load_file_(**{'file_name': data_mode[self.ic_mode], 'service': service})
+
+    def save_file_(self, **kwargs):
+        file_name = kwargs.get('file_name')
+        service = kwargs.get('service')
+        if service == 'orbit':
+            data = self.chan_orbit.val
+            self.chan_ctrl_orbit.setValue(data)
+            np.savetxt(file_name, data)
+        elif service == 'tunes':
+            data = self.chan_tunes.val
+            # change current positions of tunes is needed
+            np.savetxt(file_name, data)
+        self.mode_file_edit_(file_name, self.mode_d[service])
+        self.send_cmd_res_('action -> save -> ', rec=service)
+
+    def load_file_(self, **kwargs):
+        file_name = kwargs.get('file_name')
+        service = kwargs.get('service')
+        data = np.loadtxt(file_name)
+        if service == 'orbit':
+            self.chan_ctrl_orbit.setValue(data)
+        if service == 'tunes':
+            pass
+            # self.chan_tunes.setValue(data)
+            # change current positions of tunes is needed
+        self.mode_file_edit_(file_name, self.mode_d[service])
+        self.send_cmd_res_('action -> load -> ', rec=service)
 
 
 DIR = os.getcwd()

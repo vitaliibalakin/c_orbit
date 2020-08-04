@@ -16,24 +16,30 @@ class BpmPreproc:
         super(BpmPreproc, self).__init__()
         self.mode_d = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
         self.ic_mode = ''
+        self.current_orbit = np.empty(0)
+        self.current_tunes = np.empty(0)
         self.fft_bpm = 'bpm15'
         self.turns_bpm = 'bpm15'
         self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                           'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        self.bpms = [BPM(bpm, self.bpm_marker) for bpm in self.bpms_list]
+        self.bpms = [BPM(bpm, self.collect_orbit, self.collect_tunes) for bpm in self.bpms_list]
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
 
+        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
+        self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
+        self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
         self.chan_cmd.valueMeasured.connect(self.cmd)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
-        self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
-        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
+        self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
+
+        # self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
 
         self.cmd_table = {'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
                           'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
@@ -43,7 +49,11 @@ class BpmPreproc:
 
         print('start')
 
-    def bpm_marker(self):
+    #########################################################
+    #                    data proc part                     #
+    #########################################################
+
+    def collect_orbit(self):
         permission = 0
         for bpm in self.bpms:
             if bpm.act_state:
@@ -71,18 +81,32 @@ class BpmPreproc:
                     z_orbit = np.append(z_orbit, 100.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
             orbit = np.array([x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma])
+            self.current_orbit = orbit
             self.chan_orbit.setValue(orbit)
+
+    def collect_tunes(self, tunes):
+        self.current_tunes = tunes
+        self.chan_tunes.setValue(tunes)
+
+    def collect_current(self, data):
+        self.chan_turns.setValue(data)
+
+    def collect_fft(self, data):
+        self.chan_fft.setValue(data)
+
+    def collect_coor(self, data):
+        self.chan_coor.setValue(data)
 
     #########################################################
     #                     command part                      #
     #########################################################
 
     def cmd(self, chan):
-        # cmd = chan.val
-        # if cmd:
-        chan_val = json.loads(chan.val)
-        command = chan_val.get('cmd', 'no_cmd')
-        self.cmd_table[command](**chan_val)
+        cmd = chan.val
+        if cmd:
+            chan_val = json.loads(cmd)
+            command = chan_val.get('cmd', 'no_cmd')
+            self.cmd_table[command](**chan_val)
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
@@ -112,9 +136,6 @@ class BpmPreproc:
                 bpm.act_state = 0
         self.send_cmd_res_('action -> act_bpm -> ', rec=service)
 
-    def start_tunes_(self, **kwargs):
-        pass
-
     def no_cmd_(self, **kwargs):
         service = kwargs.get('service', 'no_service')
         self.send_cmd_res_('action -> no_cmd ->', rec=service)
@@ -127,6 +148,9 @@ class BpmPreproc:
     #                     file exchange                     #
     #########################################################
 
+    def start_tunes_(self, **kwargs):
+        pass
+
     def mode_file_edit_(self, file_name, mode_file):
         f = open(mode_file, 'r')
         data_mode = json.loads(f.read())
@@ -137,20 +161,23 @@ class BpmPreproc:
         f.close()
 
     def to_another_ic_mode_(self, service):
-        f = open(self.mode_d[service], 'r')
-        data_mode = json.loads(f.read())
-        f.close()
-        self.load_file_(**{'file_name': data_mode[self.ic_mode], 'service': service})
+        try:
+            f = open(self.mode_d[service], 'r')
+            data_mode = json.loads(f.read())
+            f.close()
+            self.load_file_(**{'file_name': data_mode[self.ic_mode], 'service': service})
+        except Exception as exc:
+            self.send_cmd_res_('action -> switch mode (no mode file?) -> error ' + str(exc) + '-> ', rec=service)
 
     def save_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
         if service == 'orbit':
-            data = self.chan_orbit.val
+            data = self.current_orbit
             self.chan_ctrl_orbit.setValue(data)
             np.savetxt(file_name, data)
         elif service == 'tunes':
-            data = self.chan_tunes.val
+            data = self.current_tunes
             # change current positions of tunes is needed
             np.savetxt(file_name, data)
         self.mode_file_edit_(file_name, self.mode_d[service])
@@ -159,7 +186,14 @@ class BpmPreproc:
     def load_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
-        data = np.loadtxt(file_name)
+        try:
+            data = np.loadtxt(file_name)
+        except Exception as exc:
+            if service == 'orbit':
+                data = np.zeros(64)
+            elif service == 'tunes':
+                data = np.zeros(2)
+            self.send_cmd_res_('action -> load -> error ' + str(exc) + '-> ', rec=service)
         if service == 'orbit':
             self.chan_ctrl_orbit.setValue(data)
         if service == 'tunes':

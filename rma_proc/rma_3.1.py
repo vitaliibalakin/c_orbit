@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
-import re
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
@@ -12,11 +12,11 @@ from scipy import optimize
 import json
 
 # instruments for main procedure
-from c_orbit.base_modules.basic_module import BasicFunc
+from base_modules.basic_module import BasicFunc
+from base_modules.tree_table import TreeTableCom
 from rma_proc.magnetiz import Magnetization
 from rma_proc.cor_proc import CorMeasure
 from rma_proc.table import Table
-from rma_proc.tree_table import TreeTableCom
 
 
 class RMA(QMainWindow, BasicFunc):
@@ -73,22 +73,6 @@ class RMA(QMainWindow, BasicFunc):
         self.log_msg.clear()
         self.log_msg.append('start_magn')
         self.label_type.setText('MAGN')
-        # cor_names = ['rst2.c1d2_z', 'rst2.c1f2_x', 'rst2.c1f1_x', 'rst2.c1d1_z', 'rst2.c2d2_z', 'rst2.c2f2_x',
-        #              'rst2.c2f1_x', 'rst2.c2d1_z', 'rst2.c3d2_z', 'rst2.c3f2_x', 'rst2.c3f1_x', 'rst2.c3d1_z',
-        #              'rst2.c4d2_z', 'rst2.c4f2_x', 'rst2.c4f1_x', 'rst2.c4d1_z',
-        #              'rst2.crm1', 'rst2.crm2', 'rst2.crm3', 'rst2.crm4', 'rst2.crm5', 'rst2.crm6', 'rst2.crm7',
-        #              'rst2.crm8',
-        #              'rst3.c3d3_z', 'rst3.c3f3_x', 'rst3.c4d3_z', 'rst3.c4f3_x',
-        #              'rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
-        #              'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
-        #              'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
-        #              'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
-        #              'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q', 'rst3.Sx2_1F4', 'rst3.Sy2_1F4',
-        #              'rst3.Sx1_1F4', 'rst3.Sy1_1F4', 'rst3.Sx2_2F4', 'rst3.Sy2_2F4', 'rst3.Sy1_2F4',
-        #              'rst3.Sx1_2F4', 'rst3.Sx2_3F4', 'rst3.Sy2_3F4', 'rst3.Sy1_3F4', 'rst3.Sx1_3F4',
-        #              'rst3.Sx2_4F4', 'rst3.Sy2_4F4', 'rst3.Sy1_4F4', 'rst3.Sx1_4F4', 'rst4.cSM1', 'rst4.cSM2',
-        #              'rst4.c1f4_z', 'rst4.c1d3_z', 'rst4.c1f3_x', 'rst4.c2f4_z', 'rst4.c2d3_z', 'rst4.c2f3_x',
-        #              'rst4.c3f4_z', 'rst4.c4f4_z']
         main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
         main_2_mag = {main: Magnetization(self.action_loop, main, step=self.mag_range_main.value(),
                                           stop=self.mag_iter_main.value(), odz=1.2, prg=self.elem_prg_bar)
@@ -115,12 +99,6 @@ class RMA(QMainWindow, BasicFunc):
         self.log_msg.append('start_rma')
         self.label_type.setText('RMA')
         self.prg_bar.setValue(0)
-        # self.cor_names = ['rst3.c1d1_q', 'rst3.c1f1_q', 'rst3.c1d2_q', 'rst3.c1f2_q', 'rst3.c1d3_q', 'rst3.c1f4_q',
-        #                   'rst3.c1f3_q', 'rst3.c2f4_q', 'rst3.c2d1_q', 'rst3.c2f1_q', 'rst3.c2d2_q', 'rst3.c2f2_q',
-        #                   'rst3.c2d3_q', 'rst3.c3f4_q', 'rst3.c2f3_q', 'rst3.c4f4_q', 'rst3.c3d1_q', 'rst3.c3f1_q',
-        #                   'rst3.c3d2_q', 'rst3.c3f2_q', 'rst3.c3d3_q', 'rst3.c4d3_q', 'rst3.c3f3_q', 'rst3.c4d1_q',
-        #                   'rst3.c4f1_q', 'rst3.c4d2_q', 'rst3.c4f2_q', 'rst3.c4f3_q']
-
         # deleting from stack FAIL elems
         for cor in self.table.cor_list:
             if not (cor['name'] in self.cor_fail):

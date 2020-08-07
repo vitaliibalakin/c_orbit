@@ -11,19 +11,14 @@ class Table:
         self.cor_list = []
 
     def add_row(self, **params):
-        # params
         name = params.get('name', 'noname')
         it_id = params.get('id')
-        cor_dict = {'id': it_id, name: name, 'mag_range': RMSpinBox(500, 100), 'mag_iter': RMSpinBox(5, 1),
-                    'rm_step': RMSpinBox(100, 100), 'rm_iter': RMSpinBox(5, 1)}
-        # new line
+        cor_dict = {'id': it_id, 'name': name, 'step': RMSpinBox(0, 100)}
+
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)
         self.table.setItem(row_num, 0, QTableWidgetItem(name.split('.')[-1]))
-        self.table.setCellWidget(row_num, 1, cor_dict['mag_range'])
-        self.table.setCellWidget(row_num, 2, cor_dict['mag_iter'])
-        self.table.setCellWidget(row_num, 3, cor_dict['rm_step'])
-        self.table.setCellWidget(row_num, 4, cor_dict['rm_iter'])
+        self.table.setCellWidget(row_num, 1, cor_dict['step'])
         self.cor_list.append(cor_dict)
 
     def remove_row(self, it_id):

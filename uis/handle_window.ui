@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>659</width>
-    <height>493</height>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -57,11 +57,11 @@
      </property>
     </column>
    </widget>
-   <widget class="QPushButton" name="btn_freq_down">
+   <widget class="QPushButton" name="btn_down">
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>410</y>
+      <y>450</y>
       <width>71</width>
       <height>33</height>
      </rect>
@@ -70,11 +70,11 @@
      <string>&lt;</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_freq_up">
+   <widget class="QPushButton" name="btn_up">
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>410</y>
+      <y>450</y>
       <width>71</width>
       <height>33</height>
      </rect>
@@ -87,9 +87,9 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>170</y>
+      <y>210</y>
       <width>71</width>
-      <height>33</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -103,7 +103,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>170</y>
+      <y>210</y>
       <width>71</width>
       <height>33</height>
      </rect>
@@ -121,7 +121,7 @@
       <x>0</x>
       <y>10</y>
       <width>181</width>
-      <height>431</height>
+      <height>471</height>
      </rect>
     </property>
    </widget>
@@ -129,7 +129,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>210</y>
+      <y>250</y>
       <width>461</width>
       <height>191</height>
      </rect>
@@ -170,7 +170,7 @@
       <x>450</x>
       <y>30</y>
       <width>201</width>
-      <height>131</height>
+      <height>171</height>
      </rect>
     </property>
     <property name="readOnly">
@@ -190,6 +190,29 @@
      <string>Handle info</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>210</y>
+      <width>41</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Name</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="handle_name">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>210</y>
+      <width>211</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -201,7 +224,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="status_bar"/>
  </widget>
  <resources/>
  <connections/>

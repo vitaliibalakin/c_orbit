@@ -5,6 +5,7 @@ from PyQt5 import uic, Qt
 import sys
 import os
 import re
+import json
 
 from handles.table import Table
 from handles.handles_table import HandlesTable
@@ -24,16 +25,20 @@ class Handles(QMainWindow):
         # table def
         self.handles_creating = Table(self.table)
         # table def
-        self.handles = HandlesTable(self.handles_table, self.handle_info, self.status_bar)
+        self.handles = HandlesTable(self.handles_table)
         # tree widget
         self.tree = TreeTableCom(self.handles_creating, 40, self.tree_widget)
         # callbacks
-        # self.btn_up.clicked.connect(self.step_up)
-        # self.btn_down.clicked.connect(self.step_down)
+        self.btn_up.clicked.connect(self.step_up)
+        self.btn_cst_up.clicked.connect(self.cst_step_up)
+        self.btn_down.clicked.connect(self.step_down)
+        self.btn_cst_down.clicked.connect(self.cst_step_down)
         self.add_handle.clicked.connect(self.add)
         self.del_handle.clicked.connect(self.remove)
 
         self.handles_table.itemPressed.connect(self.index)
+
+        self.load_handles()
 
     def index(self, pr_item):
         # paint row & set handle info
@@ -61,32 +66,97 @@ class Handles(QMainWindow):
             for key, val in handle.items():
                 self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val[1]))
 
-    def step_up(self):
-        for name, val in self.dict_handles[self.marked_row].items():
-            # self.currents.chans[name].setValue(self.currents.vals[name] + val)
-            print(self.currents.vals[name] - val)
-
-    def step_down(self):
-        for name, val in self.dict_handles[self.marked_row].items():
-            # self.currents.chans[name].setValue(self.currents.vals[name] - val)
-            print(self.currents.vals[name] - val)
-
     def add(self):
         name = self.handle_name.text()
-        if name == '':
-            self.status_bar.showMessage('Enter the handle name')
+        descr = self.handle_descr.text()
+        if name:
+            if self.handles_creating.cor_list:
+                for elem in self.handles_creating.cor_list:
+                    elem['step'] = elem['step'].value()
+                self.handles.add_row(name, descr, self.handles_creating.cor_list)
+                self.handle_name.setText('')
+            else:
+                self.status_bar.showMessage('Choose elements for handle creating')
+                return
         else:
-            self.handles.add_row(name, self.handles_creating.cor_list)
-            self.handles_creating.free()
-            self.tree.free()
-            self.handle_name.setText('')
+            self.status_bar.showMessage('Enter the handle name')
+            return
+        print(self.handles.handle_descr)
+        # save current handles
+        f = open('saved_handles.txt', 'w')
+        f.write(json.dumps(self.handles.handle_descr))
+        f.close()
+
+        # clear objects
+        self.handles_creating.free()
+        self.tree.free()
 
     def remove(self):
-        self.handles.remove_row(self.marked_row)
+        if self.marked_row:
+            self.handles.remove_row(self.marked_row)
 
-    def set_color_row(self, table, marked_row, color):
-        for i in range(table.columnCount()):
-            table.item(marked_row, i).SetBackground(color(7183255))
+            # save current handles
+            f = open('saved_handles.txt', 'w')
+            f.write(json.dumps(self.handles.handle_descr))
+            f.close()
+
+            # clear objects
+            self.marked_row = None
+            self.handle_info.clear()
+        else:
+            self.status_bar.showMessage('Choose row to delete')
+
+    def step_up(self):
+        if self.marked_row:
+            handle = self.handles.get_handle(self.marked_row)
+            for key, k_val in handle.items():
+                new_curr = k_val[0].val + k_val[1]
+                # k_val[0].setValue(new_curr)
+                print(new_curr)
+        else:
+            self.status_bar.showMessage('Choose row to step')
+
+    def cst_step_up(self):
+        if self.marked_row:
+            handle = self.handles.get_handle(self.marked_row)
+            factor = self.cst_step.value()
+            for key, k_val in handle.items():
+                new_curr = k_val[0].val + k_val[1]*factor
+                # k_val[0].setValue(new_curr)
+                print(new_curr)
+        else:
+            self.status_bar.showMessage('Choose row to step')
+
+    def step_down(self):
+        if self.marked_row:
+            handle = self.handles.get_handle(self.marked_row)
+            for key, k_val in handle.items():
+                new_curr = k_val[0].val - k_val[1]
+                # k_val[0].setValue(new_curr)
+                print(new_curr)
+        else:
+            self.status_bar.showMessage('Choose row to step')
+
+    def cst_step_down(self):
+        if self.marked_row:
+            handle = self.handles.get_handle(self.marked_row)
+            factor = self.cst_step.value()
+            for key, k_val in handle.items():
+                new_curr = k_val[0].val - k_val[1]*factor
+                # k_val[0].setValue(new_curr)
+                print(new_curr)
+        else:
+            self.status_bar.showMessage('Choose row to step')
+
+    def load_handles(self):
+        try:
+            f = open('saved_handles.txt', 'r')
+            handles = json.loads(f.read())
+            f.close()
+            for row_num, handle in handles.items():
+                self.handles.add_row(handle['name'], handle['descr'], handle['cor_list'])
+        except ValueError:
+            self.status_bar.showMessage('empty saved file')
 
 
 if __name__ == "__main__":

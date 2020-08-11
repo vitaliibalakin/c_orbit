@@ -120,7 +120,7 @@ class PlotControl(QMainWindow):
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
-        self.ic_mode = 'p2v2'  # delete after tests
+        # self.ic_mode = 'p2v2'  # delete after tests
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         try:

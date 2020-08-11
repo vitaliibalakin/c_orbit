@@ -25,7 +25,7 @@ class TunesControl(QMainWindow):
         self.setWindowTitle('Tunes Plot')
         self.show()
 
-        self.mode = ''
+        self.ic_mode = ''
         self.cur_tunes = np.zeros(2)
         self.dir = os.getcwd()
 
@@ -83,15 +83,16 @@ class TunesControl(QMainWindow):
             print(exc)
 
     def mode_changed(self, chan):
-        self.mode = chan.val
+        self.ic_mode = chan.val
+
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
+        self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
 
     def tunes_update(self, chan):
         tunes = chan.val
         self.tunes['cur'].update_pos(tunes)
-        self.lbl_dict[self.mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
+        self.lbl_dict[self.ic_mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
 
     def ctrl_tunes_update(self, chan):
         try:

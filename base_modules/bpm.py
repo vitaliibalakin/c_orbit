@@ -44,7 +44,8 @@ class BPM:
         h_len = len(data) // 2
         window = sp.nuttall(h_len)
         x_fft = np.fft.rfft((data[:h_len] - np.mean(data[:h_len])) * window, len(data[:h_len]), norm='ortho')
-        z_fft = np.fft.rfft((data[h_len: len(data)] - np.mean(data[h_len: len(data)])) * window, len(data[h_len: len(data)]), norm='ortho')
+        z_fft = np.fft.rfft((data[h_len: len(data)] - np.mean(data[h_len: len(data)])) * window,
+                            len(data[h_len: len(data)]), norm='ortho')
         freq = np.fft.rfftfreq(h_len, 1)
         self.send_fft(np.array([freq, np.abs(x_fft), np.abs(z_fft)]))
 

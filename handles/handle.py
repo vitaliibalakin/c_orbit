@@ -81,7 +81,6 @@ class Handles(QMainWindow):
         else:
             self.status_bar.showMessage('Enter the handle name')
             return
-        print(self.handles.handle_descr)
         # save current handles
         f = open('saved_handles.txt', 'w')
         f.write(json.dumps(self.handles.handle_descr))
@@ -107,44 +106,41 @@ class Handles(QMainWindow):
             self.status_bar.showMessage('Choose row to delete')
 
     def step_up(self):
-        if self.marked_row:
+        if self.marked_row is not None:
             handle = self.handles.get_handle(self.marked_row)
             for key, k_val in handle.items():
                 new_curr = k_val[0].val + k_val[1]
-                # k_val[0].setValue(new_curr)
-                print(new_curr)
+                k_val[0].setValue(new_curr)
         else:
             self.status_bar.showMessage('Choose row to step')
 
     def cst_step_up(self):
-        if self.marked_row:
+        if self.marked_row is not None:
             handle = self.handles.get_handle(self.marked_row)
             factor = self.cst_step.value()
             for key, k_val in handle.items():
                 new_curr = k_val[0].val + k_val[1]*factor
-                # k_val[0].setValue(new_curr)
-                print(new_curr)
+                k_val[0].setValue(new_curr)
         else:
             self.status_bar.showMessage('Choose row to step')
 
     def step_down(self):
-        if self.marked_row:
+        print(self.marked_row)
+        if self.marked_row is not None:
             handle = self.handles.get_handle(self.marked_row)
             for key, k_val in handle.items():
                 new_curr = k_val[0].val - k_val[1]
-                # k_val[0].setValue(new_curr)
-                print(new_curr)
+                k_val[0].setValue(new_curr)
         else:
             self.status_bar.showMessage('Choose row to step')
 
     def cst_step_down(self):
-        if self.marked_row:
+        if self.marked_row is not None:
             handle = self.handles.get_handle(self.marked_row)
             factor = self.cst_step.value()
             for key, k_val in handle.items():
                 new_curr = k_val[0].val - k_val[1]*factor
-                # k_val[0].setValue(new_curr)
-                print(new_curr)
+                k_val[0].setValue(new_curr)
         else:
             self.status_bar.showMessage('Choose row to step')
 

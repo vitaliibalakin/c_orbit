@@ -1,1 +1,1 @@
-{}
+{"0": {"name": "1st try", "descr": "yohohoho", "cor_list": [{"id": 175, "name": "canhw:12.rst3.c1d1_q", "step": 100}, {"id": 177, "name": "canhw:12.rst3.c1d2_q", "step": -100}]}, "1": {"name": "2nd try", "descr": "butilka romu", "cor_list": [{"id": 152, "name": "canhw:12.rst2.c1f2_x", "step": -500}, {"id": 156, "name": "canhw:12.rst2.c2f2_x", "step": 50}]}}

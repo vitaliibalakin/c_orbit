@@ -146,3 +146,4 @@ dmypy.json
 /bpm_plot/saved_tunes/
 /bpm_plot/mode_tunes_file.txt
 /bpm_plot/saved_modes/
+/handles/saved_handles.txt

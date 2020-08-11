@@ -27,7 +27,6 @@ class HandlesTable:
             else:
                 self.handle_descr[self.current_item[0]]['descr'] = text
             self.current_item = None
-        print(self.handle_descr)
 
     def add_row(self, name, descr, cors_list):
         handle_params = {}

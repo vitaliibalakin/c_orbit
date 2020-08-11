@@ -84,7 +84,7 @@ class TunesControl(QMainWindow):
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
-        self.ic_mode = 'p2v2'  # delete after tests
+        # self.ic_mode = 'p2v2'  # delete after tests
         try:
             for key in self.btn_dict:
                 self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
@@ -96,18 +96,18 @@ class TunesControl(QMainWindow):
         tunes = chan.val
         try:
             self.tunes['cur'].update_pos(tunes)
-            self.lbl_dict[self.ic_mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
+            self.lbl_dict['cur'].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
         except KeyError:
             self.status_bar.showMessage('empty tunes channel data')
 
     def ctrl_tunes_update(self, chan):
-        print('her')
         try:
             tunes_dict = json.loads(chan.val)
             for k, v in tunes_dict.items():
                 self.tunes[k].update_pos(v)
+                self.lbl_dict[k].setText(str(round(v[0], 3)) + " | " + str(round(v[1], 3)))
         except Exception as exc:
-            self.status_bar.showMessage(exc)
+            self.status_bar.showMessage(str(exc))
 
     def load_file_(self):
         try:
@@ -115,7 +115,7 @@ class TunesControl(QMainWindow):
                                                     filter='Text Files (*.txt)')[0]
             self.chan_cmd.setValue((json.dumps({'cmd': 'load_tunes', 'service': 'tunes', 'file_name': file_name})))
         except Exception as exc:
-            self.status_bar.showMessage(exc)
+            self.status_bar.showMessage(str(exc))
 
     def save_file_(self):
         try:
@@ -127,7 +127,7 @@ class TunesControl(QMainWindow):
                 file_name = file_name + '.txt'
                 self.chan_cmd.setValue((json.dumps({'cmd': 'save_tunes', 'service': 'tunes', 'file_name': file_name})))
         except Exception as exc:
-            self.status_bar.showMessage(exc)
+            self.status_bar.showMessage(str(exc))
 
 
 if __name__ == "__main__":

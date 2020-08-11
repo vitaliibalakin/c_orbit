@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import json
 import pycx4.pycda as cda
 import scipy.signal as sp
 
@@ -59,7 +60,7 @@ class BPM:
         self.collect_tunes(np.array([x_tune, z_tune]))
 
     def tunes_range(self, chan):
-        bounds = chan.val
+        bounds = json.loads(chan.val)
         if bounds:
             self.x_bound = bounds[0:2]
             self.z_bound = bounds[2:4]

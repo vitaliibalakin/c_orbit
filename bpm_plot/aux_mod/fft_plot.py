@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5 import QtGui
 import sys
 import numpy as np
-import scipy.signal as sp
+import json
 import pyqtgraph as pg
 import pycx4.qcda as cda
 
@@ -45,12 +45,12 @@ class FFTPlot(pg.PlotWidget):
         self.z_plot.setData(freq, z_fft, pen=pg.mkPen('r', width=1))
 
     def x_bound_update(self, region_item):
-        self.x_bound = region_item.getRegion()
-        self.chan_tunes_range.setValue(np.array([self.x_bound, self.z_bound]))
+        self.x_bound = list(region_item.getRegion())
+        self.chan_tunes_range.setValue(json.dumps(self.x_bound + self.z_bound))
 
     def z_bound_update(self, region_item):
-        self.z_bound = region_item.getRegion()
-        self.chan_tunes_range.setValue(np.array([self.x_bound, self.z_bound]))
+        self.z_bound = list(region_item.getRegion())
+        self.chan_tunes_range.setValue(json.dumps(self.x_bound + self.z_bound))
 
 
 if __name__ == "__main__":

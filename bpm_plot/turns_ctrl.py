@@ -111,10 +111,12 @@ class TurnsControl(QMainWindow):
         elif self.ic_mode == 'e':
             self.coor_e.coor_plot(chan.val)
         else:
-            print('WTF fft_proc')
+            print('WTF coor_proc')
 
     def mode_proc(self, chan):
-        self.ic_mode = chan.val[0]
+        # if chan.val:
+        # self.ic_mode = chan.val[0]
+        self.ic_mode = 'p'
         if self.ic_mode == 'p':
             self.tab_fourier.setCurrentIndex(1)
             self.tab_turns.setCurrentIndex(1)

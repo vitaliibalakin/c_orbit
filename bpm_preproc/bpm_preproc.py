@@ -111,6 +111,7 @@ class BpmPreproc:
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
+        self.ic_mode = 'p2v2'  # for tests
         self.to_another_ic_mode_('orbit')
 
     def turn_bpm_(self, **kwargs):
@@ -151,19 +152,22 @@ class BpmPreproc:
 
     def start_tunes_(self, **kwargs):
         ic_modes = ['p2v2', 'e2v2', 'p2v4', 'e2v4']
+        ctrl_tunes = {}
+        msg = 'action -> load -> no action'
         f = open(self.mode_d['tunes'], 'r')
         data_mode = json.loads(f.read())
         f.close()
         for mode in ic_modes:
             try:
                 data = np.loadtxt(data_mode[mode])
+                ctrl_tunes[mode] = np.ndarray.tolist(data)
                 msg = 'action -> load -> '
             except Exception as exc:
                 data = np.zeros(2)
+                ctrl_tunes[mode] = np.ndarray.tolist(data)
                 msg = 'action -> load -> error ' + str(exc) + '-> '
-            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
-            print({self.ic_mode: data})
-            self.send_cmd_res_(msg, rec='tunes')
+        self.chan_ctrl_tunes.setValue(json.dumps(ctrl_tunes))
+        self.send_cmd_res_(msg, rec='tunes')
 
     def mode_file_edit_(self, file_name, mode_file):
         f = open(mode_file, 'r')

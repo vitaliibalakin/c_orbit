@@ -161,7 +161,8 @@ class BpmPreproc:
             except Exception as exc:
                 data = np.zeros(2)
                 msg = 'action -> load -> error ' + str(exc) + '-> '
-            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: data}))
+            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
+            print({self.ic_mode: data})
             self.send_cmd_res_(msg, rec='tunes')
 
     def mode_file_edit_(self, file_name, mode_file):
@@ -191,7 +192,7 @@ class BpmPreproc:
             np.savetxt(file_name, data)
         elif service == 'tunes':
             data = self.current_tunes
-            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: data}))
+            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
             np.savetxt(file_name, data)
         self.mode_file_edit_(file_name, self.mode_d[service])
         self.send_cmd_res_('action -> save -> ', rec=service)

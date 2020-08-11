@@ -84,17 +84,24 @@ class TunesControl(QMainWindow):
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
-
-        for key in self.btn_dict:
-            self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
+        self.ic_mode = 'p2v2'  # delete after tests
+        try:
+            for key in self.btn_dict:
+                self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
+            self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
+        except KeyError:
+            self.status_bar.showMessage('wrong IC mode channel value')
 
     def tunes_update(self, chan):
         tunes = chan.val
-        self.tunes['cur'].update_pos(tunes)
-        self.lbl_dict[self.ic_mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
+        try:
+            self.tunes['cur'].update_pos(tunes)
+            self.lbl_dict[self.ic_mode].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
+        except KeyError:
+            self.status_bar.showMessage('empty tunes channel data')
 
     def ctrl_tunes_update(self, chan):
+        print('her')
         try:
             tunes_dict = json.loads(chan.val)
             for k, v in tunes_dict.items():

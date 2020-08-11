@@ -59,5 +59,9 @@ class BPM:
 
     def tunes_range(self, chan):
         bounds = chan.val
-        self.x_bound = bounds[0:2]
-        self.z_bound = bounds[2:4]
+        if bounds:
+            self.x_bound = bounds[0:2]
+            self.z_bound = bounds[2:4]
+        else:
+            self.x_bound = [0.345, 0.365]
+            self.z_bound = [0.2, 0.4]

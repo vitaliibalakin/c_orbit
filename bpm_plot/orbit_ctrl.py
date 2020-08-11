@@ -24,7 +24,7 @@ class PlotControl(QMainWindow):
         self.show()
 
         # variables for under control objects init
-        self.mode = ''
+        self.ic_mode = ''
         self.cur_orbit = np.zeros(32)
         self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
                      'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
@@ -108,6 +108,7 @@ class PlotControl(QMainWindow):
         if len(orbit):
             self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
             self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
+            self.orbit_to_lbl(orbit)
 
     def orbit_to_lbl(self, orbit):
         for i in range(0, 16):
@@ -118,11 +119,12 @@ class PlotControl(QMainWindow):
                 self.dict_lbls[bpm].setText('None')
 
     def mode_changed(self, chan):
-        self.mode = chan.val
+        self.ic_mode = chan.val
+        self.ic_mode = 'p2v2'  # delete after tests
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         try:
-            self.btn_dict[self.mode].setStyleSheet(self.colors[self.mode])
+            self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
         except Exception as exc:
             print(exc)
 

@@ -22,7 +22,8 @@ class BpmPreproc:
         self.turns_bpm = 'bpm15'
         self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                           'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        self.bpms = [BPM(bpm, self.collect_orbit, self.collect_tunes) for bpm in self.bpms_list]
+        self.bpms = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
+                         self.collect_fft, self.collect_coor) for bpm in self.bpms_list]
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1

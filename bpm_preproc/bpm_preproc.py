@@ -151,21 +151,32 @@ class BpmPreproc:
     #########################################################
 
     def start_tunes_(self, **kwargs):
+        flag = 0
         ic_modes = ['p2v2', 'e2v2', 'p2v4', 'e2v4']
         ctrl_tunes = {}
-        msg = 'action -> load -> no action'
         f = open(self.mode_d['tunes'], 'r')
         data_mode = json.loads(f.read())
         f.close()
         for mode in ic_modes:
             try:
-                data = np.loadtxt(data_mode[mode])
-                ctrl_tunes[mode] = np.ndarray.tolist(data)
-                msg = 'action -> load -> '
-            except Exception as exc:
+                file = open(data_mode[mode], 'r')
+                if os.fstat(file.fileno()).st_size:
+                    data = np.loadtxt(data_mode[mode])
+                    ctrl_tunes[mode] = np.ndarray.tolist(data)
+                else:
+                    flag = 1
+                    data = np.zeros(2)
+                    ctrl_tunes[mode] = np.ndarray.tolist(data)
+                file.close()
+            except FileNotFoundError:
+                flag = 1
                 data = np.zeros(2)
                 ctrl_tunes[mode] = np.ndarray.tolist(data)
-                msg = 'action -> load -> error ' + str(exc) + '-> '
+
+        if flag:
+            msg = 'action -> start -> file error -> '
+        else:
+            msg = 'action -> start -> '
         self.chan_ctrl_tunes.setValue(json.dumps(ctrl_tunes))
         self.send_cmd_res_(msg, rec='tunes')
 
@@ -204,19 +215,21 @@ class BpmPreproc:
     def load_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
-        try:
+        file = open(file_name, 'r')
+        if os.fstat(file.fileno()).st_size:
             data = np.loadtxt(file_name)
             msg = 'action -> load -> '
-        except Exception as exc:
+        else:
             if service == 'orbit':
                 data = np.zeros(64)
             elif service == 'tunes':
                 data = np.zeros(2)
-            msg = 'action -> load -> error ' + str(exc) + '-> '
+            msg = 'action -> load -> file error -> '
+        file.close()
         if service == 'orbit':
             self.chan_ctrl_orbit.setValue(data)
         if service == 'tunes':
-            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: data}))
+            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
         self.mode_file_edit_(file_name, self.mode_d[service])
         self.send_cmd_res_(msg, rec=service)
 

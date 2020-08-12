@@ -31,7 +31,7 @@ class FFTPlot(pg.PlotWidget):
         self.x_bound = [0.345, 0.365]
         self.z_bound = [0.2, 0.4]
 
-        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range')
+        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=1024)
 
         self.x_lin_reg.sigRegionChangeFinished.connect(self.x_bound_update)
         self.z_lin_reg.sigRegionChangeFinished.connect(self.z_bound_update)

@@ -17,9 +17,9 @@
    <widget class="QProgressBar" name="prg_bar">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>150</x>
       <y>480</y>
-      <width>1031</width>
+      <width>891</width>
       <height>23</height>
      </rect>
     </property>
@@ -117,17 +117,17 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_start_proc">
+   <widget class="QPushButton" name="btn_start_coll">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>450</y>
+      <y>480</y>
       <width>121</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start Procedure</string>
+     <string>Start Collecting</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_stop_proc">
@@ -423,6 +423,19 @@
       <string>tunes</string>
      </property>
     </item>
+   </widget>
+   <widget class="QPushButton" name="btn_start_magn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>121</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start Magnetiz</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

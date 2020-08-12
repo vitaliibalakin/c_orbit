@@ -24,7 +24,7 @@ class Magnetization(BasicFunc):
         self.callback = call_upon_completion
 
         for chan in ['Iset', 'Imes']:
-            cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
+            cor_chan = cda.DChan(name + '.' + chan)
             cor_chan.valueMeasured.connect(self.val_change)
             self.chans[chan] = cor_chan
 

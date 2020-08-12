@@ -1,0 +1,1 @@
+{"rm_rev": [], "cors": {"canhw:12.rst2.crm5": {"step": 100, "n_iter": 5}, "canhw:12.rst2.crm6": {"step": 100, "n_iter": 5}, "canhw:12.rst2.crm7": {"step": 100, "n_iter": 5}, "canhw:12.rst2.crm8": {"step": 100, "n_iter": 5}}}

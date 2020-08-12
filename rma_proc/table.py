@@ -14,7 +14,7 @@ class Table:
         # params
         name = params.get('name', 'noname')
         it_id = params.get('id')
-        cor_dict = {'id': it_id, name: name, 'mag_range': RMSpinBox(500, 100), 'mag_iter': RMSpinBox(5, 1),
+        cor_dict = {'id': it_id, 'name': name, 'mag_range': RMSpinBox(500, 100), 'mag_iter': RMSpinBox(5, 1),
                     'rm_step': RMSpinBox(100, 100), 'rm_iter': RMSpinBox(5, 1)}
         # new line
         row_num = self.table.rowCount()

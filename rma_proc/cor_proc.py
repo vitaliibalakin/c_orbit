@@ -28,12 +28,10 @@ class CorMeasure(BasicFunc):
         self.chan_resps = {'orbit': cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32),
                            'tunes': cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)}
         self.cor_data_resps = {'orbit': np.zeros([32, ]), 'tunes': np.zeros([2, ])}
-
         for chan in ['Iset', 'Imes']:
-            cor_chan = cda.DChan('canhw:12.' + name + '.' + chan)
+            cor_chan = cda.DChan(name + '.' + chan)
             cor_chan.valueMeasured.connect(self.val_change)
             self.chans[chan] = cor_chan
-
         self.cor_data = self.cor_data_resps[resp_type]
         self.chan_data = self.chan_resps[resp_type]
         self.chan_data.valueMeasured.connect(self.data_proc)

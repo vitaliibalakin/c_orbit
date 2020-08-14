@@ -33,8 +33,10 @@ class RMA(QMainWindow, BasicFunc):
         self.plt.showGrid(x=True, y=True)
         self.plt.setLogMode(False, False)
         self.plt.setRange(yRange=[0, 6])
+        self.plt_vals = pg.PlotDataItem()
         self.sing_reg = pg.LinearRegionItem(values=[0.5, 1], orientation=pg.LinearRegionItem.Horizontal)
         self.plt.addItem(self.sing_reg)
+        self.plt.addItem(self.plt_vals)
         p = QVBoxLayout()
         self.sv_plot.setLayout(p)
         p.addWidget(self.plt)
@@ -65,6 +67,8 @@ class RMA(QMainWindow, BasicFunc):
         self.btn_save_table.clicked.connect(self.save_table)
         self.btn_load_table.clicked.connect(self.load_table)
         self.btn_save_rev_rm.clicked.connect(self.save_rev_rm)
+
+        self.rm_svd()
 
     ###########################################
     #               MAGNETIZATION!            #
@@ -204,7 +208,7 @@ class RMA(QMainWindow, BasicFunc):
     def rm_svd(self):
         # self.plt.clear()
         u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
-        self.plt.setData(sing_vals, pen=None, symbol='o')
+        self.plt_vals.setData(sing_vals, pen=None, symbol='o')
         self.log_msg.append('SV is plotted')
 
     def sing_reg_upd(self, region_item):

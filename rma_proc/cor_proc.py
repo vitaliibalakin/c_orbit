@@ -64,7 +64,7 @@ class CorMeasure(BasicFunc):
             self.callback(self.name)
         else:
             self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
-            print(self.name, self.n_iter)
+            # print(self.name, self.n_iter)
             self.n_iter += 1
             self.time_flag = True
             self.time_stamp = time.time() + 3

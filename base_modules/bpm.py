@@ -19,7 +19,7 @@ class BPM:
         self.x_bound = [0.345, 0.365]
         self.z_bound = [0.2, 0.4]
 
-        self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=4096)
+        self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=524288)
         self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
         self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
         self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=4096)

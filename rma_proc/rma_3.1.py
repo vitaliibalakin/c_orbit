@@ -28,6 +28,8 @@ class RMA(QMainWindow, BasicFunc):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
 
+        self.main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
+
         # sing values plot def
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
@@ -47,17 +49,13 @@ class RMA(QMainWindow, BasicFunc):
         # tree def
         self.tree = TreeTableCom(self.table, 40, self.tree_widget)
 
-        self.rma_ready = 0
-        self.counter = 0
-        self.stop_proc = 0
-        self.rm = {}
+        # default settings
         self.sing_val_range = []
-        self.stack_names = []
-        self.stack_elems = {}
-        self.cor_fail = []
-        self.dict_cors = {}
+        self.rm = {}
         self.resp_matr_dict = {}
         self.rev_rm = np.array([])
+        self.main_cur = {}
+        self.set_default()
 
         self.btn_start_coll.clicked.connect(self.start_rma)
         self.btn_start_magn.clicked.connect(self.start_magn)
@@ -68,7 +66,17 @@ class RMA(QMainWindow, BasicFunc):
         self.btn_load_table.clicked.connect(self.load_table)
         self.btn_save_rev_rm.clicked.connect(self.save_rev_rm)
 
-        self.rm_svd()
+    def set_default(self):
+        self.resp_type.setEnable(True)
+        self.prg_bar.setValue(0)
+        self.elem_prg_bar.setValue(0)
+        self.rma_ready = 0
+        self.counter = 0
+        self.stop_proc = 0
+        self.stack_names = []
+        self.stack_elems = {}
+        self.cor_fail = []
+        self.dict_cors = {}
 
     ###########################################
     #               MAGNETIZATION!            #
@@ -78,12 +86,10 @@ class RMA(QMainWindow, BasicFunc):
         self.log_msg.clear()
         self.log_msg.append('start_magn')
         # self.label_type.setText('MAGN')
-        # main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
-        main_names = []
         main_2_mag = {main: Magnetization(self.action_loop, main, step=self.mag_range_main.value(),
                                           stop=self.mag_iter_main.value(), odz=1.2, prg=self.elem_prg_bar)
-                      for main in main_names}
-        self.stack_names = main_names.copy()
+                      for main in self.main_names}
+        self.stack_names = self.main_names.copy()
         cor_2_mag = {}
         for cor in self.table.cor_list:
             self.stack_names.append(cor['name'])
@@ -94,7 +100,7 @@ class RMA(QMainWindow, BasicFunc):
         print(self.stack_elems)
         # this command will start MAGN Procedure
         self.lbl_elem.setText(self.stack_names[0].split('.')[-1])
-        QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
+        QTimer.singleShot(3000, self.stack_elems[self.stack_names[0]].proc)
 
     ###########################################
     #                ASSEMBLING               #
@@ -102,6 +108,7 @@ class RMA(QMainWindow, BasicFunc):
 
     def start_rma(self):
         self.rma_ready = 1
+        self.resp_type.setEnable(False)
         self.log_msg.append('start_rma')
         # self.label_type.setText('RMA')
         self.prg_bar.setValue(0)
@@ -120,7 +127,7 @@ class RMA(QMainWindow, BasicFunc):
         self.counter = len(self.stack_names)
         # this command will start RMA Procedure
         self.lbl_elem.setText(self.stack_names[0].split('.')[-1])
-        QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
+        QTimer.singleShot(3000, self.stack_elems[self.stack_names[0]].proc)
 
     def stop_rma(self):
         self.stop_proc = 1
@@ -151,62 +158,39 @@ class RMA(QMainWindow, BasicFunc):
                     self.save_rma()
                 else:
                     self.rma_ready = 1
+                    for main_name in self.main_names:
+                        self.main_cur[main_name] = self.stack_elems[name].init_val
                     self.log_msg.append('MAGN stage completed, go to RMA')
-                    self.start_rma()
         else:
             # switch variables to default
             self.log_msg.append('External interruption')
-            self.prg_bar.setValue(0)
-            self.elem_prg_bar.setValue(0)
-            self.rma_ready = 0
-            self.counter = 0
-            self.stop_proc = 0
-            self.rm = {}
-            self.stack_names = []
-            self.stack_elems = {}
-            self.cor_fail = []
-            self.dict_cors = {}
-            self.resp_matr_dict = {}
+            self.set_default()
 
     def rma_string_calc(self, name, data):
         info = self.stack_elems[name]
-        print(info.step, info.n_iter)
+        resp_arr = data[0]
+        init_val = data[1]
         buffer = []
-        cur = np.arange(-1 * info.step * (info.n_iter-1), info.step * info.n_iter, info.step)
-        for i in range(len(data[0][0])):
-            const, pcov = optimize.curve_fit(self.lin_fit, cur, data[0][:, i])
-            buffer.append(const[0])
-        self.resp_matr_dict[name] = {'data': buffer, 'step': info.step, 'n_iter': info.n_iter - 1}
+        cur = np.arange(-1 * info.step * (info.n_iter-1), info.step * info.n_iter, info.step) + init_val
+        if self.resp_type.currentText() == 'orbit':
+            for i in range(len(resp_arr[0])):
+                const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i])
+                buffer.append(const[0])
+        elif self.resp_type.currentText() == 'tunes':
+            # collect tunes x|z to convert cur -> grad in another application and then plot betas
+            buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))
+        self.resp_matr_dict[name] = {'data': buffer, 'step': info.step, 'n_iter': info.n_iter - 1, 'init': init_val}
         print(self.resp_matr_dict)
 
     @staticmethod
     def lin_fit(x, a, c):
         return a * x + c
 
-    # def save_cor_resp(self, name, data):
-    #     if len(data) == 2:
-    #         np.savetxt(name + '.txt', data[0], header=(str(data[1]) + '|' + '19'))
-    #         self.resp_matr_dict[name] = data[0]
-
-    def save_rma(self):
-        dict_cors = {}
-        rm = []
-        for name, resp in self.resp_matr_dict.items():
-            dict_cors[name] = {'step': resp['step'], 'n_iter': resp['n_iter']}
-            rm.append(resp['data'])
-        np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
-        self.rm = {'rm': np.array(rm), 'cor_names': dict_cors}
-        self.dict_cors = dict_cors
-        self.log_msg.append('RM saved')
-        self.log_msg.append('RMA process finished')
-        self.rm_svd()
-
     ###########################################
     #                REVERSING                #
     ###########################################
 
     def rm_svd(self):
-        # self.plt.clear()
         u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
         self.plt_vals.setData(sing_vals, pen=None, symbol='o')
         self.log_msg.append('SV is plotted')
@@ -233,10 +217,6 @@ class RMA(QMainWindow, BasicFunc):
     ###########################################
     #              FILE WORKING               #
     ###########################################
-
-    # table
-    def data_receiver_t(self):
-        pass
 
     def save_table(self):
         table = self.table.cor_list.copy()
@@ -270,15 +250,26 @@ class RMA(QMainWindow, BasicFunc):
         except Exception as exc:
             self.log_msg.append(str(exc))
 
-    # reverse response matrix
-    def data_receiver_rev_rm(self):
-        pass
-
     def save_rev_rm(self):
         f = open(self.rm_name.text() + '_reversed_rm.txt', 'w')
         f.write(json.dumps({'rm_rev': np.ndarray.tolist(self.rev_rm), 'cors': self.dict_cors}))
         f.close()
         self.log_msg.append('RM saved')
+
+    def save_rma(self):
+        dict_cors = {}
+        rm = []
+        for name, resp in self.resp_matr_dict.items():
+            dict_cors[name] = {'step': resp['step'], 'n_iter': resp['n_iter'], 'init': resp['init']}
+            rm.append(resp['data'])
+        dict_cors['main'] = self.main_cur
+        np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
+        self.rm = {'rm': np.array(rm), 'cor_names': dict_cors}
+        self.dict_cors = dict_cors
+        self.log_msg.append('RM saved')
+        self.log_msg.append('RMA process finished')
+        self.set_default()
+        # self.rm_svd()
 
 
 if __name__ == "__main__":

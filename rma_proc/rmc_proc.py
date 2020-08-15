@@ -14,6 +14,7 @@ class RMC:
         super(RMC, self).__init__()
         direc = os.getcwd()
         direc = re.sub('rma_proc', 'uis', direc)
+
         uic.loadUi(direc + "/rma_main_window.ui", self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')

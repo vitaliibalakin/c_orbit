@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
@@ -27,22 +27,9 @@ class RMA(QMainWindow, BasicFunc):
         uic.loadUi(direc + "/rma_main_window.ui", self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
+        self.show()
 
         self.main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
-
-        # sing values plot def
-        self.plt = pg.PlotWidget(parent=self)
-        self.plt.showGrid(x=True, y=True)
-        self.plt.setLogMode(False, False)
-        self.plt.setRange(yRange=[0, 6])
-        self.plt_vals = pg.PlotDataItem()
-        self.sing_reg = pg.LinearRegionItem(values=[0.5, 1], orientation=pg.LinearRegionItem.Horizontal)
-        self.plt.addItem(self.sing_reg)
-        self.plt.addItem(self.plt_vals)
-        p = QVBoxLayout()
-        self.sv_plot.setLayout(p)
-        p.addWidget(self.plt)
-        self.show()
 
         # table def
         self.table = Table(self.cor_set_table)
@@ -60,14 +47,11 @@ class RMA(QMainWindow, BasicFunc):
         self.btn_start_coll.clicked.connect(self.start_rma)
         self.btn_start_magn.clicked.connect(self.start_magn)
         self.btn_stop_proc.clicked.connect(self.stop_rma)
-        self.btn_reverse_rm.clicked.connect(self.reverse_rm)
-        self.sing_reg.sigRegionChangeFinished.connect(self.sing_reg_upd)
         self.btn_save_table.clicked.connect(self.save_table)
         self.btn_load_table.clicked.connect(self.load_table)
-        self.btn_save_rev_rm.clicked.connect(self.save_rev_rm)
 
     def set_default(self):
-        self.resp_type.setEnable(True)
+        self.resp_type.setEnabled(True)
         self.prg_bar.setValue(0)
         self.elem_prg_bar.setValue(0)
         self.rma_ready = 0
@@ -103,12 +87,12 @@ class RMA(QMainWindow, BasicFunc):
         QTimer.singleShot(3000, self.stack_elems[self.stack_names[0]].proc)
 
     ###########################################
-    #                ASSEMBLING               #
+    #                COLLECTING               #
     ###########################################
 
     def start_rma(self):
         self.rma_ready = 1
-        self.resp_type.setEnable(False)
+        self.resp_type.setEnabled(False)
         self.log_msg.append('start_rma')
         # self.label_type.setText('RMA')
         self.prg_bar.setValue(0)
@@ -187,34 +171,6 @@ class RMA(QMainWindow, BasicFunc):
         return a * x + c
 
     ###########################################
-    #                REVERSING                #
-    ###########################################
-
-    def rm_svd(self):
-        u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
-        self.plt_vals.setData(sing_vals, pen=None, symbol='o')
-        self.log_msg.append('SV is plotted')
-
-    def sing_reg_upd(self, region_item):
-        self.sing_val_range = region_item.getRegion()
-
-    def reverse_rm(self):
-        u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
-        counter = 0
-        # small to zero, needed to 1 /
-        for i in range(len(sing_vals)):
-            if self.sing_val_range[0] < sing_vals[i] < self.sing_val_range[1]:
-                sing_vals[i] = 1 / sing_vals[i]
-                counter += 1
-            else:
-                sing_vals[i] = 0
-        s_r = np.zeros((vh.shape[0], u.shape[0]))
-        s_r[:counter, :counter] = np.diag(sing_vals)
-        self.rev_rm = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
-        self.save_rev_rm()
-        self.log_msg.append('RM reversed')
-
-    ###########################################
     #              FILE WORKING               #
     ###########################################
 
@@ -250,12 +206,6 @@ class RMA(QMainWindow, BasicFunc):
         except Exception as exc:
             self.log_msg.append(str(exc))
 
-    def save_rev_rm(self):
-        f = open(self.rm_name.text() + '_reversed_rm.txt', 'w')
-        f.write(json.dumps({'rm_rev': np.ndarray.tolist(self.rev_rm), 'cors': self.dict_cors}))
-        f.close()
-        self.log_msg.append('RM saved')
-
     def save_rma(self):
         dict_cors = {}
         rm = []
@@ -269,7 +219,6 @@ class RMA(QMainWindow, BasicFunc):
         self.log_msg.append('RM saved')
         self.log_msg.append('RMA process finished')
         self.set_default()
-        # self.rm_svd()
 
 
 if __name__ == "__main__":

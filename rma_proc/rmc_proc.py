@@ -37,7 +37,6 @@ class RMC:
     def rm_svd(self):
         u, sing_vals, vh = np.linalg.svd(self.rm['rm'])
         self.plt_vals.setData(sing_vals, pen=None, symbol='o')
-        self.log_msg.append('SV is plotted')
 
     def sing_reg_upd(self, region_item):
         self.sing_val_range = region_item.getRegion()
@@ -56,10 +55,8 @@ class RMC:
         s_r[:counter, :counter] = np.diag(sing_vals)
         self.rev_rm = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
         self.save_rev_rm()
-        self.log_msg.append('RM reversed')
 
     def save_rev_rm(self):
         f = open(self.rm_name.text() + '_reversed_rm.txt', 'w')
         f.write(json.dumps({'rm_rev': np.ndarray.tolist(self.rev_rm), 'cors': self.dict_cors}))
         f.close()
-        self.log_msg.append('RM saved')

@@ -147,4 +147,4 @@ dmypy.json
 /bpm_plot/mode_tunes_file.txt
 /bpm_plot/saved_modes/
 /rma_proc/saved_rms/default_name.txt
-/handles/saved_handles.txt
+/rma_proc/saved_rms/

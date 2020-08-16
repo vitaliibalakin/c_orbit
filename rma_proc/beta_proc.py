@@ -26,6 +26,20 @@ class BetaProc(QMainWindow):
                        '2d1': 21.0192, '3d1': 6.4064, '4d1': 7.3064, '1f3': 14.410195, '2f3': 26.7222, '3f3': 0.6974,
                        '4f3': 13.015395, '1d2': 15.945205, '2d2': 25.193195, '3d2': 2.2324, '4d2': 11.480395,
                        '1d3': 14.78019, '2d3': 26.352195, '3d3': 1.0674, '4d3': 12.645395}
+        self.lens_type = {'1f1': 'du60', '1f2': 'du60', '1f4': 'du60', '2f1': 'du60', '2f2': 'du60', '2f4': 'du60',
+                          '3f1': 'du60', '3f4': 'du60', '4f1': 'du60', '4f2': 'du60', '4f4': 'du60', '1d1': 'du60',
+                          '2d1': 'du60', '3d1': 'du60', '4d1': 'du60', '1f3': 'du80', '2f3': 'du80', '3f3': 'du80',
+                          '4f3': 'du80', '1d2': 'du80', '2d2': 'du80', '3d2': 'du80', '4d2': 'du80',
+                          '1d3': 'du80', '2d3': 'du80', '3d3': 'du80', '4d3': 'du80'}
+
+        self.c_main = {'1f1': 'qf1n2', '1f2': 'qf1n2', '1f4': 'qf4',
+                       '2f1': 'qf1n2', '2f2': 'qf1n2', '2f4': 'qf4',
+                       '3f1': 'qf1n2', '3f4': 'qf4',
+                       '4f1': 'qf1n2', '4f2': 'qf1n2', '4f4': 'qf4',
+                       '1d1': 'qd1', '2d1': 'qd1', '3d1': 'qd1', '4d1': 'qd1',
+                       '1f3': 'qf3', '2f3': 'qf3', '3f3': 'qf3', '4f3': 'qf3',
+                       '1d2': 'qd2', '2d2': 'qd2', '3d2': 'qd2', '4d2': 'qd2',
+                       '1d3': 'qd3', '2d3': 'qd3', '3d3': 'qd3', '4d3': 'qd3'}
 
         self.beta_x = np.array([])
         self.beta_y = np.array([])
@@ -96,8 +110,9 @@ class BetaProc(QMainWindow):
                                 rm_info[keys[i]]['step']) + rm_info[keys[i]]['init']
                 x = rm[i][:2 * rm_info[keys[i]]['n_iter'] + 1]
                 y = rm[i][2 * rm_info[keys[i]]['n_iter'] + 1:]
-                # const_x, pcov = optimize.curve_fit(self.lin_fit, cur, x)
-                # const_y, pcov = optimize.curve_fit(self.lin_fit, cur, y)
+                grad = self.cur2grad(self.lens_type[keys[i]], cur, rm_info['main'][self.c_main[keys[i]]])
+                # const_x, pcov = optimize.curve_fit(self.lin_fit, grad, x)
+                # const_y, pcov = optimize.curve_fit(self.lin_fit, grad, y)
                 # beta_x.append(const_x[0])
                 # beta_y.append(const_y[0])
                 i += 1

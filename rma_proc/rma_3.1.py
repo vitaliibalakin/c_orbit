@@ -222,6 +222,6 @@ class RMA(QMainWindow, BasicFunc):
 
 
 if __name__ == "__main__":
-    app = QApplication(['RMA'])
+    app = QApplication(['RMC'])
     w = RMA()
     sys.exit(app.exec_())

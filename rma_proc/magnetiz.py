@@ -44,7 +44,6 @@ class Magnetization(BasicFunc):
                     self.err_verification(self.val, self.proc, self.error, self.odz)
 
     def proc(self):
-        print('hmm', self.counter)
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']

@@ -29,7 +29,8 @@ class RMA(QMainWindow, BasicFunc):
         pg.setConfigOption('foreground', 'k')
         self.show()
 
-        self.main_names = ['drm', 'dsm', 'qd1', 'qf1n2', 'qf4', 'qd2', 'qd3', 'qf3']
+        self.main_names = ['canhw:12.drm', 'canhw:12.dsm', 'canhw:12.qd1', 'canhw:12.qf1n2', 'canhw:12.qf4',
+                           'canhw:12.qd2', 'canhw:12.qd3', 'canhw:12.qf3']
 
         # table def
         self.table = Table(self.cor_set_table)
@@ -106,7 +107,7 @@ class RMA(QMainWindow, BasicFunc):
         if not len(self.cor_fail):
             self.log_msg.append('Fail List EMPTY')
         else:
-            self.log_msg.append(self.cor_fail)
+            self.log_msg.append("fail_list: " + str(self.cor_fail))
             self.cor_fail = []
         self.counter = len(self.stack_names)
         # this command will start RMA Procedure
@@ -135,15 +136,17 @@ class RMA(QMainWindow, BasicFunc):
                 self.lbl_elem.setText(self.stack_names[0].split('.')[-1])
                 self.stack_elems[self.stack_names[0]].proc()
             else:
-                self.stack_elems = {}
                 if self.rma_ready:
                     self.rma_ready = 0
                     self.log_msg.append('RMA stage completed, saving RM')
                     self.save_rma()
+                    self.stack_elems = {}
                 else:
                     self.rma_ready = 1
                     for main_name in self.main_names:
+                        print(self.stack_elems)
                         self.main_cur[main_name] = self.stack_elems[name].init_val
+                    self.stack_elems = {}
                     self.log_msg.append('MAGN stage completed, go to RMA')
         else:
             # switch variables to default
@@ -159,7 +162,10 @@ class RMA(QMainWindow, BasicFunc):
         if self.resp_type.currentText() == 'orbit':
             for i in range(len(resp_arr[0])):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i])
-                buffer.append(const[0])
+                if const[0] < 1E-10:
+                    buffer.append(0)
+                else:
+                    buffer.append(const[0])
         elif self.resp_type.currentText() == 'tunes':
             # collect tunes x|z to convert cur -> grad in another application and then plot betas
             buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))

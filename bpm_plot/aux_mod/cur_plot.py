@@ -12,7 +12,7 @@ class CurPlot(pg.PlotWidget):
         self.setLogMode(False, False)
         self.setLabel('left', "Current", units='mA')
         self.setLabel('bottom', "Turn")
-        self.setRange(yRange=[0, 600])
+        self.setRange(yRange=[0, 100])
         self.setRange(xRange=[0, 1000])
 
     def turns_plot(self, data):

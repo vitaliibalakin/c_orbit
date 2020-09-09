@@ -130,7 +130,7 @@ class RMA(QMainWindow, BasicFunc):
             elif self.stack_elems[name].status == 'completed':
                 if self.rma_ready:
                     # if RMA
-                    self.rma_string_calc(name, self.stack_elems[name].response)
+                    self.rma_string_calc(name, self.stack_elems[name].response, self.stack_elems[name].std_err)
             # continue make response
             if len(self.stack_names):
                 self.lbl_elem.setText(self.stack_names[0].split('.')[-1])
@@ -153,23 +153,27 @@ class RMA(QMainWindow, BasicFunc):
             self.log_msg.append('External interruption')
             self.set_default()
 
-    def rma_string_calc(self, name, data):
+    def rma_string_calc(self, name, data, std_err):
         info = self.stack_elems[name]
         resp_arr = data[0]
         init_val = data[1]
         buffer = []
+        err_buffer = []
         cur = np.arange(-1 * info.step * (info.n_iter-1), info.step * info.n_iter, info.step) + init_val
         if self.resp_type.currentText() == 'orbit':
             for i in range(len(resp_arr[0])):
-                const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i])
+                const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i], sigma=std_err[:, i])
                 if const[0] < 1E-10:
                     buffer.append(0)
+                    err_buffer.append(0)
                 else:
                     buffer.append(const[0])
+                    err_buffer.append(np.mean(std_err[:, i]))
         elif self.resp_type.currentText() == 'tunes':
             # collect tunes x|z to convert cur -> grad in another application and then plot betas
             buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))
-        self.resp_matr_dict[name] = {'data': buffer, 'step': info.step, 'n_iter': info.n_iter - 1, 'init': init_val}
+        self.resp_matr_dict[name] = {'data': buffer, 'si_err': err_buffer,
+                                     'step': info.step, 'n_iter': info.n_iter - 1, 'init': init_val}
         print(self.resp_matr_dict)
 
     @staticmethod
@@ -215,11 +219,15 @@ class RMA(QMainWindow, BasicFunc):
     def save_rma(self):
         dict_cors = {}
         rm = []
+        si_err = []
         for name, resp in self.resp_matr_dict.items():
             dict_cors[name] = {'step': resp['step'], 'n_iter': resp['n_iter'], 'init': resp['init']}
             rm.append(resp['data'])
+            si_err.append(resp['si_err'])
         dict_cors['main'] = self.main_cur
         np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
+        if self.resp_type.currentText() == 'orbit':
+            np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
         self.rm = {'rm': np.array(rm), 'cor_names': dict_cors}
         self.dict_cors = dict_cors
         self.log_msg.append('RM saved')

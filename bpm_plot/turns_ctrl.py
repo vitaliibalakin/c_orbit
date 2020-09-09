@@ -52,8 +52,6 @@ class TurnsControl(QMainWindow):
         p3.addWidget(self.turns_e)
 
         # other ordinary channels
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
@@ -64,23 +62,10 @@ class TurnsControl(QMainWindow):
         self.chan_fft.valueMeasured.connect(self.fft_proc)
         self.chan_coor.valueMeasured.connect(self.coor_proc)
         self.chan_mode.valueMeasured.connect(self.mode_proc)
-        self.chan_cmd.valueMeasured.connect(self.cmd)
 
         # boxes changes
         self.turns_bpm.currentTextChanged.connect(self.bpm_changed)
         self.bpm_num_pts.valueChanged.connect(self.num_pts_changed)
-
-    def cmd(self, chan):
-        try:
-            turn_bpm = json.loads(chan.val).get('turn_bpm', 'bpm01')
-            num_pts = json.loads(chan.val).get('num_pts', 1024)
-            if turn_bpm != self.turns_bpm.currentText():
-                index = self.turns_bpm.findText(turn_bpm)
-                self.turns_bpm.setCurrentIndex(index)
-            if num_pts != self.bpm_num_pts.value():
-                self.bpm_num_pts.setValue(num_pts)
-        except Exception as exc:
-            print(exc)
 
     def bpm_changed(self):
         self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'service': 'turns', 'turn_bpm': self.turns_bpm.currentText()}))

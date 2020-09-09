@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # bpm delay is 20527.89 (???) ns in pickup2 channel - check
 
+from PyQt5.QtWidgets import QApplication
+import sys
+
 import numpy as np
 import pycx4.pycda as cda
 import json
@@ -111,7 +114,6 @@ class BpmPreproc:
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
-        self.ic_mode = 'p2v2'  # for tests
         self.to_another_ic_mode_('orbit')
 
     def turn_bpm_(self, **kwargs):
@@ -245,6 +247,11 @@ class KMService(CXService):
 
     def clean(self):
         self.log_str('exiting bpm_prepoc')
+
+# if __name__ == "__main__":
+#     app = QApplication(['c_orbit'])
+#     w = BpmPreproc()
+#     sys.exit(app.exec_())
 
 
 bp = KMService("bpm_preproc")

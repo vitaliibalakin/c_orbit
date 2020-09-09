@@ -17,6 +17,7 @@ class CorMeasure(BasicFunc):
         self.prg = prg
         self.stop = n_iter + 1
         self.response = None
+        self.std_err = None
         self.status = None
         self.flag = False
         self.time_flag = False
@@ -25,9 +26,10 @@ class CorMeasure(BasicFunc):
         self.time_stamp = 0
         self.resp_type = resp_type
         self.callback = call_upon_completion
-        self.chan_resps = {'orbit': cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=32),
+        self.chan_resps = {'orbit': cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64),
                            'tunes': cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)}
         self.cor_data_resps = {'orbit': np.zeros([32, ]), 'tunes': np.zeros([2, ])}
+        self.cor_std = np.zeros([32, 0])
         for chan in ['Iset', 'Imes']:
             cor_chan = cda.DChan(name + '.' + chan)
             cor_chan.valueMeasured.connect(self.val_change)
@@ -61,6 +63,7 @@ class CorMeasure(BasicFunc):
             self.status = 'completed'
             self.chans['Iset'].setValue(self.init_val)
             self.response = [self.cor_data[1:], self.init_val]
+            self.std_err = [self.cor_std[1:]]
             self.callback(self.name)
         else:
             self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
@@ -84,5 +87,9 @@ class CorMeasure(BasicFunc):
     def data_proc(self, chan):
         if not self.data_flag:
             self.data_flag = True
-            self.cor_data = np.vstack((self.cor_data, chan.val))
+            if self.resp_type == 'orbit':
+                self.cor_data = np.vstack((self.cor_data, chan.val[0:32]))
+                self.cor_std = np.vstack((self.cor_std, chan.val[32:64]))
+            elif self.resp_type == 'tunes':
+                self.cor_data = np.vstack((self.cor_data, chan.val))
             self.proc()

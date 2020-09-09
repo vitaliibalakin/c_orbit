@@ -65,5 +65,6 @@ class BPM:
             self.x_bound = bounds[0:2]
             self.z_bound = bounds[2:4]
         except Exception as excep:
+            print('bpm.py', excep, self.name)
             self.x_bound = [0.345, 0.365]
             self.z_bound = [0.2, 0.4]

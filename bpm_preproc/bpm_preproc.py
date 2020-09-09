@@ -78,7 +78,7 @@ class BpmPreproc:
                     x_orbit = np.append(x_orbit, bpm.coor[0])
                     x_orbit_sigma = np.append(x_orbit_sigma, bpm.sigma[0])
                     z_orbit = np.append(z_orbit, bpm.coor[1])
-                    z_orbit_sigma = np.append(z_orbit_sigma, bpm.coor[1])
+                    z_orbit_sigma = np.append(z_orbit_sigma, bpm.sigma[1])
                 else:
                     x_orbit = np.append(x_orbit, 100.0)
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)

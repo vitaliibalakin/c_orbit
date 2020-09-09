@@ -26,6 +26,10 @@ class TurnsControl(QMainWindow):
 
         self.ic_mode = ' '
 
+        self.cur_cal = {'bpm01': 10.12, 'bpm02': 25.26, 'bpm03': 27.38, 'bpm04': 10.33, 'bpm05': 10.1, 'bpm07': 22.14,
+                        'bpm08': 19.83, 'bpm09': 25.68, 'bpm10': 21.35, 'bpm11': 24.1, 'bpm12': 23.7, 'bpm13': 7.23,
+                        'bpm14': 10.2, 'bpm15': 30.4, 'bpm16': 23.28, 'bpm17': 23}
+
         # fft and turns
         self.fft_p = FFTPlot(self)
         self.coor_p = CoorPlot(self)
@@ -59,7 +63,7 @@ class TurnsControl(QMainWindow):
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
 
         # other ctrl callbacks
-        self.chan_turns.valueMeasured.connect(self.turn_proc)
+        self.chan_turns.valueMeasured.connect(self.cur_proc)
         self.chan_fft.valueMeasured.connect(self.fft_proc)
         self.chan_coor.valueMeasured.connect(self.coor_proc)
         self.chan_mode.valueMeasured.connect(self.mode_proc)
@@ -75,13 +79,13 @@ class TurnsControl(QMainWindow):
     def num_pts_changed(self):
         self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.bpm_num_pts.value()}))
 
-    def turn_proc(self, chan):
+    def cur_proc(self, chan):
         if self.ic_mode == 'p':
-            self.turns_p.turns_plot(chan.val)
+            self.turns_p.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
         elif self.ic_mode == 'e':
-            self.turns_e.turns_plot(chan.val)
+            self.turns_e.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
         else:
-            print('WTF turn_proc')
+            print('WTF cur_proc')
 
     def fft_proc(self, chan):
         if self.ic_mode == 'p':
@@ -100,9 +104,7 @@ class TurnsControl(QMainWindow):
             print('WTF coor_proc')
 
     def mode_proc(self, chan):
-        # if chan.val:
-        # self.ic_mode = chan.val[0]
-        self.ic_mode = 'p'
+        self.ic_mode = chan.val[0]
         if self.ic_mode == 'p':
             self.tab_fourier.setCurrentIndex(1)
             self.tab_turns.setCurrentIndex(1)

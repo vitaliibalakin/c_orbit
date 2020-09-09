@@ -56,6 +56,7 @@ class TurnsControl(QMainWindow):
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
 
         # other ctrl callbacks
         self.chan_turns.valueMeasured.connect(self.turn_proc)

@@ -3,11 +3,11 @@
 from PyQt5.QtWidgets import QApplication, QGraphicsTextItem
 from PyQt5 import QtCore
 import sys
+import pandas as pd
 import numpy as np
 import pyqtgraph as pg
 from bpm_plot.aux_mod.bpm_point import BPMMarker
 from bpm_plot.aux_mod.aper_plot import AperPlot
-from bpm_plot.aux_mod.wrapper_tunes import Converter
 from bpm_plot.aux_mod.wrapper_tunes import PyQtElemPlot, LinesPlot, TextLabel
 
 
@@ -25,7 +25,8 @@ class OrbitPlot(pg.PlotWidget):
         aper = np.transpose(np.loadtxt(file_name))
         self.addItem(AperPlot(aper))
 
-        self.add_structure(Converter().sdds_to_pandas('ElementName', 'ElementType', 's', 'Profile'), o_type)
+        structure = pd.read_csv('mag_pd.txt')
+        self.add_structure(structure, o_type)
 
         for coor in bpm_coor:
             bpm_e = BPMMarker(x=coor, color=QtCore.Qt.blue)
@@ -86,12 +87,3 @@ class OrbitPlot(pg.PlotWidget):
                     self.addItem(PyQtElemPlot(e_beg, e_end, c_type=c_type, anchor=anchor))
                 e_beg = -1
             line_counter += 1
-
-
-if __name__ == "__main__":
-    app = QApplication(['orbit_plot'])
-    w = OrbitPlot("x", "x_aper.txt", ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10',
-                                      'bpm11', 'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17'],
-                  [0, 1.908, 3.144, 5.073, 6.7938, 8.7388, 9.9648, 11.8928, 13.7078, 15.6298, 16.8568, 18.8018, 20.5216,
-                   22.4566, 23.7111, 25.6156], None)
-    sys.exit(app.exec_())

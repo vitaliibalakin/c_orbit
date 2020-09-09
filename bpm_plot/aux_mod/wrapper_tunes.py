@@ -16,7 +16,6 @@ class Converter:
         super(Converter, self).__init__()
 
     def sdds_to_pandas(self, *colnames, file='BeamLine.mag'):
-        print(colnames)
         try:
             cmd_str = self.names_parser(colnames)
             out = subprocess.Popen(['sdds2stream', file, cmd_str, '-pipe=out'],
@@ -25,7 +24,7 @@ class Converter:
             output = stdout.decode('utf-8').splitlines()
             data = StringIO("\n".join(output))
             data_frame = pd.read_csv(data, names=colnames, delim_whitespace=True)
-
+            # data_frame.to_csv('mag_pd.txt')
             return data_frame
         except Exception as exp:
             print(exp)

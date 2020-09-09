@@ -10,7 +10,7 @@ class CurPlot(pg.PlotWidget):
         super(CurPlot, self).__init__(parent=parent)
         self.showGrid(x=True, y=True)
         self.setLogMode(False, False)
-        self.setLabel('left', "Current", units='a.u.')
+        self.setLabel('left', "Current", units='mA')
         self.setLabel('bottom', "Turn")
         self.setRange(yRange=[0, 600])
         self.setRange(xRange=[0, 1000])

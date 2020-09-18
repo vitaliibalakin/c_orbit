@@ -85,7 +85,7 @@ class RMA(QMainWindow, BasicFunc):
         print(self.stack_elems)
         # this command will start MAGN Procedure
         self.lbl_elem.setText(self.stack_names[0].split('.')[-1])
-        QTimer.singleShot(3000, self.stack_elems[self.stack_names[0]].proc)
+        QTimer.singleShot(9000, self.stack_elems[self.stack_names[0]].proc)
 
     ###########################################
     #                COLLECTING               #
@@ -168,7 +168,7 @@ class RMA(QMainWindow, BasicFunc):
                     err_buffer.append(0)
                 else:
                     buffer.append(const[0])
-                    err_buffer.append(np.mean(std_err[:, i]))
+                    err_buffer.append(np.sqrt(np.diag(pcov)))
         elif self.resp_type.currentText() == 'tunes':
             # collect tunes x|z to convert cur -> grad in another application and then plot betas
             buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))

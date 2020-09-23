@@ -156,6 +156,7 @@ class RMA(QMainWindow, BasicFunc):
     def rma_string_calc(self, name, data, std_err):
         info = self.stack_elems[name]
         resp_arr = data[0]
+        print(len(resp_arr))
         init_val = data[1]
         buffer = []
         err_buffer = []
@@ -167,8 +168,9 @@ class RMA(QMainWindow, BasicFunc):
                     buffer.append(0)
                     err_buffer.append(0)
                 else:
+                    print(const[0], np.sqrt(np.diag(pcov))[0])
                     buffer.append(const[0])
-                    err_buffer.append(np.sqrt(np.diag(pcov)))
+                    err_buffer.append(np.sqrt(np.diag(pcov))[0])
         elif self.resp_type.currentText() == 'tunes':
             # collect tunes x|z to convert cur -> grad in another application and then plot betas
             buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))

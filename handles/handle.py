@@ -27,7 +27,7 @@ class Handles(QMainWindow):
         # table def
         self.handles = HandlesTable(self.handles_table)
         # tree widget
-        self.tree = TreeTableCom(self.handles_creating, 40, self.tree_widget)
+        self.tree = TreeTableCom(self.handles_creating, 0, self.tree_widget)
         # callbacks
         self.btn_up.clicked.connect(self.step_up)
         self.btn_cst_up.clicked.connect(self.cst_step_up)

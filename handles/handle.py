@@ -91,7 +91,7 @@ class Handles(QMainWindow):
         self.tree.free()
 
     def remove(self):
-        if self.marked_row:
+        if self.marked_row is not None:
             self.handles.remove_row(self.marked_row)
 
             # save current handles

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget
+import json
 
 import pycx4.qcda as cda
 
@@ -24,8 +25,14 @@ class HandlesTable:
             text = self.table.item(self.current_item[0], self.current_item[1]).text()
             if self.current_item[1] == 0:
                 self.handle_descr[self.current_item[0]]['name'] = text
+                f = open('saved_handles.txt', 'w')
+                f.write(json.dumps(self.handle_descr))
+                f.close()
             else:
                 self.handle_descr[self.current_item[0]]['descr'] = text
+                f = open('saved_handles.txt', 'w')
+                f.write(json.dumps(self.handle_descr))
+                f.close()
             self.current_item = None
 
     def add_row(self, name, descr, cors_list):

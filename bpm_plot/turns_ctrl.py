@@ -25,6 +25,8 @@ class TurnsControl(QMainWindow):
         self.show()
 
         self.ic_mode = ' '
+        self.cur_bpm = ' '
+        self.cur_num_pts = 1024
 
         self.cur_cal = {'bpm01': 10.12, 'bpm02': 25.26, 'bpm03': 27.38, 'bpm04': 10.33, 'bpm05': 10.1, 'bpm07': 22.14,
                         'bpm08': 19.83, 'bpm09': 25.68, 'bpm10': 21.35, 'bpm11': 24.1, 'bpm12': 23.7, 'bpm13': 7.23,
@@ -55,29 +57,42 @@ class TurnsControl(QMainWindow):
         self.turns_mes_plot_e.setLayout(p3)
         p3.addWidget(self.turns_e)
 
-        # other ordinary channels
+        # other ordinary channels & callbacks
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
-        self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
-        self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
-        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
-
-        # other ctrl callbacks
         self.chan_turns.valueMeasured.connect(self.cur_proc)
+        self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
         self.chan_fft.valueMeasured.connect(self.fft_proc)
+        self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
         self.chan_coor.valueMeasured.connect(self.coor_proc)
+        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_proc)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        self.chan_cmd.valueMeasured.connect(self.cmd)
 
         # boxes changes
         self.turns_bpm.currentTextChanged.connect(self.bpm_changed)
         self.bpm_num_pts.valueChanged.connect(self.num_pts_changed)
 
+    def cmd(self, chan):
+        cmd_dict = json.loads(chan.val)
+        cmd = cmd_dict.get('cmd', 'no_srv')
+        if cmd == 'turn_bpm':
+            if cmd_dict['turn_bpm'] != self.cur_bpm:
+                self.turns_bpm.setCurrentText(cmd_dict['turn_bpm'])
+        elif cmd == 'num_pts':
+            if cmd_dict['num_pts'] != self.cur_num_pts:
+                self.cur_num_pts = cmd_dict['num_pts']
+                self.bpm_num_pts.setValue(cmd_dict['num_pts'])
+
     def bpm_changed(self):
-        self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'service': 'turns', 'turn_bpm': self.turns_bpm.currentText()}))
-        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.bpm_num_pts.value()}))
+        self.cur_bpm = self.turns_bpm.currentText()
+        self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'service': 'turns', 'turn_bpm': self.cur_bpm}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.cur_num_pts}))
 
     def num_pts_changed(self):
-        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.bpm_num_pts.value()}))
+        if self.cur_num_pts != self.bpm_num_pts.value():
+            self.cur_num_pts = self.bpm_num_pts.value()
+            self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.cur_num_pts}))
 
     def cur_proc(self, chan):
         if self.ic_mode == 'p':

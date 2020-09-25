@@ -32,6 +32,7 @@ class FFTPlot(pg.PlotWidget):
         self.z_bound = [0.2, 0.4]
 
         self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=1024)
+        self.chan_tunes_range.valueMeasured.connect(self.bound_update)
 
         self.x_lin_reg.sigRegionChangeFinished.connect(self.x_bound_update)
         self.z_lin_reg.sigRegionChangeFinished.connect(self.z_bound_update)
@@ -51,6 +52,20 @@ class FFTPlot(pg.PlotWidget):
     def z_bound_update(self, region_item):
         self.z_bound = list(region_item.getRegion())
         self.chan_tunes_range.setValue(json.dumps(self.x_bound + self.z_bound))
+
+    def bound_update(self, chan):
+        try:
+            bounds = json.loads(chan.val)
+            self.x_bound = bounds[0:2]
+            self.z_bound = bounds[2:4]
+            if self.x_lin_reg.getRegion() != tuple(self.x_bound):
+                self.x_lin_reg.setRegion(self.x_bound)
+            if self.z_lin_reg.getRegion() != tuple(self.z_bound):
+                self.z_lin_reg.setRegion(self.z_bound)
+        except Exception as excep:
+            print('bpm.py', excep, self.name)
+            self.x_bound = [0.345, 0.365]
+            self.z_bound = [0.2, 0.4]
 
 
 if __name__ == "__main__":

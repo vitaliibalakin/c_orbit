@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 import sys
 
 import numpy as np
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 import json
 import os
 import re
@@ -90,6 +90,7 @@ class BpmPreproc:
 
     def collect_tunes(self, tunes):
         self.current_tunes = tunes
+        print(tunes)
         self.chan_tunes.setValue(tunes)
 
     def collect_current(self, data):
@@ -203,20 +204,32 @@ class BpmPreproc:
     def save_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
+        msg = 'default save file msg'
         if service == 'orbit':
             data = self.current_orbit
-            self.chan_ctrl_orbit.setValue(data)
-            np.savetxt(file_name, data)
+            if data:
+                self.chan_ctrl_orbit.setValue(data)
+                np.savetxt(file_name, data)
+                self.mode_file_edit_(file_name, self.mode_d[service])
+                msg = 'action -> orbit save -> '
+            else:
+                msg = 'action -> orbit chan is empty -> '
         elif service == 'tunes':
             data = self.current_tunes
-            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
-            np.savetxt(file_name, data)
-        self.mode_file_edit_(file_name, self.mode_d[service])
-        self.send_cmd_res_('action -> save -> ', rec=service)
+            print(data)
+            if data:
+                self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
+                np.savetxt(file_name, data)
+                self.mode_file_edit_(file_name, self.mode_d[service])
+                msg = 'action -> tunes save -> '
+            else:
+                msg = 'action -> tunes chan is empty -> '
+        self.send_cmd_res_(msg, rec=service)
 
     def load_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
+        mode = kwargs.get('mode', 'no_mode')
         file = open(file_name, 'r')
         if os.fstat(file.fileno()).st_size:
             data = np.loadtxt(file_name)
@@ -231,7 +244,7 @@ class BpmPreproc:
         if service == 'orbit':
             self.chan_ctrl_orbit.setValue(data)
         if service == 'tunes':
-            self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
+            self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
         self.mode_file_edit_(file_name, self.mode_d[service])
         self.send_cmd_res_(msg, rec=service)
 

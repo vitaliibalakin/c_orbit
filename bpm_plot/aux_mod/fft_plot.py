@@ -54,7 +54,7 @@ class FFTPlot(pg.PlotWidget):
         self.chan_tunes_range.setValue(json.dumps(self.x_bound + self.z_bound))
 
     def bound_update(self, chan):
-        try:
+        if chan.val:
             bounds = json.loads(chan.val)
             self.x_bound = bounds[0:2]
             self.z_bound = bounds[2:4]
@@ -62,8 +62,8 @@ class FFTPlot(pg.PlotWidget):
                 self.x_lin_reg.setRegion(self.x_bound)
             if self.z_lin_reg.getRegion() != tuple(self.z_bound):
                 self.z_lin_reg.setRegion(self.z_bound)
-        except Exception as excep:
-            print('bpm.py', excep, self.name)
+        else:
+            print('bpm.py', 'chan empty', chan.name)
             self.x_bound = [0.345, 0.365]
             self.z_bound = [0.2, 0.4]
 

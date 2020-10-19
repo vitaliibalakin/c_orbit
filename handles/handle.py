@@ -110,6 +110,7 @@ class Handles(QMainWindow):
             handle = self.handles.get_handle(self.marked_row)
             for key, k_val in handle.items():
                 new_curr = k_val[0].val + k_val[1]
+                # print(k_val[0].val)
                 k_val[0].setValue(new_curr)
         else:
             self.status_bar.showMessage('Choose row to step')

@@ -94,10 +94,10 @@ class TunesControl(QMainWindow):
 
     def tunes_update(self, chan):
         tunes = chan.val
-        try:
+        if tunes:
             self.tunes['cur'].update_pos(tunes)
             self.lbl_dict['cur'].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
-        except KeyError:
+        else:
             self.status_bar.showMessage('empty tunes channel data')
 
     def ctrl_tunes_update(self, chan):
@@ -113,7 +113,8 @@ class TunesControl(QMainWindow):
         try:
             file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_tunes',
                                                     filter='Text Files (*.txt)')[0]
-            self.chan_cmd.setValue((json.dumps({'cmd': 'load_tunes', 'service': 'tunes', 'file_name': file_name})))
+            self.chan_cmd.setValue((json.dumps({'cmd': 'load_tunes', 'service': 'tunes', 'file_name': file_name,
+                                                'mode': self.sender().text()})))
         except Exception as exc:
             self.status_bar.showMessage(str(exc))
 

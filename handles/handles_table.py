@@ -42,10 +42,10 @@ class HandlesTable:
         for cor in cors_list:
             if cor['name'].split('.')[-1][0] == 'G':
                 handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
-                handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
+                # handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
             else:
                 handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
-                handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
+                # handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
             self.handle_descr[row_num]['cor_list'].append(cor)
 
         self.table.insertRow(row_num)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5 import uic, Qt
 import sys
 import os
@@ -33,8 +33,9 @@ class Handles(QMainWindow):
         self.btn_cst_up.clicked.connect(self.cst_step_up)
         self.btn_down.clicked.connect(self.step_down)
         self.btn_cst_down.clicked.connect(self.cst_step_down)
-        self.add_handle.clicked.connect(self.add)
-        self.del_handle.clicked.connect(self.remove)
+        self.btn_load_handle.clicked.connect(self.load_handle)
+        self.btn_add_handle.clicked.connect(self.add)
+        self.btn_del_handle.clicked.connect(self.remove)
 
         self.handles_table.itemPressed.connect(self.index)
 
@@ -154,6 +155,21 @@ class Handles(QMainWindow):
                 self.handles.add_row(handle['name'], handle['descr'], handle['cor_list'])
         except ValueError:
             self.status_bar.showMessage('empty saved file')
+
+    def load_handle(self):
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd(),
+                                                    filter='Text Files (*.txt)')[0]
+            f = open(file_name, 'r')
+            handle = json.loads(f.readline())
+            f.close()
+            self.handles.add_row(handle['name'], handle['descr'], handle['cor_list'])
+
+            f = open('saved_handles.txt', 'w')
+            f.write(json.dumps(self.handles.handle_descr))
+            f.close()
+        except Exception as exc:
+            self.status_bar.showMessage(str(exc))
 
 
 if __name__ == "__main__":

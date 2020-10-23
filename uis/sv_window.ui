@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>535</width>
-    <height>437</height>
+    <width>606</width>
+    <height>575</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>495</width>
+      <width>591</width>
       <height>36</height>
      </rect>
     </property>
@@ -64,10 +64,75 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>50</y>
-      <width>511</width>
-      <height>341</height>
+      <y>120</y>
+      <width>591</width>
+      <height>401</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="handle_descr">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>90</y>
+      <width>341</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>def_h_descr</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>50</y>
+      <width>41</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Name</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>90</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Description</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="handle_name">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>50</y>
+      <width>281</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>def_h_name</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_save_handle">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>50</y>
+      <width>90</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save Handle</string>
     </property>
    </widget>
   </widget>
@@ -76,7 +141,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>535</width>
+     <width>606</width>
      <height>22</height>
     </rect>
    </property>

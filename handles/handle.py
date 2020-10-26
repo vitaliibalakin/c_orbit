@@ -18,6 +18,7 @@ class Handles(QMainWindow):
         direc = os.getcwd()
         direc = re.sub('handles', 'uis', direc)
         uic.loadUi(direc + "/handle_window.ui", self)
+        self.setWindowTitle('Handles')
         self.show()
 
         self.marked_row = None

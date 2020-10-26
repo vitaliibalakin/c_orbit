@@ -17,10 +17,12 @@ class RMC(QMainWindow):
         direc = re.sub('rma_proc', 'uis', direc)
 
         uic.loadUi(direc + "/sv_window.ui", self)
+        self.setWindowTitle('RM calc')
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.ex_kick = np.array([0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        self.ex_kick = np.array([0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        # self.ex_kick = np.ones(32)
 
         self.rm = np.array([])
         self.rm_info = {}
@@ -53,6 +55,7 @@ class RMC(QMainWindow):
                                                     filter='Text Files (*.txt)')[0]
             f = open(file_name, 'r')
             self.rm_info = json.loads(f.readline().split('#')[-1])
+            self.rm_info.pop('main')
             f.close()
             self.rm = np.loadtxt(file_name, skiprows=1)
             u, sing_vals, vh = np.linalg.svd(self.rm)
@@ -64,16 +67,16 @@ class RMC(QMainWindow):
     def reverse_rm(self):
         if self.rm.any():
             u, sing_vals, vh = np.linalg.svd(np.transpose(self.rm))
-            counter = 0
+            print(self.rm.shape)
             s_r = np.zeros((vh.shape[0], u.shape[0]))
             # small to zero, needed to 1 /
             for i in range(len(sing_vals)):
                 if self.sing_val_range[0] < sing_vals[i] < self.sing_val_range[1]:
-                    sing_vals[i] = 1 / sing_vals[i]
-                    s_r[:i, :i] = sing_vals[i]
+                    s_r[i, i] = 1 / sing_vals[i]
                 else:
                     sing_vals[i] = 0
             self.rev_rm = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
+            # print(np.dot(np.transpose(self.rm), self.rev_rm))
             self.status_bar.showMessage('Reverse response matrix calculated')
         else:
             self.status_bar.showMessage('Choose response matrix')
@@ -88,9 +91,9 @@ class RMC(QMainWindow):
 
     def save_handle(self):
         kick = np.dot(self.rev_rm, self.ex_kick)
+        print(kick)
         cor_list = []
         i = 0
-        self.rm_info.pop('main')
         for key, val in self.rm_info.items():
             cor_list.append({'name': key, 'step': round(kick[i], 0)})
             i += 1

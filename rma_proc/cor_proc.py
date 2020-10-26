@@ -6,7 +6,7 @@ import numpy as np
 
 
 class CorMeasure(BasicFunc):
-    def __init__(self, call_upon_completion, name, step, n_iter, prg, resp_type='orbit'):
+    def __init__(self, call_upon_completion, name, step, n_iter, prg, resp_type='coords'):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
@@ -26,9 +26,9 @@ class CorMeasure(BasicFunc):
         self.time_stamp = 0
         self.resp_type = resp_type
         self.callback = call_upon_completion
-        self.chan_resps = {'orbit': cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64),
+        self.chan_resps = {'coords': cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64),
                            'tunes': cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)}
-        self.cor_data_resps = {'orbit': np.zeros([32, ]), 'tunes': np.zeros([2, ])}
+        self.cor_data_resps = {'coords': np.zeros([32, ]), 'tunes': np.zeros([2, ])}
         self.cor_std = np.zeros([32, ])
         for chan in ['Iset', 'Imes']:
             cor_chan = cda.DChan(name + '.' + chan)
@@ -87,7 +87,7 @@ class CorMeasure(BasicFunc):
     def data_proc(self, chan):
         if not self.data_flag:
             self.data_flag = True
-            if self.resp_type == 'orbit':
+            if self.resp_type == 'coords':
                 self.cor_data = np.vstack((self.cor_data, chan.val[0:32]))
                 self.cor_std = np.vstack((self.cor_std, chan.val[32:]))
             elif self.resp_type == 'tunes':

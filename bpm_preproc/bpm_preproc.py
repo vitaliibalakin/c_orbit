@@ -206,7 +206,7 @@ class BpmPreproc:
         msg = 'default save file msg'
         if service == 'orbit':
             data = self.current_orbit
-            if data:
+            if data.any():
                 self.chan_ctrl_orbit.setValue(data)
                 np.savetxt(file_name, data)
                 self.mode_file_edit_(file_name, self.mode_d[service])
@@ -215,8 +215,7 @@ class BpmPreproc:
                 msg = 'action -> orbit chan is empty -> '
         elif service == 'tunes':
             data = self.current_tunes
-            print(data)
-            if data:
+            if any(data):
                 self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
                 np.savetxt(file_name, data)
                 self.mode_file_edit_(file_name, self.mode_d[service])

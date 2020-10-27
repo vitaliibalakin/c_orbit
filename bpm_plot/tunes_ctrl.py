@@ -94,7 +94,7 @@ class TunesControl(QMainWindow):
 
     def tunes_update(self, chan):
         tunes = chan.val
-        if tunes:
+        if tunes.any():
             self.tunes['cur'].update_pos(tunes)
             self.lbl_dict['cur'].setText(str(round(tunes[0], 3)) + " | " + str(round(tunes[1], 3)))
         else:

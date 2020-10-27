@@ -148,3 +148,4 @@ dmypy.json
 /bpm_plot/saved_modes/
 /rma_proc/saved_rms/
 /handles/saved_handles.txt
+/rma_proc/saved_handles/

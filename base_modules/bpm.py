@@ -60,11 +60,11 @@ class BPM:
         self.collect_tunes(np.array([x_tune, z_tune]))
 
     def tunes_range(self, chan):
-        try:
+        if chan.val:
             bounds = json.loads(chan.val)
             self.x_bound = bounds[0:2]
             self.z_bound = bounds[2:4]
-        except Exception as excep:
-            print('bpm.py', excep, self.name)
+        else:
+            print('bpm.py', 'empty tunes range data', self.name)
             self.x_bound = [0.345, 0.365]
             self.z_bound = [0.2, 0.4]

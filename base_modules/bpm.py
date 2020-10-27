@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import json
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 import scipy.signal as sp
 
 

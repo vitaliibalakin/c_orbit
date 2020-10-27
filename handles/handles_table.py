@@ -37,8 +37,8 @@ class HandlesTable:
 
     def add_row(self, name, descr, cors_list):
         handle_params = {}
-        row_num = self.table.rowCount()
-        self.handle_descr[row_num] = {'name': name, 'descr': descr, 'cor_list': []}
+        self.handles_renum()
+        self.handle_descr[0] = {'name': name, 'descr': descr, 'cor_list': []}
         for cor in cors_list:
             if cor['name'].split('.')[-1][0] == 'G':
                 handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
@@ -46,12 +46,12 @@ class HandlesTable:
             else:
                 handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
                 # handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
-            self.handle_descr[row_num]['cor_list'].append(cor)
+            self.handle_descr[0]['cor_list'].append(cor)
 
-        self.table.insertRow(row_num)
-        self.table.setItem(row_num, 0, QTableWidgetItem(name))
-        self.table.setItem(row_num, 1, QTableWidgetItem(descr))
-        self.handles[row_num] = handle_params
+        self.table.insertRow(0)
+        self.table.setItem(0, 0, QTableWidgetItem(name))
+        self.table.setItem(0, 1, QTableWidgetItem(descr))
+        self.handles[0] = handle_params
 
     def CLB(self, chan):
         print(chan.name, chan.val)
@@ -68,6 +68,11 @@ class HandlesTable:
 
     def get_handle(self, row):
         return self.handles[row]
+
+    def handles_renum(self):
+        for i in reversed(range(len(self.handles))):
+            self.handles[i+1] = self.handles.pop(i)
+            self.handle_descr[i + 1] = self.handle_descr.pop(i)
 
     # def get_handle_list(self):
     #     names = []

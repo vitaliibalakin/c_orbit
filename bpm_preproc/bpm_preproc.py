@@ -90,7 +90,6 @@ class BpmPreproc:
 
     def collect_tunes(self, tunes):
         self.current_tunes = tunes
-        print(tunes)
         self.chan_tunes.setValue(tunes)
 
     def collect_current(self, data):
@@ -253,18 +252,18 @@ DIR = os.getcwd()
 DIR = re.sub('bpm_preproc', 'bpm_plot', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = BpmPreproc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = BpmPreproc()
+#
+#     def clean(self):
+#         self.log_str('exiting bpm_prepoc')
 
-    def clean(self):
-        self.log_str('exiting bpm_prepoc')
-
-# if __name__ == "__main__":
-#     app = QApplication(['c_orbit'])
-#     w = BpmPreproc()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication(['c_orbit'])
+    w = BpmPreproc()
+    sys.exit(app.exec_())
 
 
-bp = KMService("bpm_preproc")
+# bp = KMService("bpm_preproc")

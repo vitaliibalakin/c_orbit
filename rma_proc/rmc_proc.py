@@ -20,6 +20,7 @@ class RMC(QMainWindow):
         self.setWindowTitle('RM calc')
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
+        #                        1, 2, 3, 4, 5, 7, 8, 9, 10,11,12,13,14,15,16,17
         self.ex_kick = np.array([0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         # self.ex_kick = np.ones(32)
@@ -33,6 +34,7 @@ class RMC(QMainWindow):
         self.plt.setRange(yRange=[0, 0.1])
         self.plt_vals = pg.PlotDataItem()
         self.sing_reg = pg.LinearRegionItem(values=[0, 0.01], orientation=pg.LinearRegionItem.Horizontal)
+        self.sing_val_range = (0, 0.01)
         self.plt.addItem(self.sing_reg)
         self.plt.addItem(self.plt_vals)
         p = QVBoxLayout()

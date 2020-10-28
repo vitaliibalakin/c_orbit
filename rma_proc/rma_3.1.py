@@ -25,6 +25,7 @@ class RMA(QMainWindow, BasicFunc):
         direc = os.getcwd()
         direc = re.sub('rma_proc', 'uis', direc)
         uic.loadUi(direc + "/rma_main_window.ui", self)
+        self.setWindowTitle('Response Collecting')
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         self.show()
@@ -156,12 +157,12 @@ class RMA(QMainWindow, BasicFunc):
     def rma_string_calc(self, name, data, std_err):
         info = self.stack_elems[name]
         resp_arr = data[0]
-        print(len(resp_arr))
+        # print(len(resp_arr))
         init_val = data[1]
         buffer = []
         err_buffer = []
         cur = np.arange(-1 * info.step * (info.n_iter-1), info.step * info.n_iter, info.step) + init_val
-        if self.resp_type.currentText() == 'orbit':
+        if self.resp_type.currentText() == 'coords':
             for i in range(len(resp_arr[0])):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i], sigma=std_err[:, i])
                 if const[0] < 1E-10:
@@ -228,7 +229,7 @@ class RMA(QMainWindow, BasicFunc):
             si_err.append(resp['si_err'])
         dict_cors['main'] = self.main_cur
         np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
-        if self.resp_type.currentText() == 'orbit':
+        if self.resp_type.currentText() == 'coords':
             np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
         self.rm = {'rm': np.array(rm), 'cor_names': dict_cors}
         self.dict_cors = dict_cors

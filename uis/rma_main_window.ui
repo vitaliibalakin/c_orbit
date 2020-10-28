@@ -363,7 +363,7 @@
     </property>
     <item>
      <property name="text">
-      <string>coordinates</string>
+      <string>coords</string>
      </property>
     </item>
     <item>

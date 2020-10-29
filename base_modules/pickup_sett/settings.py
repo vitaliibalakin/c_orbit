@@ -61,6 +61,27 @@ class Test(QMainWindow):
 
     def data_proc(self, chan):
         if chan.name.split('.')[-2] == self.cur_bpm:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             self.cur_lines[chan.name.split('.')[-1][-1]] = chan.val
             self.plot.clear()
             self.plot.plot(self.cur_lines['0'], pen=pg.mkPen('r'))

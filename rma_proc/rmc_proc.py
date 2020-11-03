@@ -35,7 +35,7 @@ class RMC(QMainWindow):
         # sing values plot def
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
-        self.plt.setLogMode(False, False)
+        self.plt.setLogMode(False, True)
         self.plt.setRange(yRange=[0, 0.01])
         self.plt_vals = pg.PlotDataItem()
         self.sing_reg = pg.LinearRegionItem(values=[0, 0.01], orientation=pg.LinearRegionItem.Horizontal)
@@ -65,6 +65,7 @@ class RMC(QMainWindow):
             self.rm_info.pop('main')
             f.close()
             self.rm = np.loadtxt(file_name, skiprows=1)
+            rm_err = np.loadtxt(re.sub('.txt', '_std_err.txt', file_name))
             u, sing_vals, vh = np.linalg.svd(np.transpose(self.rm))
             self.plt_vals.setData(sing_vals, pen=None, symbol='o')
             self.status_bar.showMessage('Matrix loaded')

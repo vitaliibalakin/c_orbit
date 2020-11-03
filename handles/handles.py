@@ -128,7 +128,7 @@ class Handles(QMainWindow):
             self.status_bar.showMessage('Choose row to step')
 
     def step_down(self):
-        print(self.marked_row)
+        # print(self.marked_row)
         if self.marked_row is not None:
             handle = self.handles.get_handle(self.marked_row)
             for key, k_val in handle.items():

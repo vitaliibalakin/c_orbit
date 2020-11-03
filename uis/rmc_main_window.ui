@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
+    <width>579</width>
     <height>740</height>
    </rect>
   </property>
@@ -19,70 +19,12 @@
      <rect>
       <x>140</x>
       <y>660</y>
-      <width>501</width>
+      <width>291</width>
       <height>23</height>
      </rect>
     </property>
     <property name="value">
      <number>0</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>0</y>
-      <width>51</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Range</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>0</y>
-      <width>111</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Iteration number</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>20</y>
-      <width>41</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Main</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="mag_iter_main">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>20</y>
-      <width>111</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>10</number>
-    </property>
-    <property name="singleStep">
-     <number>1</number>
-    </property>
-    <property name="value">
-     <number>6</number>
     </property>
    </widget>
    <widget class="QFrame" name="tree_widget">
@@ -133,7 +75,7 @@
    <widget class="QPushButton" name="btn_stop_proc">
     <property name="geometry">
      <rect>
-      <x>650</x>
+      <x>440</x>
       <y>660</y>
       <width>131</width>
       <height>25</height>
@@ -185,9 +127,9 @@
    <widget class="QLabel" name="label_13">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>0</y>
-      <width>111</width>
+      <x>240</x>
+      <y>20</y>
+      <width>91</width>
       <height>17</height>
      </rect>
     </property>
@@ -198,36 +140,14 @@
    <widget class="QLineEdit" name="rm_name">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>20</y>
-      <width>271</width>
-      <height>25</height>
+      <x>340</x>
+      <y>10</y>
+      <width>231</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
      <string>default_name</string>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="mag_range_main">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>20</y>
-      <width>61</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>1</number>
-    </property>
-    <property name="maximum">
-     <double>10.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>0.100000000000000</double>
-    </property>
-    <property name="value">
-     <double>0.500000000000000</double>
     </property>
    </widget>
    <widget class="QTableWidget" name="cor_set_table">
@@ -235,7 +155,7 @@
      <rect>
       <x>240</x>
       <y>50</y>
-      <width>541</width>
+      <width>331</width>
       <height>541</height>
      </rect>
     </property>
@@ -248,16 +168,6 @@
     <column>
      <property name="text">
       <string>Cor name</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Mag range</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Iter count</string>
      </property>
     </column>
     <column>
@@ -276,7 +186,7 @@
      <rect>
       <x>190</x>
       <y>630</y>
-      <width>591</width>
+      <width>381</width>
       <height>23</height>
      </rect>
     </property>
@@ -329,7 +239,7 @@
    <widget class="QPushButton" name="btn_load_table">
     <property name="geometry">
      <rect>
-      <x>690</x>
+      <x>480</x>
       <y>600</y>
       <width>91</width>
       <height>25</height>
@@ -342,7 +252,7 @@
    <widget class="QPushButton" name="btn_save_table">
     <property name="geometry">
      <rect>
-      <x>590</x>
+      <x>380</x>
       <y>600</y>
       <width>91</width>
       <height>25</height>
@@ -391,7 +301,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>792</width>
+     <width>579</width>
      <height>22</height>
     </rect>
    </property>

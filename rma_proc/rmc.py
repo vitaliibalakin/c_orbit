@@ -24,7 +24,7 @@ class RMA(QMainWindow, BasicFunc):
         super(RMA, self).__init__()
         direc = os.getcwd()
         direc = re.sub('rma_proc', 'uis', direc)
-        uic.loadUi(direc + "/rma_main_window.ui", self)
+        uic.loadUi(direc + "/rmc_main_window.ui", self)
         self.setWindowTitle('Response Collecting')
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from c_orbit.base_modules.basic_module import BasicFunc
+from base_modules.basic_module import BasicFunc
 import pycx4.qcda as cda
 import time
 import numpy as np

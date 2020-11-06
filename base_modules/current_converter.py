@@ -2,7 +2,7 @@
 
 import sys
 from PyQt5.QtWidgets import QApplication
-from .magnetline_settings import MagnetType
+from base_modules.magnetline_settings import MagnetType
 import pycx4.qcda as cda
 
 

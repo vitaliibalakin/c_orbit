@@ -2,7 +2,8 @@
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
-from c_orbit.base_modules.basic_module import BasicFunc
+
+from base_modules.basic_module import BasicFunc
 import pycx4.qcda as cda
 import sys
 import time

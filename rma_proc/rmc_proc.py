@@ -31,6 +31,7 @@ class RMC(QMainWindow):
                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
         self.rm = np.array([])
+        self.rev_rm = np.array([])
         self.rm_info = {}
         # sing values plot def
         self.plt = pg.PlotWidget(parent=self)
@@ -98,27 +99,31 @@ class RMC(QMainWindow):
                        header=json.dumps(self.rm_info))
             self.status_bar.showMessage('Reverse response matrix saved')
         else:
-            self.status_bar.showMessage('Reverse response matrix is empty')
+            self.status_bar.showMessage('Calculate reverse matrix first')
 
     def save_handle(self):
-        curr = np.dot(self.rev_rm, self.assemble_kick())
-        print('curr', curr)
-        print('real', np.dot(np.transpose(self.rm), curr))
-        cor_list = []
-        i = 0
-        for key, val in self.rm_info.items():
-            cor_list.append({'name': key, 'step': round(curr[i], 0)})
-            i += 1
-        handle = {'name': self.handle_name.text(), 'descr': self.handle_descr.text(), 'cor_list': cor_list}
-        f = open('saved_handles/' + self.handle_name.text() + '.txt', 'w')
-        f.write(json.dumps(handle))
-        f.close()
+        if self.rev_rm.any():
+            curr = np.dot(self.rev_rm, self.assemble_kick())
+            cor_list = []
+            i = 0
+            for key, val in self.rm_info.items():
+                cor_list.append({'name': key, 'step': round(curr[i], 0)})
+                i += 1
+            handle = {'name': self.handle_name.text(), 'descr': self.handle_descr.text(), 'cor_list': cor_list}
+            f = open('saved_handles/' + self.handle_name.text() + '.txt', 'w')
+            f.write(json.dumps(handle))
+            f.close()
+            self.status_bar.showMessage('Handle saved')
+        else:
+            self.status_bar.showMessage('Calculate reverse matrix first')
 
     def assemble_kick(self):
         for i in range(len(self.sb_kick)):
             self.kick[i] = self.sb_kick[i].value()
-        print(self.kick)
-        return self.kick
+        if self.kick.any():
+            return self.kick
+        else:
+            self.status_bar.showMessage('Enter kick first')
 
 
 if __name__ == "__main__":

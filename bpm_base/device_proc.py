@@ -9,9 +9,9 @@ import functools
 import pycx4.qcda as cda
 
 
-class BasicFunc:
+class DeviceFunc:
     def __init__(self):
-        super(BasicFunc, self).__init__()
+        super(DeviceFunc, self).__init__()
 
     def chans_connect(self, chans, values, names, devtype='UM4'):
         try:
@@ -77,5 +77,5 @@ class BasicFunc:
 
 if __name__ == "__main__":
     app = QApplication(['BasicFunc'])
-    w = BasicFunc()
+    w = DeviceFunc()
     sys.exit(app.exec_())

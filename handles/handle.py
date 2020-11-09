@@ -9,7 +9,7 @@ import json
 
 from handles.table import Table
 from handles.handles_table import HandlesTable
-from base_modules.tree_table import TreeTableCom
+from bpm_base.aux_mod.tree_table import TreeTableCom
 
 
 class Handles(QMainWindow):

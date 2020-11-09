@@ -9,7 +9,7 @@ import os
 import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
-from bpm_plot.aux_mod.orbit_plot import OrbitPlot
+from bpm_base.aux_mod.orbit_plot import OrbitPlot
 
 
 class PlotControl(QMainWindow):

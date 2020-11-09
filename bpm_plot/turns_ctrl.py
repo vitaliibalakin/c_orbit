@@ -8,9 +8,9 @@ import re
 import pycx4.qcda as cda
 import json
 import pyqtgraph as pg
-from bpm_plot.aux_mod.cur_plot import CurPlot
-from bpm_plot.aux_mod.fft_plot import FFTPlot
-from bpm_plot.aux_mod.coor_plot import CoorPlot
+from bpm_base.aux_mod import CurPlot
+from bpm_base.aux_mod import FFTPlot
+from bpm_base.aux_mod import CoorPlot
 
 
 class TurnsControl(QMainWindow):

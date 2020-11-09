@@ -2,14 +2,13 @@
 from PyQt5.QtWidgets import QVBoxLayout, QMainWindow, QApplication, QFileDialog
 from PyQt5 import uic
 import json
-from scipy import optimize
 import sys
 import numpy as np
 import os
 import re
 import pyqtgraph as pg
 
-from bpm_plot.aux_mod.wrapper_tunes import Converter
+from bpm_base.aux_mod import Converter
 
 
 class BetaProc(QMainWindow):

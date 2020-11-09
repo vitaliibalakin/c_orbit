@@ -3,13 +3,13 @@
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 
-from base_modules.basic_module import BasicFunc
+from bpm_base.device_proc import DeviceFunc
 import pycx4.qcda as cda
 import sys
 import time
 
 
-class Magnetization(BasicFunc):
+class Magnetization(DeviceFunc):
     def __init__(self, call_upon_completion, name, step, stop, odz, prg):
         super(Magnetization, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
@@ -75,7 +75,7 @@ class Magnetization(BasicFunc):
             self.callback(self.name)
 
 
-class MagnetizationProc(BasicFunc):
+class MagnetizationProc(DeviceFunc):
     def __init__(self, **prg):
         super(MagnetizationProc, self).__init__()
         self.prg = prg.get('prg', self.proc_progress)

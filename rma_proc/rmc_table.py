@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QTableWidgetItem
-from base_modules.rm_spin_box import RMSpinBox
+from bpm_base.aux_mod.rm_spin_box import RMSpinBox
 
 
 class Table:

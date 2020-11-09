@@ -12,14 +12,14 @@ from scipy import optimize
 import json
 
 # instruments for main procedure
-from base_modules.basic_module import BasicFunc
-from base_modules.tree_table import TreeTableCom
-from rma_proc.magnetiz import MagnetizationProc
+from bpm_base.device_proc import DeviceFunc
+from bpm_base.aux_mod.tree_table import TreeTableCom
+from rma_proc.magnetization import MagnetizationProc
 from rma_proc.cor_proc import CorMeasure
 from rma_proc.table import Table
 
 
-class RMA(QMainWindow, BasicFunc):
+class RMA(QMainWindow, DeviceFunc):
     def __init__(self):
         super(RMA, self).__init__()
         direc = os.getcwd()

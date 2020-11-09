@@ -11,7 +11,7 @@ import os
 import re
 import datetime
 from aux.service_daemon import CXService
-from base_modules.bpm import BPM
+from bpm_base.bpm import BPM
 
 
 class BpmPreproc:

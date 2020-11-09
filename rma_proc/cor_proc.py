@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from base_modules.basic_module import BasicFunc
+from bpm_base.device_proc import DeviceFunc
 import pycx4.qcda as cda
 import time
 import numpy as np
 
 
-class CorMeasure(BasicFunc):
+class CorMeasure(DeviceFunc):
     def __init__(self, call_upon_completion, name, step, n_iter, prg, resp_type='coords'):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}

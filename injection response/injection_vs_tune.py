@@ -11,18 +11,21 @@ class InjTune(QMainWindow):
     def __init__(self):
         super(InjTune, self).__init__()
 
-        self.chan_ring_current = cda.DChan('cxhw:0.dcct.beamcurrent')
+        self.chan_ring_current = cda.DChan('cxhw:0.dcct.beamcurrent', on_update=True)
         self.chan_ring_current.valueMeasured.connect(self.ring_current_changed)
-        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)
+        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=True)
         self.chan_tunes.valueMeasured.connect(self.tunes_changed)
         self.chan_f3 = cda.DChan('canhw:12.qf3.Iset')
         self.chan_f3.valueMeasured.connect(self.i_f3_changed)
         self.chan_d3 = cda.DChan('canhw:12.qd3.Iset')
         self.chan_d3.valueMeasured.connect(self.i_d3_changed)
-        self.ring_cur_data = {}
+        self.chan_injected = cda.IChan('cxhw:0.ddm.injected', on_update=True)
+        self.chan_injected.valueMeasured.connect(self.injection_event)
+
         self.cur_tunes = [0.0, 0.0]
         self.tunes_flag = False
-        self.cur_flag = False
+        self.cur_flag = True
+        self.permission = False
         self.counter = 0
         self.i_f3 = 0
         self.i_d3 = 0
@@ -38,7 +41,7 @@ class InjTune(QMainWindow):
         self.init_f3 = 0
         self.init_d3 = 0
 
-        QTimer.singleShot(6000, self.start)
+        # QTimer.singleShot(6000, self.start)
 
     def start(self):
         # n*x tune shift
@@ -53,6 +56,9 @@ class InjTune(QMainWindow):
         self.cur_x_it = -1 * self.n_iter
         self.cur_y_it = -1 * self.n_iter
         QTimer.singleShot(6000, self.set_tune_flag_true)
+
+    def injection_event(self, chan):
+        self.permission = True
 
     def i_f3_changed(self, chan):
         if self.init_f3_flag:
@@ -72,13 +78,13 @@ class InjTune(QMainWindow):
             self.cur_flag = False
             self.tune_shift()
         else:
-            if self.cur_flag:
+            if self.cur_flag & self.permission:
+                self.permission = False
                 self.counter += 1
                 self.ring_cur_data[json.dumps(self.cur_tunes)].append(chan.val)
 
     def tunes_changed(self, chan):
         if self.tunes_flag:
-            print(chan.val)
             self.cur_tunes[0] = chan.val[0]
             self.cur_tunes[1] = chan.val[1]
             self.ring_cur_data[json.dumps(self.cur_tunes)] = []

@@ -11,7 +11,7 @@ import json
 import numpy as np
 import pycx4.qcda as cda
 
-from bpm_base.aux_mod import LinesPlot, TunesMarker, Converter
+from bpm_base.aux_mod.wrapper_tunes import LinesPlot, TunesMarker, Converter
 
 
 class TunesControl(QMainWindow):

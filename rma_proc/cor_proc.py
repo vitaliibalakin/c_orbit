@@ -26,8 +26,8 @@ class CorMeasure(DeviceFunc):
         self.time_stamp = 0
         self.resp_type = resp_type
         self.callback = call_upon_completion
-        self.chan_resps = {'coords': cda.VChan('cxhw:4.daemons.orbit', max_nelems=64),
-                           'tunes': cda.VChan('cxhw:4.daemons.tunes', max_nelems=2, on_update=1)}
+        self.chan_resps = {'coords': cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64),
+                           'tunes': cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)}
         self.cor_data_resps = {'coords': np.zeros([32, ]), 'tunes': np.zeros([2, ])}
         self.cor_std = np.zeros([32, ])
         for chan in ['Iset', 'Imes']:

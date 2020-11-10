@@ -248,7 +248,7 @@ class BpmPreproc:
 
 
 DIR = os.getcwd()
-DIR = re.sub('daemons', 'bpm_plot', DIR)
+DIR = re.sub('deamons', 'bpm_plot', DIR)
 
 
 class KMService(CXService):
@@ -259,7 +259,8 @@ class KMService(CXService):
     def clean(self):
         self.log_str('exiting bpm_prepoc')
 
-bp = KMService("daemons")
+
+bp = KMService("bpmd")
 
 # if __name__ == "__main__":
 #     app = QApplication(['c_orbit'])

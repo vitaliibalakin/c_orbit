@@ -8,7 +8,7 @@ class Table:
     def __init__(self, table):
         super(Table, self).__init__()
         self.table = table
-        self.cor_list = []
+        self.cor_dict = {}
 
     def add_row(self, **params):
         # params
@@ -21,24 +21,34 @@ class Table:
         self.table.setItem(row_num, 0, QTableWidgetItem(name.split('.')[-1]))
         self.table.setCellWidget(row_num, 1, cor_dict['rm_step'])
         self.table.setCellWidget(row_num, 2, cor_dict['rm_iter'])
-        self.cor_list.append(cor_dict)
+        self.cor_dict[row_num] = cor_dict
 
-    def remove_row(self, it_id):
-        i = 0
-        for elem in self.cor_list:
-            if elem['id'] == it_id:
-                self.table.removeRow(i)
-                del(self.cor_list[i])
-                break
-            i += 1
+    def remove_row(self, row):
+        # deleting table row
+        self.table.removeRow(row)
+        # deleting info from dicts and renumering dicts
+        for k in range(row, len(self.cor_dict) - 1):
+            self.cor_dict[k] = self.cor_dict[k + 1]
+        del(self.cor_dict[len(self.cor_dict) - 1])
+
+    def common_step(self, selected_rows, rm_step, st_step, sel_all=False):
+        if sel_all:
+            selected_rows = []
+            for i in range(self.table.rowCount()):
+                selected_rows.append(i)
+        for row in selected_rows:
+            self.cor_dict[row]['rm_step'].setValue(self.cor_dict[row]['rm_step'].value() + rm_step)
+            self.cor_dict[row]['rm_iter'].setValue(self.cor_dict[row]['rm_iter'].value() + st_step)
 
     def free(self):
-        list_f = self.cor_list.copy()
-        for elem in list_f:
-            self.remove_row(elem['id'])
+        for row, elem in self.cor_dict:
+            # deleting table row
+            self.table.removeRow(row)
+            # deleting info from dicts
+            del(self.cor_dict[row])
 
     def get_cor_name_list(self):
         names = []
-        for el in self.cor_list:
+        for el in self.cor_dict:
             names.append(el['name'])
         return names

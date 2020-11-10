@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5 import uic
+from PyQt5 import uic, Qt
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 import os
@@ -16,7 +16,7 @@ from bpm_base.device_proc import DeviceFunc
 from bpm_base.aux_mod.tree_table import TreeTableCom
 from rma_proc.magnetization import MagnetizationProc
 from rma_proc.cor_proc import CorMeasure
-from rma_proc.table import Table
+from rma_proc.rmc_table import Table
 
 
 class RMA(QMainWindow, DeviceFunc):
@@ -35,6 +35,8 @@ class RMA(QMainWindow, DeviceFunc):
         # tree def
         self.tree = TreeTableCom(self.table, 40, self.tree_widget)
 
+        self.cor_set_table.itemPressed.connect(self.index)
+
         self.set_default()
 
         self.btn_start_coll.clicked.connect(self.start_rma)
@@ -42,9 +44,13 @@ class RMA(QMainWindow, DeviceFunc):
         self.btn_stop_proc.clicked.connect(self.stop_rma)
         self.btn_save_table.clicked.connect(self.save_table)
         self.btn_load_table.clicked.connect(self.load_table)
+        self.chb_all.stateChanged.connect(self.all_sel)
+        self.btn_right.clicked.connect(self.move_right)
+        self.btn_left.clicked.connect(self.move_left)
 
     def set_default(self):
         self.resp_type.setEnabled(True)
+        self.move_all = False
         self.prg_bar.setValue(0)
         self.elem_prg_bar.setValue(0)
         self.counter = 0
@@ -52,12 +58,40 @@ class RMA(QMainWindow, DeviceFunc):
         self.stack_names = []
         self.cor_fail = []
         self.sing_val_range = []
+        self.selected_rows = []
         self.stack_elems = {}
         self.dict_cors = {}
         self.main_cur = {}
         self.rm = {}
         self.resp_matr_dict = {}
         self.rev_rm = np.array([])
+
+    def all_sel(self, chb_state):
+        if chb_state == 2:
+            self.move_all = True
+        elif chb_state == 0:
+            self.move_all = False
+        else:
+            print('chb_state = ', chb_state)
+
+    def index(self, pr_item):
+        marked_entry = pr_item.row()
+        if marked_entry in self.selected_rows:
+            self.selected_rows.remove(marked_entry)
+            for i in range(self.cor_set_table.columnCount()):
+                self.cor_set_table.item(marked_entry, 0).setBackground(Qt.QColor('white'))
+        else:
+            self.selected_rows.append(pr_item.row())
+            for i in range(self.cor_set_table.columnCount()):
+                self.cor_set_table.item(marked_entry, 0).setBackground(Qt.QColor('green'))
+
+    def move_right(self):
+        self.table.common_step(self.selected_rows, self.rm_step_box.value(),
+                               self.st_step_box.value(), self.move_all)
+
+    def move_left(self):
+        self.table.common_step(self.selected_rows, (-1) * self.rm_step_box.value(),
+                               (-1) * self.st_step_box.value(), self.move_all)
 
     ###########################################
     #               MAGNETIZATION!            #

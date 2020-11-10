@@ -169,6 +169,9 @@ class Handles(QMainWindow):
             f = open('saved_handles.txt', 'w')
             f.write(json.dumps(self.handles.handle_descr))
             f.close()
+
+            if self.marked_row is not None:
+                self.marked_row += 1
         except Exception as exc:
             self.status_bar.showMessage(str(exc))
 

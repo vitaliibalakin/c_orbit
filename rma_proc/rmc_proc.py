@@ -36,7 +36,7 @@ class RMC(QMainWindow):
         # sing values plot def
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
-        self.plt.setLogMode(False, True)
+        self.plt.setLogMode(False, False)
         self.plt.setRange(yRange=[0, 0.01])
         self.plt_vals = pg.PlotDataItem()
         self.sing_reg = pg.LinearRegionItem(values=[0, 0.01], orientation=pg.LinearRegionItem.Horizontal)
@@ -66,7 +66,6 @@ class RMC(QMainWindow):
             self.rm_info.pop('main')
             f.close()
             self.rm = np.loadtxt(file_name, skiprows=1)
-            rm_err = np.loadtxt(re.sub('.txt', '_std_err.txt', file_name))
             u, sing_vals, vh = np.linalg.svd(np.transpose(self.rm))
             self.plt_vals.setData(sing_vals, pen=None, symbol='o')
             self.status_bar.showMessage('Matrix loaded')
@@ -83,10 +82,9 @@ class RMC(QMainWindow):
             s_r = np.zeros((vh.shape[0], u.shape[0]))
             # small to zero, needed to 1 /
             for i in range(len(sing_vals)):
+                print(sing_vals[i])
                 if self.sing_val_range[0] < sing_vals[i] < self.sing_val_range[1]:
                     s_r[i, i] = 1 / sing_vals[i]
-                else:
-                    sing_vals[i] = 0
             self.rev_rm = np.dot(np.transpose(vh), np.dot(s_r, np.transpose(u)))
             print(np.dot(np.transpose(self.rm), self.rev_rm))
             self.status_bar.showMessage('Reverse response matrix calculated')

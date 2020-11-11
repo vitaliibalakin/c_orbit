@@ -24,14 +24,14 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="3">
-      <widget class="QPushButton" name="btn_sel_e2v4">
+     <item row="0" column="16">
+      <widget class="QPushButton" name="btn_bot_off">
        <property name="text">
-        <string>e2v4</string>
+        <string>bot off</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="14">
+     <item row="0" column="17">
       <spacer name="horizontalSpacer_6">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -44,43 +44,17 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="7">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="11">
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="12">
-      <widget class="QPushButton" name="btn_bot_on">
+     <item row="0" column="6">
+      <widget class="QPushButton" name="btn_sel_p2v2">
        <property name="text">
-        <string>bot on</string>
+        <string>p2v2</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="13">
-      <widget class="QPushButton" name="btn_bot_off">
+     <item row="0" column="18">
+      <widget class="QPushButton" name="btn_close">
        <property name="text">
-        <string>bot off</string>
+        <string>Close</string>
        </property>
       </widget>
      </item>
@@ -91,35 +65,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="15">
-      <widget class="QPushButton" name="btn_close">
-       <property name="text">
-        <string>Close</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5">
-      <widget class="QPushButton" name="btn_sel_e2v2">
-       <property name="text">
-        <string>e2v2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="10">
-      <widget class="QPushButton" name="btn_save">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="6">
-      <widget class="QPushButton" name="btn_sel_p2v2">
-       <property name="text">
-        <string>p2v2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="16">
+     <item row="0" column="19">
       <widget class="QLabel" name="label">
        <property name="minimumSize">
         <size>
@@ -137,6 +83,70 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QPushButton" name="btn_sel_e2v2">
+       <property name="text">
+        <string>e2v2</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btn_sel_e2v4">
+       <property name="text">
+        <string>e2v4</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="14">
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="7">
+      <widget class="QPushButton" name="btn_save">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="15">
+      <widget class="QPushButton" name="btn_bot_on">
+       <property name="text">
+        <string>bot on</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="8">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="9">
+      <widget class="QPushButton" name="btn_bckgr">
+       <property name="text">
+        <string>Background</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="10">
+      <widget class="QSpinBox" name="spb_bckgr"/>
      </item>
     </layout>
    </widget>

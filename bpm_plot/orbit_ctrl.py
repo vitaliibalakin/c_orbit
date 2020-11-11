@@ -66,6 +66,7 @@ class PlotControl(QMainWindow):
         # action btn ctrl
         self.btn_close.clicked.connect(self.close)
         self.btn_save.clicked.connect(self.save_file_)
+        self.btn_bckgr.clicked.connect(self.bckgr)
 
         # other ordinary channels
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
@@ -81,6 +82,11 @@ class PlotControl(QMainWindow):
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
+
+    def bckgr(self):
+        self.btn_bckgr.setEnabled(False)
+        self.spb_bckgr.setEnabled(False)
+        self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr', 'service': 'orbit', 'count': self.spb_bckgr.value()}))
 
     def bpm_btn_clicked(self):
         bpm = self.sender().text()
@@ -175,9 +181,12 @@ class PlotControl(QMainWindow):
     def cmd_res(self, chan):
         try:
             rec = json.loads(chan.val).get('rec', 'no_rec')
+            res = json.loads(chan.val).get('res', 'no_res')
             if rec == 'orbit':
-                res = json.loads(chan.val).get('res', 'no_res')
                 self.status_bar.showMessage(res)
+            elif res.split('->')[-1] == 'bckgr_done':
+                self.btn_bckgr.setEnabled(True)
+                self.spb_bckgr.setEnabled(True)
         except Exception as exc:
             print('cmd_res', exc)
 

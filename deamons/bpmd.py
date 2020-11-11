@@ -19,6 +19,11 @@ class BpmPreproc:
         super(BpmPreproc, self).__init__()
         self.mode_d = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
         self.ic_mode = ''
+        self.bckgr_proc = False
+        self.bpms_zeros = np.zeros(64)
+        self.bpms_deviation = np.zeros(64)
+        self.bckrg_counter = 0
+        self.bckgr_it_num = 0
         self.current_orbit = np.empty(0)
         self.current_tunes = np.empty(0)
         self.fft_bpm = 'bpm15'
@@ -49,7 +54,7 @@ class BpmPreproc:
                           'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
                           'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
                           'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
-                          'start_tunes': self.start_tunes_}
+                          'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_}
 
         print('start')
 
@@ -85,8 +90,15 @@ class BpmPreproc:
                     z_orbit = np.append(z_orbit, 100.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
             orbit = np.array([x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma])
-            self.current_orbit = orbit
-            self.chan_orbit.setValue(orbit)
+            self.current_orbit = orbit - self.bpms_zeros
+            self.chan_orbit.setValue(orbit - self.bpms_zeros)
+
+            # data mining for zeros counting
+            if self.bckgr_proc:
+                self.bpms_deviation += orbit
+                self.bckrg_counter -= 1
+                if self.bckrg_counter == 0:
+                    self.bckrg_stop_()
 
     def collect_tunes(self, tunes):
         self.current_tunes = tunes
@@ -139,6 +151,18 @@ class BpmPreproc:
             else:
                 bpm.act_state = 0
         self.send_cmd_res_('action -> act_bpm -> ', rec=service)
+
+    def bckgr_start_(self, **kwargs):
+        self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
+        self.bpms_zeros = np.zeros(64)
+        self.bpms_deviation = np.zeros(64)
+        self.bckgr_proc = True
+
+    def bckrg_stop_(self):
+        self.bckgr_proc = False
+        self.bckgr_it_num, self.bckrg_counter = 0, 0
+        self.bpms_zeros = self.bpms_deviation / self.bckgr_it_num
+        self.send_cmd_res_('action -> bckgr_done ->', rec='orbit')
 
     def no_cmd_(self, **kwargs):
         service = kwargs.get('service', 'no_service')

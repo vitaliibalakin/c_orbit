@@ -20,6 +20,7 @@ class PlotControl(QMainWindow):
         direc = os.getcwd()
         direc = re.sub('bpm_plot', 'uis', direc)
         uic.loadUi(direc + "/bpm's.ui", self)
+        aper_files = re.sub('uis', 'bpm_base/aux_mod/aper_files', direc)
         self.setWindowTitle('Orbit Plot')
         self.show()
 
@@ -44,8 +45,8 @@ class PlotControl(QMainWindow):
             btn.clicked.connect(self.bpm_btn_clicked)
 
         # under control objects init
-        self.orbit_plots = {'x_orbit': OrbitPlot('x', 'aper_files/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
-                            'z_orbit': OrbitPlot('z', 'aper_files/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
+        self.orbit_plots = {'x_orbit': OrbitPlot('x', aper_files + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
+                            'z_orbit': OrbitPlot('z', aper_files + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
 
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
@@ -182,11 +183,12 @@ class PlotControl(QMainWindow):
         try:
             rec = json.loads(chan.val).get('rec', 'no_rec')
             res = json.loads(chan.val).get('res', 'no_res')
+            print(res.split('->')[-2])
             if rec == 'orbit':
                 self.status_bar.showMessage(res)
-            elif res.split('->')[-1] == 'bckgr_done':
-                self.btn_bckgr.setEnabled(True)
-                self.spb_bckgr.setEnabled(True)
+                if res.split('->')[-2] == 'bckgr_done':
+                    self.btn_bckgr.setEnabled(True)
+                    self.spb_bckgr.setEnabled(True)
         except Exception as exc:
             print('cmd_res', exc)
 

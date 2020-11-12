@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import json
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 import scipy.signal as sp
 
 
@@ -68,3 +68,4 @@ class BPM:
             print('bpm.py', 'empty tunes range data', self.name)
             self.x_bound = [0.345, 0.365]
             self.z_bound = [0.2, 0.4]
+            # self.chan_tunes_range.setValue(json.dumps(self.x_bound + self.z_bound))

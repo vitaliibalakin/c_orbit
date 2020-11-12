@@ -4,9 +4,9 @@ from PyQt5 import QtCore
 import pandas as pd
 import numpy as np
 import pyqtgraph as pg
-from bpm_base.aux_mod import BPMMarker
-from bpm_base.aux_mod import AperPlot
-from bpm_base.aux_mod import PyQtElemPlot, LinesPlot, TextLabel
+from bpm_base.aux_mod.bpm_point import BPMMarker
+from bpm_base.aux_mod.aper_plot import AperPlot
+from bpm_base.aux_mod.wrapper_tunes import PyQtElemPlot, LinesPlot, TextLabel
 
 
 class OrbitPlot(pg.PlotWidget):

@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 import sys
 
 import numpy as np
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 import json
 import os
 import re
@@ -20,8 +20,8 @@ class BpmPreproc:
         self.mode_d = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
         self.ic_mode = ''
         self.bckgr_proc = False
-        self.bpms_zeros = np.zeros(64)
-        self.bpms_deviation = np.zeros(64)
+        self.bpms_zeros = np.zeros([2, 16])
+        self.bpms_deviation = np.zeros([2, 16])
         self.bckrg_counter = 0
         self.bckgr_it_num = 0
         self.current_orbit = np.empty(0)
@@ -89,12 +89,14 @@ class BpmPreproc:
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)
                     z_orbit = np.append(z_orbit, 100.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
-            orbit = np.array([x_orbit, z_orbit, x_orbit_sigma, z_orbit_sigma])
-            self.current_orbit = orbit - self.bpms_zeros
-            self.chan_orbit.setValue(orbit - self.bpms_zeros)
-
+            orbit = np.array([x_orbit, z_orbit])
+            std = np.array([x_orbit_sigma, z_orbit_sigma])
+            self.current_orbit = np.array([orbit - self.bpms_zeros, std])
+            self.chan_orbit.setValue(np.array([orbit - self.bpms_zeros, std]))
+            # print(orbit, self.bpms_zeros)
             # data mining for zeros counting
             if self.bckgr_proc:
+                print(self.bckrg_counter)
                 self.bpms_deviation += orbit
                 self.bckrg_counter -= 1
                 if self.bckrg_counter == 0:
@@ -154,15 +156,16 @@ class BpmPreproc:
 
     def bckgr_start_(self, **kwargs):
         self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
-        self.bpms_zeros = np.zeros(64)
-        self.bpms_deviation = np.zeros(64)
+        self.bpms_zeros = np.zeros([2, 16])
+        self.bpms_deviation = np.zeros([2, 16])
         self.bckgr_proc = True
 
     def bckrg_stop_(self):
+        self.bpms_zeros = self.bpms_deviation / self.bckgr_it_num
+        print(self.bpms_zeros)
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
-        self.bpms_zeros = self.bpms_deviation / self.bckgr_it_num
-        self.send_cmd_res_('action -> bckgr_done ->', rec='orbit')
+        self.send_cmd_res_('action ->bckgr_done->', rec='orbit')
 
     def no_cmd_(self, **kwargs):
         service = kwargs.get('service', 'no_service')
@@ -252,43 +255,46 @@ class BpmPreproc:
         file_name = kwargs.get('file_name')
         service = kwargs.get('service')
         mode = kwargs.get('mode', 'no_mode')
-        file = open(file_name, 'r')
-        if os.fstat(file.fileno()).st_size:
-            data = np.loadtxt(file_name)
-            msg = 'action -> load -> '
-        else:
+        try:
+            file = open(file_name, 'r')
+            if os.fstat(file.fileno()).st_size:
+                data = np.loadtxt(file_name)
+                msg = 'action -> load -> '
+            else:
+                if service == 'orbit':
+                    data = np.zeros(64)
+                elif service == 'tunes':
+                    data = np.zeros(2)
+                msg = 'action -> load -> file error -> '
+            file.close()
             if service == 'orbit':
-                data = np.zeros(64)
-            elif service == 'tunes':
-                data = np.zeros(2)
-            msg = 'action -> load -> file error -> '
-        file.close()
-        if service == 'orbit':
-            self.chan_ctrl_orbit.setValue(data)
-        if service == 'tunes':
-            self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
-        self.mode_file_edit_(file_name, self.mode_d[service])
-        self.send_cmd_res_(msg, rec=service)
+                self.chan_ctrl_orbit.setValue(data)
+            if service == 'tunes':
+                self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
+            self.mode_file_edit_(file_name, self.mode_d[service])
+            self.send_cmd_res_(msg, rec=service)
+        except Exception as exc:
+            print(exc)
 
 
 DIR = os.getcwd()
 DIR = re.sub('deamons', 'bpm_plot', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = BpmPreproc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = BpmPreproc()
+#
+#     def clean(self):
+#         self.log_str('exiting bpm_prepoc')
+#
+#
+# bp = KMService("bpmd")
 
-    def clean(self):
-        self.log_str('exiting bpm_prepoc')
-
-
-bp = KMService("bpmd")
-
-# if __name__ == "__main__":
-#     app = QApplication(['c_orbit'])
-#     w = BpmPreproc()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication(['c_orbit'])
+    w = BpmPreproc()
+    sys.exit(app.exec_())
 
 

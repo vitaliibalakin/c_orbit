@@ -139,12 +139,16 @@
       </spacer>
      </item>
      <item row="0" column="10">
-      <widget class="QSpinBox" name="spb_bckgr"/>
+      <widget class="QSpinBox" name="spb_bckgr">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+      </widget>
      </item>
      <item row="0" column="11">
       <widget class="QPushButton" name="btn_bckgr_discard">
        <property name="text">
-        <string>Background</string>
+        <string>Discard</string>
        </property>
       </widget>
      </item>

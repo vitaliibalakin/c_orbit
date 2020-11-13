@@ -20,6 +20,7 @@ class BpmPreproc:
         self.mode_d = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
         self.ic_mode = ''
         self.bckgr_proc = False
+        self.starting = True
         self.bpms_zeros = np.zeros([2, 16])
         self.bpms_deviation = np.zeros([2, 16])
         self.bckrg_counter = 0
@@ -56,7 +57,7 @@ class BpmPreproc:
             'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
             'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
-            'bckrg_discard': self.bckrg_discard_
+            'bckgr_discard': self.bckgr_discard_
             }
 
         print('start')
@@ -69,6 +70,10 @@ class BpmPreproc:
         permission = 0
         for bpm in self.bpms:
             if bpm.act_state:
+                if bpm.no_connection:
+                    self.send_cmd_res_('-> action ->' + bpm.name + ' -> no_connection', rec='orbit')
+                else:
+                    self.send_cmd_res_('-> action ->' + bpm.name + ' -> connected', rec='orbit')
                 if bpm.marker:
                     permission = 1
                 else:
@@ -155,33 +160,36 @@ class BpmPreproc:
                 bpm.act_state = 1
             else:
                 bpm.act_state = 0
-        self.send_cmd_res_('action -> act_bpm -> ', rec=service)
+        self.send_cmd_res_('-> action -> act_bpm', rec=service)
 
-    def bckrg_discard_(self):
+    def bckgr_discard_(self, **kwargs):
         self.bpms_zeros = np.zeros([2, 16])
         self.bpms_deviation = np.zeros([2, 16])
-        self.send_cmd_res_('action -> bckgr_discarded-> ', rec='orbit')
+        self.send_cmd_res_('-> action -> bckgr_discarded', rec='orbit')
 
     def bckgr_start_(self, **kwargs):
-        self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
-        self.bpms_zeros = np.zeros([2, 16])
-        self.bpms_deviation = np.zeros([2, 16])
-        self.bckgr_proc = True
+        if self.starting:
+            self.starting = False
+        else:
+            self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
+            self.bpms_zeros = np.zeros([2, 16])
+            self.bpms_deviation = np.zeros([2, 16])
+            self.bckgr_proc = True
 
     def bckrg_stop_(self):
         self.bpms_zeros = self.bpms_deviation / self.bckgr_it_num
         print(self.bpms_zeros)
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
-        self.send_cmd_res_('action ->bckgr_done->', rec='orbit')
+        self.send_cmd_res_('-> action -> bckgr_done', rec='orbit')
 
     def no_cmd_(self, **kwargs):
         service = kwargs.get('service', 'no_service')
-        self.send_cmd_res_('action -> no_cmd ->', rec=service)
+        self.send_cmd_res_('-> action -> no_cmd', rec=service)
 
     def send_cmd_res_(self, res, rec):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.chan_res.setValue(json.dumps({'rec': rec, 'res': res + time_stamp}))
+        self.chan_res.setValue(json.dumps({'rec': rec, 'res': time_stamp + res}))
 
     #########################################################
     #                     file exchange                     #

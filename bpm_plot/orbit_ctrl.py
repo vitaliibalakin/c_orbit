@@ -65,7 +65,7 @@ class PlotControl(QMainWindow):
         # self.btn_bot_off.clicked.connect(self.bot_ctrl)
 
         # action btn ctrl
-        self.btn_bckrg_discard.clicked.connect(self.bckrg_discard)
+        self.btn_bckgr_discard.clicked.connect(self.bckrg_discard)
         self.btn_save.clicked.connect(self.save_file_)
         self.btn_bckgr.clicked.connect(self.bckgr)
 
@@ -90,7 +90,7 @@ class PlotControl(QMainWindow):
         self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr', 'service': 'orbit', 'count': self.spb_bckgr.value()}))
 
     def bckrg_discard(self):
-        self.chan_cmd.setValue(json.dumps({'cmd': 'bckrg_discard', 'service': 'orbit'}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr_discard', 'service': 'orbit'}))
 
     def bpm_btn_clicked(self):
         bpm = self.sender().text()
@@ -185,13 +185,16 @@ class PlotControl(QMainWindow):
     def cmd_res(self, chan):
         try:
             rec = json.loads(chan.val).get('rec', 'no_rec')
-            res = json.loads(chan.val).get('res', 'no_res')
-            print(res.split('->')[-2])
+            msg = json.loads(chan.val).get('res', 'no_res')
+            res = msg.split('->')
             if rec == 'orbit':
-                self.status_bar.showMessage(res)
-                if res.split('->')[-2] == 'bckgr_done':
+                self.status_bar.showMessage(msg)
+                if res[-1] == 'bckgr_done':
                     self.btn_bckgr.setEnabled(True)
                     self.spb_bckgr.setEnabled(True)
+                elif res[-1] == 'no_connection':
+                    self.dict_btns[res[-2]].setStyleSheet("background-color:rgb(172, 183, 142);")
+                    self.dict_lbls[res[-2]].setStyleSheet("background-color:rgb(172, 183, 142);")
         except Exception as exc:
             print('cmd_res', exc)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import json
+import time
 import pycx4.qcda as cda
 import scipy.signal as sp
 
@@ -10,10 +11,13 @@ class BPM:
         super(BPM, self).__init__()
         self.collect_orbit, self.collect_tunes, self.send_current, self.send_fft, self.send_coor = \
             collect_orbit, collect_tunes, send_current, send_fft, send_coor
+        self.last_data_upd = 0
+        self.no_connection = False
         self.name = bpm
         self.turns_mes = 0
         self.act_state = 1
         self.marker = 0
+        self.starting = True
         self.coor = (0, 0)
         self.sigma = (0, 0)
         self.x_bound = [0.345, 0.365]
@@ -29,6 +33,18 @@ class BPM:
 
     def marker_proc(self, chan):
         # print(chan.val)
+        print(self.name)
+        if self.starting:
+            self.last_data_upd = time.time()
+            self.starting = False
+        else:
+            if time.time() - self.last_data_upd < 10:
+                self.last_data_upd = time.time()
+                if self.no_connection:
+                    self.no_connection = False
+            else:
+                self.last_data_upd = time.time()
+                self.no_connection = True
         self.marker = 1
         self.collect_orbit()
 

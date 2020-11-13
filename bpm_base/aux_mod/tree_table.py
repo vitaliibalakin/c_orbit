@@ -56,7 +56,7 @@ class TreeTableCom:
             if dev_id in dev_set:
                 pass
             else:
-                self.table.remove_row(dev_id)
+                self.table.delete_row(dev_id)
         self.dev_choosed = dev_set.copy()
 
     def free(self):

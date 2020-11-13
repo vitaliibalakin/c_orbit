@@ -58,7 +58,7 @@ class BpmPreproc:
             'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
             'bckgr_discard': self.bckgr_discard_
-            }
+        }
 
         print('start')
 
@@ -154,13 +154,13 @@ class BpmPreproc:
 
     def act_bpm_(self, **kwargs):
         act_bpm = kwargs.get('act_bpm')
-        service = kwargs.get('service')
+        client = kwargs.get('client')
         for bpm in self.bpms:
             if bpm.name in act_bpm:
                 bpm.act_state = 1
             else:
                 bpm.act_state = 0
-        self.send_cmd_res_('-> action -> act_bpm', rec=service)
+        self.send_cmd_res_('-> action -> act_bpm', rec=client)
 
     def bckgr_discard_(self, **kwargs):
         self.bpms_zeros = np.zeros([2, 16])
@@ -184,8 +184,8 @@ class BpmPreproc:
         self.send_cmd_res_('-> action -> bckgr_done', rec='orbit')
 
     def no_cmd_(self, **kwargs):
-        service = kwargs.get('service', 'no_service')
-        self.send_cmd_res_('-> action -> no_cmd', rec=service)
+        client = kwargs.get('client', 'no_client')
+        self.send_cmd_res_('-> action -> no_cmd', rec=client)
 
     def send_cmd_res_(self, res, rec):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -234,42 +234,42 @@ class BpmPreproc:
         f.write(json.dumps(data_mode))
         f.close()
 
-    def to_another_ic_mode_(self, service):
+    def to_another_ic_mode_(self, client):
         try:
-            f = open(self.mode_d[service], 'r')
+            f = open(self.mode_d[client], 'r')
             data_mode = json.loads(f.read())
             f.close()
-            self.load_file_(**{'file_name': data_mode[self.ic_mode], 'service': service})
+            self.load_file_(**{'file_name': data_mode[self.ic_mode], 'client': client})
         except Exception as exc:
-            self.send_cmd_res_('action -> switch mode (no mode file?) -> error ' + str(exc) + '-> ', rec=service)
+            self.send_cmd_res_('action -> switch mode (no mode file?) -> error ' + str(exc) + '-> ', rec=client)
 
     def save_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
-        service = kwargs.get('service')
+        client = kwargs.get('client')
         msg = 'default save file msg'
-        if service == 'orbit':
+        if client == 'orbit':
             data = self.current_orbit
             if data.any():
                 self.chan_ctrl_orbit.setValue(data)
                 np.savetxt(file_name, data)
-                self.mode_file_edit_(file_name, self.mode_d[service])
+                self.mode_file_edit_(file_name, self.mode_d[client])
                 msg = 'action -> orbit save -> '
             else:
                 msg = 'action -> orbit chan is empty -> '
-        elif service == 'tunes':
+        elif client == 'tunes':
             data = self.current_tunes
             if any(data):
                 self.chan_ctrl_tunes.setValue(json.dumps({self.ic_mode: np.ndarray.tolist(data)}))
                 np.savetxt(file_name, data)
-                self.mode_file_edit_(file_name, self.mode_d[service])
+                self.mode_file_edit_(file_name, self.mode_d[client])
                 msg = 'action -> tunes save -> '
             else:
                 msg = 'action -> tunes chan is empty -> '
-        self.send_cmd_res_(msg, rec=service)
+        self.send_cmd_res_(msg, rec=client)
 
     def load_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
-        service = kwargs.get('service')
+        client = kwargs.get('client')
         mode = kwargs.get('mode', 'no_mode')
         try:
             file = open(file_name, 'r')
@@ -277,18 +277,18 @@ class BpmPreproc:
                 data = np.loadtxt(file_name)
                 msg = 'action -> load -> '
             else:
-                if service == 'orbit':
+                if client == 'orbit':
                     data = np.zeros(64)
-                elif service == 'tunes':
+                elif client == 'tunes':
                     data = np.zeros(2)
                 msg = 'action -> load -> file error -> '
             file.close()
-            if service == 'orbit':
+            if client == 'orbit':
                 self.chan_ctrl_orbit.setValue(data)
-            if service == 'tunes':
+            if client == 'tunes':
                 self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
-            self.mode_file_edit_(file_name, self.mode_d[service])
-            self.send_cmd_res_(msg, rec=service)
+            self.mode_file_edit_(file_name, self.mode_d[client])
+            self.send_cmd_res_(msg, rec=client)
         except Exception as exc:
             print(exc)
 

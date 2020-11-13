@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget
+import json
+
+import pycx4.qcda as cda
+
+
+class HandlesTable:
+    def __init__(self, table):
+        super(HandlesTable, self).__init__()
+        self.table = table
+        self.current_item = None
+        self.handles = {}
+        self.handle_descr = {}
+
+        self.table.cellDoubleClicked.connect(self.selection)
+        self.table.itemSelectionChanged.connect(self.edit_item)
+
+    def selection(self, row, column):
+        self.current_item = (row, column)
+
+    def edit_item(self):
+        if self.current_item:
+            text = self.table.item(self.current_item[0], self.current_item[1]).text()
+            if self.current_item[1] == 0:
+                self.handle_descr[self.current_item[0]]['name'] = text
+                f = open('saved_handles.txt', 'w')
+                f.write(json.dumps(self.handle_descr))
+                f.close()
+            else:
+                self.handle_descr[self.current_item[0]]['descr'] = text
+                f = open('saved_handles.txt', 'w')
+                f.write(json.dumps(self.handle_descr))
+                f.close()
+            self.current_item = None
+
+    def add_row(self, name, descr, cors_list):
+        handle_params = {}
+        self.handles_renum()
+        self.handle_descr[0] = {'name': name, 'descr': descr, 'cor_list': []}
+        for cor in cors_list:
+            if cor['name'].split('.')[-1][0] == 'G':
+                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
+                # handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
+            else:
+                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
+                # handle_params[cor['name'].split('.')[-1]][0].valueMeasured.connect(self.CLB)
+            self.handle_descr[0]['cor_list'].append(cor)
+
+        self.table.insertRow(0)
+        self.table.setItem(0, 0, QTableWidgetItem(name))
+        self.table.setItem(0, 1, QTableWidgetItem(descr))
+        self.handles[0] = handle_params
+
+    def CLB(self, chan):
+        print(chan.name, chan.val)
+
+    def remove_row(self, row):
+        # deleting table row
+        self.table.removeRow(row)
+        # deleting info from dicts and renumering dicts
+        for k in range(row, len(self.handles) - 1):
+            self.handles[k] = self.handles[k + 1]
+            self.handle_descr[k] = self.handle_descr[k + 1]
+        del(self.handles[len(self.handles) - 1])
+        del(self.handle_descr[len(self.handle_descr) - 1])
+
+    def get_handle(self, row):
+        return self.handles[row]
+
+    def handles_renum(self):
+        for i in reversed(range(len(self.handles))):
+            self.handles[i+1] = self.handles.pop(i)
+            self.handle_descr[i + 1] = self.handle_descr.pop(i)
+
+    # def get_handle_list(self):
+    #     names = []
+    #     for el in self.handles:
+    #         names.append(el['name'])
+    #     return names

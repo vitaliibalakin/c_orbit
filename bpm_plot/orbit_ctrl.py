@@ -65,7 +65,7 @@ class PlotControl(QMainWindow):
         # self.btn_bot_off.clicked.connect(self.bot_ctrl)
 
         # action btn ctrl
-        self.btn_close.clicked.connect(self.close)
+        self.btn_bckrg_discard.clicked.connect(self.bckrg_discard)
         self.btn_save.clicked.connect(self.save_file_)
         self.btn_bckgr.clicked.connect(self.bckgr)
 
@@ -88,6 +88,9 @@ class PlotControl(QMainWindow):
         self.btn_bckgr.setEnabled(False)
         self.spb_bckgr.setEnabled(False)
         self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr', 'service': 'orbit', 'count': self.spb_bckgr.value()}))
+
+    def bckrg_discard(self):
+        self.chan_cmd.setValue(json.dumps({'cmd': 'bckrg_discard', 'service': 'orbit'}))
 
     def bpm_btn_clicked(self):
         bpm = self.sender().text()

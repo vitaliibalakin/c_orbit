@@ -50,11 +50,14 @@ class BpmPreproc:
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
 
-        self.cmd_table = {'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
-                          'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
-                          'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
-                          'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
-                          'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_}
+        self.cmd_table = {
+            'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
+            'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
+            'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
+            'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
+            'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
+            'bckrg_discard': self.bckrg_discard_
+            }
 
         print('start')
 
@@ -153,6 +156,11 @@ class BpmPreproc:
             else:
                 bpm.act_state = 0
         self.send_cmd_res_('action -> act_bpm -> ', rec=service)
+
+    def bckrg_discard_(self):
+        self.bpms_zeros = np.zeros([2, 16])
+        self.bpms_deviation = np.zeros([2, 16])
+        self.send_cmd_res_('action -> bckgr_discarded-> ', rec='orbit')
 
     def bckgr_start_(self, **kwargs):
         self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)

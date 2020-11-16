@@ -48,15 +48,12 @@ class Handles(QMainWindow):
 
         self.load_handles()
 
-    # done
     def get_handle(self, row):
         return self.handles_info[row]
 
-    # done
     def selection(self, row, column):
         self.current_item = (row, column)
 
-    # done
     def edit_item(self):
         if self.current_item:
             text = self.handles_table.item(self.current_item[0], self.current_item[1]).text()
@@ -95,7 +92,6 @@ class Handles(QMainWindow):
     def add(self):
         name = self.handle_name.text()
         descr = self.handle_descr.text()
-        short_info = {}
         if name:
             if self.handles_creating.cor_list:
                 for elem in self.handles_creating.cor_list:
@@ -110,7 +106,6 @@ class Handles(QMainWindow):
         else:
             self.status_bar.showMessage('Enter the handle name')
 
-    # done
     def delete(self):
         if self.marked_row is not None:
             self.handles.delete_row(self.marked_row)
@@ -127,45 +122,30 @@ class Handles(QMainWindow):
 
     def step_up(self):
         if self.marked_row is not None:
-            handle = self.get_handle(self.marked_row)
-            for key, k_val in handle.items():
-                new_curr = k_val[0].val + k_val[1]
-                # print(k_val[0].val)
-                k_val[0].setValue(new_curr)
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'step_up', 'row': self.marked_row}))
         else:
             self.status_bar.showMessage('Choose row to step')
 
     def cst_step_up(self):
         if self.marked_row is not None:
-            handle = self.get_handle(self.marked_row)
-            factor = self.cst_step.value()
-            for key, k_val in handle.items():
-                new_curr = k_val[0].val + k_val[1]*factor
-                k_val[0].setValue(new_curr)
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'cst_step_up', 'row': self.marked_row,
+                                               'factor': self.cst_step.value()}))
         else:
             self.status_bar.showMessage('Choose row to step')
 
     def step_down(self):
-        # print(self.marked_row)
         if self.marked_row is not None:
-            handle = self.get_handle(self.marked_row)
-            for key, k_val in handle.items():
-                new_curr = k_val[0].val - k_val[1]
-                k_val[0].setValue(new_curr)
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'step_down', 'row': self.marked_row}))
         else:
             self.status_bar.showMessage('Choose row to step')
 
     def cst_step_down(self):
         if self.marked_row is not None:
-            handle = self.get_handle(self.marked_row)
-            factor = self.cst_step.value()
-            for key, k_val in handle.items():
-                new_curr = k_val[0].val - k_val[1]*factor
-                k_val[0].setValue(new_curr)
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'cst_step_down', 'row': self.marked_row,
+                                               'factor': self.cst_step.value()}))
         else:
             self.status_bar.showMessage('Choose row to step')
 
-    # done
     def load_handles(self):
         try:
             f = open('saved_handles.txt', 'r')
@@ -183,7 +163,6 @@ class Handles(QMainWindow):
         except ValueError:
             self.status_bar.showMessage('empty saved file')
 
-    # done
     def handles_renum(self):
         for i in reversed(range(len(self.handles))):
             self.handles_info[i+1] = self.handles_info.pop(i)

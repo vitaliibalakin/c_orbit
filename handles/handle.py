@@ -163,10 +163,6 @@ class Handles(QMainWindow):
         except ValueError:
             self.status_bar.showMessage('empty saved file')
 
-    def handles_renum(self):
-        for i in reversed(range(len(self.handles))):
-            self.handles_info[i+1] = self.handles_info.pop(i)
-
     #########################################################
     #                     command part                      #
     #########################################################

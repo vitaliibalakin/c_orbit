@@ -23,7 +23,7 @@ class Handles(QMainWindow):
 
         self.marked_row = None
         self.current_item = None
-        self.handles_info = []
+        self.handles_info = {}
 
         # table def
         self.handles_creating = Table(self.table)
@@ -49,20 +49,22 @@ class Handles(QMainWindow):
 
         self.load_handles()
 
+    # done
+    def get_handle(self, row):
+        return self.handles_info[row]
+
+    # done
     def selection(self, row, column):
         self.current_item = (row, column)
 
+    # done
     def edit_item(self):
         if self.current_item:
             text = self.handles_table.item(self.current_item[0], self.current_item[1]).text()
             if self.current_item[1] == 0:
-                self.handles.handle_descr[self.current_item[0]]['name'] = text
-                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'tgt': 'name',
-                                                   'new': text}))
+                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'name': text}))
             else:
-                self.handles.handle_descr[self.current_item[0]]['descr'] = text
-                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'tgt': 'descr',
-                                                   'new': text}))
+                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'descr': text}))
             self.current_item = None
 
     def index(self, pr_item):
@@ -80,14 +82,14 @@ class Handles(QMainWindow):
                 for i in range(self.handles_table.columnCount()):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('green'))
                 self.handle_info.clear()
-                handle = self.handles.get_handle(self.marked_row)
-                for key, val in handle.items():
+                handle_i = self.get_handle(self.marked_row)
+                for key, val in handle_i.items():
                     self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
         else:
             self.marked_row = pr_item.row()
             for i in range(self.handles_table.columnCount()):
                 self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('green'))
-            handle = self.handles.get_handle(self.marked_row)
+            handle = self.get_handle(self.marked_row)
             for key, val in handle.items():
                 self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
 
@@ -109,15 +111,15 @@ class Handles(QMainWindow):
         else:
             self.status_bar.showMessage('Enter the handle name')
 
+    # done
     def delete(self):
         if self.marked_row is not None:
             self.handles.delete_row(self.marked_row)
-
-            # save current handles
-            f = open('saved_handles.txt', 'w')
-            f.write(json.dumps(self.handles.handle_descr))
-            f.close()
-
+            for k in range(self.marked_row, len(self.handles_info) - 1):
+                self.handles_info[k] = self.handles_info[k + 1]
+            del (self.handles_info[len(self.handles_info) - 1])
+            # send msg
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'delete', 'row': self.marked_row}))
             # clear objects
             self.marked_row = None
             self.handle_info.clear()
@@ -126,7 +128,7 @@ class Handles(QMainWindow):
 
     def step_up(self):
         if self.marked_row is not None:
-            handle = self.handles.get_handle(self.marked_row)
+            handle = self.get_handle(self.marked_row)
             for key, k_val in handle.items():
                 new_curr = k_val[0].val + k_val[1]
                 # print(k_val[0].val)
@@ -136,7 +138,7 @@ class Handles(QMainWindow):
 
     def cst_step_up(self):
         if self.marked_row is not None:
-            handle = self.handles.get_handle(self.marked_row)
+            handle = self.get_handle(self.marked_row)
             factor = self.cst_step.value()
             for key, k_val in handle.items():
                 new_curr = k_val[0].val + k_val[1]*factor
@@ -147,7 +149,7 @@ class Handles(QMainWindow):
     def step_down(self):
         # print(self.marked_row)
         if self.marked_row is not None:
-            handle = self.handles.get_handle(self.marked_row)
+            handle = self.get_handle(self.marked_row)
             for key, k_val in handle.items():
                 new_curr = k_val[0].val - k_val[1]
                 k_val[0].setValue(new_curr)
@@ -156,7 +158,7 @@ class Handles(QMainWindow):
 
     def cst_step_down(self):
         if self.marked_row is not None:
-            handle = self.handles.get_handle(self.marked_row)
+            handle = self.get_handle(self.marked_row)
             factor = self.cst_step.value()
             for key, k_val in handle.items():
                 new_curr = k_val[0].val - k_val[1]*factor
@@ -164,6 +166,7 @@ class Handles(QMainWindow):
         else:
             self.status_bar.showMessage('Choose row to step')
 
+    # done
     def load_handles(self):
         try:
             f = open('saved_handles.txt', 'r')
@@ -176,32 +179,15 @@ class Handles(QMainWindow):
                 self.handles_table.insertRow(0)
                 self.handles_table.setItem(0, 0, QTableWidgetItem(handle['name']))
                 self.handles_table.setItem(0, 1, QTableWidgetItem(handle['descr']))
-                self.handles_info[row_num] = info
+                self.handles_info[int(row_num)] = info
 
         except ValueError:
             self.status_bar.showMessage('empty saved file')
 
+    # done
     def handles_renum(self):
         for i in reversed(range(len(self.handles))):
             self.handles_info[i+1] = self.handles_info.pop(i)
-
-    def load_handle(self):
-        try:
-            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd(),
-                                                    filter='Text Files (*.txt)')[0]
-            f = open(file_name, 'r')
-            handle = json.loads(f.readline())
-            f.close()
-            self.handles.add_row(handle['name'], handle['descr'], handle['cor_list'])
-
-            f = open('saved_handles.txt', 'w')
-            f.write(json.dumps(self.handles.handle_descr))
-            f.close()
-
-            if self.marked_row is not None:
-                self.marked_row += 1
-        except Exception as exc:
-            self.status_bar.showMessage(str(exc))
 
     #########################################################
     #                     command part                      #

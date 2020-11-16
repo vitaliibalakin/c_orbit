@@ -48,19 +48,14 @@ class Handles(QMainWindow):
 
         self.load_handles()
 
-    def get_handle(self, row):
-        return self.handles_info[row]
-
     def selection(self, row, column):
         self.current_item = (row, column)
 
     def edit_item(self):
         if self.current_item:
             text = self.handles_table.item(self.current_item[0], self.current_item[1]).text()
-            if self.current_item[1] == 0:
-                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'name': text}))
-            else:
-                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'descr': text}))
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': self.current_item,
+                                               'text': text}))
             self.current_item = None
 
     def index(self, pr_item):
@@ -78,14 +73,14 @@ class Handles(QMainWindow):
                 for i in range(self.handles_table.columnCount()):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('green'))
                 self.handle_info.clear()
-                handle_i = self.get_handle(self.marked_row)
+                handle_i = self.handles_info[self.marked_row]
                 for key, val in handle_i.items():
                     self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
         else:
             self.marked_row = pr_item.row()
             for i in range(self.handles_table.columnCount()):
                 self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('green'))
-            handle = self.get_handle(self.marked_row)
+            handle = self.handles_info[self.marked_row]
             for key, val in handle.items():
                 self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
 
@@ -108,11 +103,6 @@ class Handles(QMainWindow):
 
     def delete(self):
         if self.marked_row is not None:
-            self.handles.delete_row(self.marked_row)
-            for k in range(self.marked_row, len(self.handles_info) - 1):
-                self.handles_info[k] = self.handles_info[k + 1]
-            del (self.handles_info[len(self.handles_info) - 1])
-            # send msg
             self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'delete', 'row': self.marked_row}))
             # clear objects
             self.marked_row = None
@@ -148,11 +138,14 @@ class Handles(QMainWindow):
 
     def load_handles(self):
         try:
+            self.marked_row = None
+            self.current_item = None
+            self.handles_info = {}
             f = open('saved_handles.txt', 'r')
             handles = json.loads(f.read())
             f.close()
-            info = {}
             for row_num, handle in handles.items():
+                info = {}
                 for cor in handle['cor_list']:
                     info[cor['name'].split('.')[-1]] = cor['step']
                 self.handles_table.insertRow(0)
@@ -168,7 +161,10 @@ class Handles(QMainWindow):
     #########################################################
 
     def res(self, chan):
-        pass
+        res = chan.val
+        if res:
+            chan_val = json.loads(res)
+            self.status_bar.showMessage(chan_val['res'])
 
 
 if __name__ == "__main__":

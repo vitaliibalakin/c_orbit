@@ -34,7 +34,6 @@ class Handles(QMainWindow):
         self.btn_cst_up.clicked.connect(self.cst_step_up)
         self.btn_down.clicked.connect(self.step_down)
         self.btn_cst_down.clicked.connect(self.cst_step_down)
-        self.btn_load_handle.clicked.connect(self.load_handle)
         self.btn_add_handle.clicked.connect(self.add)
         self.btn_del_handle.clicked.connect(self.delete)
 
@@ -68,7 +67,7 @@ class Handles(QMainWindow):
             self.current_item = None
 
     def index(self, pr_item):
-        # paint row & set handle info $$$
+        # paint row & set handle info
         if self.marked_row is not None:
             if self.marked_row == pr_item.row():
                 for i in range(self.table.columnCount()):

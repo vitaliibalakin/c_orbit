@@ -68,7 +68,7 @@ class Handles(QMainWindow):
             self.current_item = None
 
     def index(self, pr_item):
-        # paint row & set handle info rqw
+        # paint row & set handle info
         if self.marked_row is not None:
             if self.marked_row == pr_item.row():
                 for i in range(self.table.columnCount()):

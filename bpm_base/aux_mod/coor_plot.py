@@ -26,7 +26,7 @@ class CoorPlot(pg.PlotWidget):
         x = data[:h_len]
         z = data[h_len: len(data)]
         try:
-            params, pcov = optimize.curve_fit(self.osc_fit, self.time, z, p0=[4, 5, 3, 5e-6, 11])
+            params, pcov = optimize.curve_fit(self.osc_fit, self.time, x, p0=[4, 5, 3, 5e-6, 11])
             print(params)
         except RuntimeError:
             print('fit error')

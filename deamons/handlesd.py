@@ -30,11 +30,15 @@ class HandlesProc:
         self.chan_cmd.valueMeasured.connect(self.cmd)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
 
+        self.load_handles()
+        print('start')
+
     #########################################################
     #                     command part                      #
     #########################################################
 
     def cmd(self, chan):
+        print(chan.val)
         cmd = chan.val
         if cmd:
             chan_val = json.loads(cmd)
@@ -67,7 +71,7 @@ class HandlesProc:
 
     def edit_item_(self, **kwargs):
         row = kwargs.get('item')[0]
-        col = kwargs.get('item')[0]
+        col = kwargs.get('item')[1]
         text = kwargs.get('text')
         self.handle_descr[row][self.cell_col[col]] = text
         self.save_changes()
@@ -112,9 +116,20 @@ class HandlesProc:
             self.handles[i + 1] = self.handles.pop(i)
 
     def save_changes(self):
-        f = open('saved_handles.txt', 'w')
+        f = open(DIR + '/saved_handles.txt', 'w')
         f.write(json.dumps(self.handle_descr))
         f.close()
+
+    def load_handles(self):
+        f = open(DIR + '/saved_handles.txt', 'r')
+        handles = json.loads(f.readline())
+        for row_num, handle in handles.items():
+            self.add_handle_(**{'info': handle})
+        f.close()
+
+
+DIR = os.getcwd()
+DIR = re.sub('deamons', 'handles', DIR)
 
 
 # class KMService(CXService):

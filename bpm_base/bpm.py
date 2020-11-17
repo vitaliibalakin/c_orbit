@@ -32,8 +32,6 @@ class BPM:
         self.chan_marker.valueMeasured.connect(self.marker_proc)
 
     def marker_proc(self, chan):
-        # print(chan.val)
-        print(self.name)
         if self.starting:
             self.last_data_upd = time.time()
             self.starting = False

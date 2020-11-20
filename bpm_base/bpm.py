@@ -17,6 +17,8 @@ class BPM:
         self.turns_mes = 0
         self.act_state = 1
         self.marker = 0
+        self.turn_num = 1
+        self.turn_slice = (100.0, 100.0)
         self.starting = True
         self.coor = (0, 0)
         self.sigma = (0, 0)
@@ -48,6 +50,7 @@ class BPM:
 
     def data_proc(self, chan):
         data_len = int(len(chan.val) / 4)
+        self.turn_slice = (chan.val[data_len + self.turn_num - 1], chan.val[2 * data_len + self.turn_num - 1])
         self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
         self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
         if self.turns_mes:

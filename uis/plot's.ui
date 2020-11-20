@@ -319,6 +319,35 @@
      <number>1024</number>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>10</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Turn number</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="turn_number">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>10</y>
+      <width>82</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>1024</number>
+    </property>
+    <property name="value">
+     <number>1</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

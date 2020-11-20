@@ -6,6 +6,7 @@ import sys
 
 import numpy as np
 import pycx4.pycda as cda
+from scipy import optimize
 import json
 import os
 import re
@@ -46,6 +47,7 @@ class BpmPreproc:
         self.chan_cmd.valueMeasured.connect(self.cmd)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
         self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
+        self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
@@ -55,7 +57,8 @@ class BpmPreproc:
             'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
             'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
             'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
-            'num_pts': self.turn_bpm_num_pts_, 'no_cmd': self.no_cmd_,
+            'num_pts': self.turn_bpm_num_pts_, 'turn_num': self.turn_num_,
+            'no_cmd': self.no_cmd_,
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
             'bckgr_discard': self.bckgr_discard_
         }
@@ -81,6 +84,8 @@ class BpmPreproc:
                     break
 
         if permission:
+            one_turn_x = np.array([])
+            one_turn_z = np.array([])
             x_orbit = np.array([])
             x_orbit_sigma = np.array([])
             z_orbit = np.array([])
@@ -88,11 +93,15 @@ class BpmPreproc:
             for bpm in self.bpms:
                 bpm.marker = 0
                 if bpm.act_state:
+                    one_turn_x = np.append(one_turn_x, bpm.turn_slice[0])
+                    one_turn_z = np.append(one_turn_z, bpm.turn_slice[1])
                     x_orbit = np.append(x_orbit, bpm.coor[0])
                     x_orbit_sigma = np.append(x_orbit_sigma, bpm.sigma[0])
                     z_orbit = np.append(z_orbit, bpm.coor[1])
                     z_orbit_sigma = np.append(z_orbit_sigma, bpm.sigma[1])
                 else:
+                    one_turn_x = np.append(one_turn_x, 100)
+                    one_turn_z = np.append(one_turn_z, 100)
                     x_orbit = np.append(x_orbit, 100.0)
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)
                     z_orbit = np.append(z_orbit, 100.0)
@@ -101,6 +110,7 @@ class BpmPreproc:
             std = np.array([x_orbit_sigma, z_orbit_sigma])
             self.current_orbit = np.array([orbit - self.bpms_zeros, std])
             self.chan_orbit.setValue(np.array([orbit - self.bpms_zeros, std]))
+            self.chan_one_turn.setValue(np.array([one_turn_x, one_turn_z]))
             # print(orbit, self.bpms_zeros)
             # data mining for zeros counting
             if self.bckgr_proc:
@@ -145,6 +155,11 @@ class BpmPreproc:
                 bpm.turns_mes = 1
             else:
                 bpm.turns_mes = 0
+
+    def turn_num_(self, **kwargs):
+        turn_num = kwargs.get('turn_num')
+        for bpm in self.bpms:
+            bpm.turn_num = turn_num
 
     def turn_bpm_num_pts_(self, **kwargs):
         num_pts = kwargs.get('num_pts')

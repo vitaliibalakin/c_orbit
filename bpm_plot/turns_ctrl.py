@@ -11,6 +11,7 @@ import pyqtgraph as pg
 from bpm_base.aux_mod.cur_plot import CurPlot
 from bpm_base.aux_mod.fft_plot import FFTPlot
 from bpm_base.aux_mod.coor_plot import CoorPlot
+from bpm_base.aux_mod.one_turn import OneTurnPlot
 
 
 class TurnsControl(QMainWindow):
@@ -27,6 +28,7 @@ class TurnsControl(QMainWindow):
         self.ic_mode = ' '
         self.cur_bpm = ' '
         self.cur_num_pts = 1024
+        self.cur_turn_num = 1
 
         self.cur_cal = {'bpm01': 10.12, 'bpm02': 25.26, 'bpm03': 27.38, 'bpm04': 10.33, 'bpm05': 10.1, 'bpm07': 22.14,
                         'bpm08': 19.83, 'bpm09': 25.68, 'bpm10': 21.35, 'bpm11': 24.1, 'bpm12': 23.7, 'bpm13': 7.23,
@@ -35,16 +37,20 @@ class TurnsControl(QMainWindow):
         # fft and turns
         self.fft_p = FFTPlot(self)
         self.coor_p = CoorPlot(self)
+        self.one_turn_p = OneTurnPlot(self)
         p0 = QVBoxLayout()
         self.fft_plot_p.setLayout(p0)
         p0.addWidget(self.coor_p)
+        p0.addWidget(self.one_turn_p)
         p0.addWidget(self.fft_p)
 
         self.fft_e = FFTPlot(self)
         self.coor_e = CoorPlot(self)
+        self.one_turn_e = OneTurnPlot(self)
         p1 = QVBoxLayout()
         self.fft_plot_e.setLayout(p1)
         p1.addWidget(self.coor_e)
+        p1.addWidget(self.one_turn_e)
         p1.addWidget(self.fft_e)
 
         self.turns_p = CurPlot(self)
@@ -58,6 +64,8 @@ class TurnsControl(QMainWindow):
         p3.addWidget(self.turns_e)
 
         # other ordinary channels & callbacks
+        self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
+        self.chan_one_turn.valueMeasured.connect(self.one_turn_proc)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_turns.valueMeasured.connect(self.cur_proc)
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
@@ -72,6 +80,11 @@ class TurnsControl(QMainWindow):
         # boxes changes
         self.turns_bpm.currentTextChanged.connect(self.bpm_changed)
         self.bpm_num_pts.valueChanged.connect(self.num_pts_changed)
+        self.turn_number.valueChanged.connect(self.turn_number_changed)
+
+    #########################################################
+    #                     command part                      #
+    #########################################################
 
     def cmd(self, chan):
         cmd_dict = json.loads(chan.val)
@@ -84,15 +97,32 @@ class TurnsControl(QMainWindow):
                 self.cur_num_pts = cmd_dict['num_pts']
                 self.bpm_num_pts.setValue(cmd_dict['num_pts'])
 
+    def turn_number_changed(self, turn_num):
+        if self.cur_turn_num != turn_num:
+            self.cur_turn_num = turn_num
+            self.chan_cmd.setValue(json.dumps({'cmd': 'turn_num', 'service': 'turns', 'turn_num': turn_num}))
+
     def bpm_changed(self):
         self.cur_bpm = self.turns_bpm.currentText()
         self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'service': 'turns', 'turn_bpm': self.cur_bpm}))
         self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.cur_num_pts}))
 
-    def num_pts_changed(self):
-        if self.cur_num_pts != self.bpm_num_pts.value():
-            self.cur_num_pts = self.bpm_num_pts.value()
-            self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.cur_num_pts}))
+    def num_pts_changed(self, bpm_num_pts):
+        if self.cur_num_pts != bpm_num_pts:
+            self.cur_num_pts = bpm_num_pts
+            self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': bpm_num_pts}))
+
+    #########################################################
+    #                    data proc part                     #
+    #########################################################
+
+    def one_turn_proc(self, chan):
+        if self.ic_mode == 'p':
+            self.one_turn_p.one_turn_plot(chan.val)
+        elif self.ic_mode == 'e':
+            self.one_turn_e.one_turn_plot(chan.val)
+        else:
+            print('WTF cur_proc')
 
     def cur_proc(self, chan):
         if self.ic_mode == 'p':

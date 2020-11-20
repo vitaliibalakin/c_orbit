@@ -11,7 +11,6 @@ class OneTurnPlot(pg.PlotWidget):
     def __init__(self, parent):
         super(OneTurnPlot, self).__init__(parent=parent)
         self.showGrid(x=True, y=True)
-        # self.setLogMode(False, True)
         self.setLabel('left', "coor", units='mm')
         self.setLabel('bottom', "Turn")
         self.x_fit_plot = pg.PlotCurveItem()
@@ -31,6 +30,7 @@ class OneTurnPlot(pg.PlotWidget):
         h_len = len(data) // 2
         x = data[:h_len]
         z = data[h_len: len(data)]
+
         for_del = []
         for i in range(len(x)):
             if x[i] == 100.0:
@@ -39,6 +39,7 @@ class OneTurnPlot(pg.PlotWidget):
             del (x[i])
             del (z[i])
             del (time[i])
+
         try:
             params, pcov = optimize.curve_fit(self.osc_fit, time, x, p0=[4, 5, 3, 5e-6, 11])
             self.x_fit_plot.setData(x=np.linspace(0, 1, 100),
@@ -48,6 +49,8 @@ class OneTurnPlot(pg.PlotWidget):
             print('one_turn_plot', params)
         except RuntimeError:
             print('fit error')
+        except ValueError:
+            print('one turn wrong chan data')
         self.x_plot.setData(x=time, y=x, pen=None, symbol='o')
         # self.z_plot.setData(x=time, y=z, pen=None, symbol='x')
 

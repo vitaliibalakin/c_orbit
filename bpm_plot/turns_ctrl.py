@@ -25,8 +25,8 @@ class TurnsControl(QMainWindow):
         self.setWindowTitle('Turns Plot')
         self.show()
 
-        self.ic_mode = ' '
-        self.cur_bpm = ' '
+        self.ic_mode = 'e'
+        self.cur_bpm = 'bpm01'
         self.cur_num_pts = 1024
         self.cur_turn_num = 1
 
@@ -87,15 +87,16 @@ class TurnsControl(QMainWindow):
     #########################################################
 
     def cmd(self, chan):
-        cmd_dict = json.loads(chan.val)
-        cmd = cmd_dict.get('cmd', 'no_srv')
-        if cmd == 'turn_bpm':
-            if cmd_dict['turn_bpm'] != self.cur_bpm:
-                self.turns_bpm.setCurrentText(cmd_dict['turn_bpm'])
-        elif cmd == 'num_pts':
-            if cmd_dict['num_pts'] != self.cur_num_pts:
-                self.cur_num_pts = cmd_dict['num_pts']
-                self.bpm_num_pts.setValue(cmd_dict['num_pts'])
+        if chan.val:
+            cmd_dict = json.loads(chan.val)
+            cmd = cmd_dict.get('cmd', 'no_srv')
+            if cmd == 'turn_bpm':
+                if cmd_dict['turn_bpm'] != self.cur_bpm:
+                    self.turns_bpm.setCurrentText(cmd_dict['turn_bpm'])
+            elif cmd == 'num_pts':
+                if cmd_dict['num_pts'] != self.cur_num_pts:
+                    self.cur_num_pts = cmd_dict['num_pts']
+                    self.bpm_num_pts.setValue(cmd_dict['num_pts'])
 
     def turn_number_changed(self, turn_num):
         if self.cur_turn_num != turn_num:
@@ -117,47 +118,52 @@ class TurnsControl(QMainWindow):
     #########################################################
 
     def one_turn_proc(self, chan):
-        if self.ic_mode == 'p':
-            self.one_turn_p.one_turn_plot(chan.val)
-        elif self.ic_mode == 'e':
-            self.one_turn_e.one_turn_plot(chan.val)
-        else:
-            print('WTF cur_proc')
+        if chan.val.any():
+            if self.ic_mode == 'p':
+                self.one_turn_p.one_turn_plot(chan.val)
+            elif self.ic_mode == 'e':
+                self.one_turn_e.one_turn_plot(chan.val)
+            else:
+                print('WTF one_turn_proc')
 
     def cur_proc(self, chan):
-        if self.ic_mode == 'p':
-            self.turns_p.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
-        elif self.ic_mode == 'e':
-            self.turns_e.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
-        else:
-            print('WTF cur_proc')
+        if chan.val.any():
+            if self.ic_mode == 'p':
+                self.turns_p.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
+            elif self.ic_mode == 'e':
+                self.turns_e.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
+            else:
+                print('WTF cur_proc')
 
     def fft_proc(self, chan):
-        if self.ic_mode == 'p':
-            self.fft_p.fft_plot(chan.val)
-        elif self.ic_mode == 'e':
-            self.fft_e.fft_plot(chan.val)
-        else:
-            print('WTF fft_proc')
+        if chan.val.any():
+            if self.ic_mode == 'p':
+                self.fft_p.fft_plot(chan.val)
+            elif self.ic_mode == 'e':
+                self.fft_e.fft_plot(chan.val)
+            else:
+                print('WTF fft_proc')
 
     def coor_proc(self, chan):
-        if self.ic_mode == 'p':
-            self.coor_p.coor_plot(chan.val)
-        elif self.ic_mode == 'e':
-            self.coor_e.coor_plot(chan.val)
-        else:
-            print('WTF coor_proc')
+        if chan.val.any():
+            if self.ic_mode == 'p':
+                self.coor_p.coor_plot(chan.val)
+            elif self.ic_mode == 'e':
+                self.coor_e.coor_plot(chan.val)
+            else:
+                print('WTF coor_proc')
 
     def mode_proc(self, chan):
-        self.ic_mode = chan.val[0]
-        if self.ic_mode == 'p':
-            self.tab_fourier.setCurrentIndex(1)
-            self.tab_turns.setCurrentIndex(1)
-        elif self.ic_mode == 'e':
-            self.tab_fourier.setCurrentIndex(0)
-            self.tab_turns.setCurrentIndex(0)
-        else:
-            print('WTF mode_proc')
+        if chan.val:
+            self.ic_mode = chan.val[0]
+            if self.ic_mode == 'p':
+                self.tab_fourier.setCurrentIndex(1)
+                self.tab_turns.setCurrentIndex(1)
+            elif self.ic_mode == 'e':
+                self.tab_fourier.setCurrentIndex(0)
+                self.tab_turns.setCurrentIndex(0)
+            else:
+                print('WTF mode_proc')
 
 
 if __name__ == "__main__":

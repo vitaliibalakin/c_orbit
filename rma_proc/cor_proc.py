@@ -6,11 +6,12 @@ import numpy as np
 
 
 class CorMeasure(DeviceFunc):
-    def __init__(self, call_upon_completion, name, step, n_iter, prg, resp_type='coords'):
+    def __init__(self, call_upon_completion, name, it_id, step, n_iter, prg, resp_type='coords'):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
         self.name = name
+        self.id = it_id
         self.init_val = None
         self.step = step
         self.n_iter = -1 * n_iter

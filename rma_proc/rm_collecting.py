@@ -62,9 +62,7 @@ class RMA(QMainWindow, DeviceFunc):
         self.stack_elems = {}
         self.dict_cors = {}
         self.main_cur = {}
-        self.rm = {}
         self.resp_matr_dict = {}
-        self.rev_rm = np.array([])
 
     def all_sel(self, chb_state):
         if chb_state == 2:
@@ -119,12 +117,12 @@ class RMA(QMainWindow, DeviceFunc):
         self.log_msg.append('start_rma')
         self.prg_bar.setValue(0)
         # deleting from stack FAIL elems
-        for cor in self.table.cor_list:
+        for num, cor in self.table.cor_dict.items():
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
-                self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], step=cor['rm_step'].value(),
-                                                           n_iter=cor['rm_iter'].value(), prg=self.elem_prg_bar,
-                                                           resp_type=self.resp_type.currentText())
+                self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], cor['id'],
+                                                           step=cor['rm_step'].value(), n_iter=cor['rm_iter'].value(),
+                                                           prg=self.elem_prg_bar, resp_type=self.resp_type.currentText())
         if not len(self.cor_fail):
             self.log_msg.append('Fail List EMPTY')
         else:
@@ -183,13 +181,13 @@ class RMA(QMainWindow, DeviceFunc):
                     buffer.append(0)
                     err_buffer.append(0)
                 else:
-                    print(const[0], np.sqrt(np.diag(pcov))[0])
+                    # print(const[0], np.sqrt(np.diag(pcov))[0])
                     buffer.append(const[0])
                     err_buffer.append(np.sqrt(np.diag(pcov))[0])
         elif self.resp_type.currentText() == 'tunes':
             # collect tunes x|z to convert cur -> grad in another application and then plot betas
             buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))
-        self.resp_matr_dict[name] = {'data': buffer, 'si_err': err_buffer,
+        self.resp_matr_dict[name] = {'data': buffer, 'si_err': err_buffer, 'id': info.id,
                                      'step': info.step, 'n_iter': info.n_iter - 1, 'init': init_val}
 
     @staticmethod
@@ -237,17 +235,15 @@ class RMA(QMainWindow, DeviceFunc):
         rm = []
         si_err = []
         for name, resp in self.resp_matr_dict.items():
-            dict_cors[name] = {'step': resp['step'], 'n_iter': resp['n_iter'], 'init': resp['init']}
+            dict_cors[name] = {'id': resp['id'], 'step': resp['step'], 'n_iter': resp['n_iter'], 'init': resp['init']}
             rm.append(resp['data'])
             si_err.append(resp['si_err'])
         dict_cors['main'] = self.main_cur
         np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
         if self.resp_type.currentText() == 'coords':
             np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
-        self.rm = {'rm': np.array(rm), 'cor_names': dict_cors}
-        self.dict_cors = dict_cors
         self.log_msg.append('RM saved')
-        self.log_msg.append('RMA process finished')
+        self.log_msg.append('RM collecting process has finished')
         self.set_default()
 
 

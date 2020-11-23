@@ -14,7 +14,7 @@ import json
 # instruments for main procedure
 from bpm_base.device_proc import DeviceFunc
 from bpm_base.aux_mod.tree_table import TreeTableCom
-from rma_proc.magnetization import MagnetizationProc
+from bpm_base.aux_mod.magnetization import MagnetizationProc
 from rma_proc.cor_proc import CorMeasure
 from rma_proc.rmc_table import Table
 

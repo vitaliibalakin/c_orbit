@@ -114,6 +114,9 @@ class MagnetizationProc(DeviceFunc):
 
     def proc_progress(self, val):
         print(val)
+        if val == 146:
+            print('magnetization has finished')
+            sys.exit()
 
 
 if __name__ == "__main__":

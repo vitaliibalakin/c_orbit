@@ -103,10 +103,11 @@ class RMA(QMainWindow, DeviceFunc):
 
     def proc_progress(self, val):
         self.elem_prg_bar.setValue(val)
-        if val == 100:
+        if val == 146:
             self.cor_fail = self.magn.cor_fail
             self.main_cur = self.magn.main_cur
             self.btn_start_coll.setEnabled(True)
+            self.elem_prg_bar.setValue(100)
 
     ###########################################
     #                COLLECTING               #

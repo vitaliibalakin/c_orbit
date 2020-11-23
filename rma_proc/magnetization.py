@@ -58,8 +58,8 @@ class Magnetization(DeviceFunc):
             self.chans['Iset'].setValue(self.init_val)
             self.callback(self.name)
         else:
-            self.prg.setValue(100 * self.counter / (self.stop - 1))
-            # self.prg(100 * self.counter / (self.stop - 1))
+            # self.prg.setValue(100 * self.counter / (self.stop - 1))
+            self.prg(100 * self.counter / (self.stop - 1))
             self.chans['Iset'].setValue(self.init_val + self.step * (-1)**self.counter)
             self.counter += 1
             self.time_flag = True
@@ -83,11 +83,10 @@ class MagnetizationProc(DeviceFunc):
         self.cor_fail = []
         self.mag_names = ['canhw:12.drm', 'canhw:12.dsm', 'canhw:12.qd1', 'canhw:12.qf1n2', 'canhw:12.qf4',
                           'canhw:12.qd2', 'canhw:12.qd3', 'canhw:12.qf3']
-        self.elems_2_mag = {name: Magnetization(self.action_loop, name, step=0.5, stop=5, odz=1.2, prg=prg)
+        self.elems_2_mag = {name: Magnetization(self.action_loop, name, step=0.5, stop=5, odz=1.2, prg=self.prg)
                             for name in self.mag_names}
         self.progress = {name: 0 for name, elem in self.elems_2_mag.items()}
         self.main_cur = self.progress.copy()
-        self.prg()
         QTimer.singleShot(3000, self.start)
 
     def start(self):
@@ -109,7 +108,7 @@ class MagnetizationProc(DeviceFunc):
 
         if self.control_sum == len(self.progress):
             self.control_sum = 0
-            self.prg(100)
+            self.prg(146.0)
         else:
             self.prg(round(self.control_sum/len(self.progress) * 100, 0))
 

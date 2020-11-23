@@ -9,7 +9,7 @@ import json
 import os
 import re
 import datetime
-from aux.service_daemon import CXService
+from cservice import CXService
 
 
 class HandlesProc:

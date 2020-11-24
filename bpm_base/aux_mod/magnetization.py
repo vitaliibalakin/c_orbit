@@ -83,28 +83,39 @@ class MagnetizationProc(DeviceFunc):
         self.cor_fail = []
         self.mag_names = ['canhw:12.drm', 'canhw:12.dsm', 'canhw:12.qd1', 'canhw:12.qf1n2', 'canhw:12.qf4',
                           'canhw:12.qd2', 'canhw:12.qd3', 'canhw:12.qf3']
-        self.elems_2_mag = {name: Magnetization(self.action_loop, name, step=0.5, stop=5, odz=1.2, prg=self.prg)
-                            for name in self.mag_names}
-        self.progress = {name: 0 for name, elem in self.elems_2_mag.items()}
+        self.sext_names = ['canhw:12.rst3.sy2_4f4', 'canhw:12.rst3.sy1_3f4', 'canhw:12.rst3.sy2_2f4',
+                           'canhw:12.rst3.sy1_1f4', 'canhw:12.rst3.sy2_1f4', 'canhw:12.rst3.sy1_2f4',
+                           'canhw:12.rst3.sy2_3f4', 'canhw:12.rst3.sy1_4f4', 'canhw:12.rst3.sx2_4f4',
+                           'canhw:12.rst3.sx1_3f4', 'canhw:12.rst3.sx2_2f4', 'canhw:12.rst3.sx1_1f4',
+                           'canhw:12.rst3.sx2_1f4', 'canhw:12.rst3.sx1_2f4', 'canhw:12.rst3.sx2_3f4',
+                           'canhw:12.rst3.sx1_4f4']
+        self.main_2_mag = {name: Magnetization(self.action_loop, name, step=0.5, stop=5, odz=1.2, prg=self.prg)
+                           for name in self.mag_names}
+        self.sext_2_mag = {name: Magnetization(self.action_loop, name, step=400, stop=5, odz=100, prg=self.prg)
+                           for name in self.sext_names}
+
+        self.elems_2_mag = {**self.main_2_mag, **self.sext_2_mag}
+        self.progress = {**{name: 0 for name, elem in self.main_2_mag.items()},
+                         **{name: 0 for name, elem in self.sext_2_mag.items()}}
         self.main_cur = self.progress.copy()
         QTimer.singleShot(3000, self.start)
 
     def start(self):
-        for name, elem in self.elems_2_mag.items():
+        for name, elem in self.main_2_mag.items():
             elem.proc()
 
     def action_loop(self, name):
-        if self.elems_2_mag[name].status == 'fail':
+        if self.main_2_mag[name].status == 'fail':
             self.control_sum += 1
             self.progress[name] = -1
             self.cor_fail.append(name)
-        elif self.elems_2_mag[name].status == 'completed':
+        elif self.main_2_mag[name].status == 'completed':
             self.control_sum += 1
             self.progress[name] = 1
 
         # remember init vals
         if not (name in self.main_cur):
-            self.main_cur[name] = self.elems_2_mag[name].init_val
+            self.main_cur[name] = self.main_2_mag[name].init_val
 
         if self.control_sum == len(self.progress):
             self.control_sum = 0

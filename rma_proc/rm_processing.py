@@ -104,13 +104,13 @@ class RMC(QMainWindow):
             curr = np.dot(self.rev_rm, self.assemble_kick())
             cor_list = []
             i = 0
-            for key, val in self.rm_info.items():
-                cor_list.append({'name': key, 'step': round(curr[i], 0)})
+            for key, param in self.rm_info.items():
+                cor_list.append({'name': key, 'id': param['id'], 'step': round(curr[i], 0)})
                 i += 1
-            handle = {'name': self.handle_name.text(), 'descr': self.handle_descr.text(), 'cor_list': cor_list}
-            f = open('saved_handles/' + self.handle_name.text() + '.txt', 'w')
-            f.write(json.dumps(handle))
-            f.close()
+            info = {'name': self.handle_name.text(), 'descr': self.handle_descr.text(), 'cor_list': cor_list}
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'info': info}))
+            self.handle_name.setText('def_h_name')
+            self.handle_descr.setText('def_h_descr')
             self.status_bar.showMessage('Handle saved')
         else:
             self.status_bar.showMessage('Calculate reverse matrix first')

@@ -199,13 +199,13 @@ class RMA(QMainWindow, DeviceFunc):
     ###########################################
 
     def save_table(self):
-        table = self.table.cor_list.copy()
-        for table_line in table:
+        table = self.table.cor_dict.copy()
+        for num, table_line in table.items():
             for key in table_line:
-                if not (key == 'name'):
+                if not (key == 'name' or key == 'id'):
                     table_line[key] = table_line[key].value()
         try:
-            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_table',
+            sv_file = QFileDialog.getSaveFileName(parent=self, directory=os.getcwd() + '/saved_tables',
                                                   filter='Text Files (*.txt)')
             if sv_file:
                 file_name = re.sub('.txt', '', sv_file[0]) + '.txt'
@@ -224,7 +224,9 @@ class RMA(QMainWindow, DeviceFunc):
             table = json.loads(f.readline())
             f.close()
             self.table.free()
-            for line in table:
+            self.tree.free()
+            for num, line in table.items():
+                self.tree.set_item_selected(line['id'])
                 self.table.add_row(**line)
             self.log_msg.append('TABLE loaded')
         except Exception as exc:

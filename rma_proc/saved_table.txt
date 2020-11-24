@@ -1,0 +1,1 @@
+{"0": {"id": 160, "name": "canhw:12.rst2.c3f2_x", "rm_step": 200.0, "rm_iter": 3.0}, "1": {"id": 171, "name": "canhw:12.rst2.crm5", "rm_step": 300.0, "rm_iter": 1.0}, "2": {"id": 173, "name": "canhw:12.rst2.crm7", "rm_step": 600.0, "rm_iter": 7.0}}

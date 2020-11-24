@@ -8,7 +8,7 @@ import os
 import re
 import json
 
-from handles.table import Table
+from handles.handle_creating_table import Table
 from bpm_base.aux_mod.tree_table import TreeTableCom
 
 

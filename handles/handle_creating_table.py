@@ -34,6 +34,7 @@ class Table:
         list_f = self.cor_list.copy()
         for elem in list_f:
             self.remove_row(elem['id'])
+        self.cor_list = []
 
     def get_cor_name_list(self):
         names = []

@@ -14,7 +14,9 @@ class Table:
         # params
         name = params.get('name', 'noname')
         it_id = params.get('id')
-        cor_dict = {'id': it_id, 'name': name, 'rm_step': RMSpinBox(100, 100), 'rm_iter': RMSpinBox(5, 1)}
+        rm_step = params.get('rm_step', 100)
+        rm_iter = params.get('rm_iter', 5)
+        cor_dict = {'id': it_id, 'name': name, 'rm_step': RMSpinBox(rm_step, 100), 'rm_iter': RMSpinBox(rm_iter, 1)}
         # new line
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)
@@ -23,13 +25,16 @@ class Table:
         self.table.setCellWidget(row_num, 2, cor_dict['rm_iter'])
         self.cor_dict[row_num] = cor_dict
 
-    def remove_row(self, row):
-        # deleting table row
-        self.table.removeRow(row)
-        # deleting info from dicts and renumering dicts
-        for k in range(row, len(self.cor_dict) - 1):
-            self.cor_dict[k] = self.cor_dict[k + 1]
-        del(self.cor_dict[len(self.cor_dict) - 1])
+    def remove_row(self, it_id):
+        for row, elem in self.cor_dict.items():
+            if elem['id'] == it_id:
+                # deleting table row
+                self.table.removeRow(row)
+                # deleting info from dicts and renumering dicts
+                for k in range(row, len(self.cor_dict) - 1):
+                    self.cor_dict[k] = self.cor_dict[k + 1]
+                del (self.cor_dict[len(self.cor_dict) - 1])
+                break
 
     def common_step(self, selected_rows, rm_step, st_step, sel_all=False):
         if sel_all:
@@ -41,11 +46,11 @@ class Table:
             self.cor_dict[row]['rm_iter'].setValue(self.cor_dict[row]['rm_iter'].value() + st_step)
 
     def free(self):
-        for row, elem in self.cor_dict:
+        for row, elem in self.cor_dict.items():
             # deleting table row
-            self.table.removeRow(row)
+            self.table.removeRow(0)
             # deleting info from dicts
-            del(self.cor_dict[row])
+        self.cor_dict = {}
 
     def get_cor_name_list(self):
         names = []

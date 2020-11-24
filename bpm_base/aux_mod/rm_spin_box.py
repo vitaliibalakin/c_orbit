@@ -9,4 +9,4 @@ class RMSpinBox(QDoubleSpinBox):
         self.setMaximum(10000)
         self.setValue(init_val)
         self.setSingleStep(iter_r)
-        self.setMinimum(-10000)
+        self.setMinimum(0)

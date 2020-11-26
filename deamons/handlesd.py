@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication
 import sys
 
 import numpy as np
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 import json
 import os
 import re
@@ -19,6 +19,7 @@ class HandlesProc:
         self.handle_descr = {}
 
         self.cell_col = {0: 'name', 1: 'descr'}
+        self.client_list = ['handle']
         self.cmd_table = {
             'add_handle': self.add_handle_, 'delete_handle': self.delete_handle_,
             'edit_item': self.edit_item_, 'start_inj_cur': self.start_inj_cur_,
@@ -43,7 +44,9 @@ class HandlesProc:
         if cmd:
             chan_val = json.loads(cmd)
             command = chan_val.get('cmd', 'no_cmd')
-            self.cmd_table[command](**chan_val)
+            service = chan_val.get('service', 'no_serv')
+            if service == self.client_list:
+                self.cmd_table[command](**chan_val)
 
     def add_handle_(self, **kwargs):
         handle_params = {}
@@ -122,28 +125,30 @@ class HandlesProc:
 
     def load_handles(self):
         f = open(DIR + '/saved_handles.txt', 'r')
-        handles = json.loads(f.readline())
-        for row_num, handle in handles.items():
-            self.add_handle_(**{'info': handle})
-        f.close()
+        handles_s = f.readline()
+        if  handles_s:
+            handles = json.loads(handles_s)
+            for row_num, handle in handles.items():
+                self.add_handle_(**{'info': handle})
+            f.close()
 
 
 DIR = os.getcwd()
 DIR = re.sub('deamons', 'handles', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = HandlesProc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = HandlesProc()
+#
+#     def clean(self):
+#         self.log_str('exiting handles_proc')
+#
+#
+# bp = KMService("handlesd")
 
-    def clean(self):
-        self.log_str('exiting handles_proc')
-
-
-bp = KMService("handlesd")
-
-# if __name__ == "__main__":
-#     app = QApplication(['handles_proc'])
-#     w = HandlesProc()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication(['handles_proc'])
+    w = HandlesProc()
+    sys.exit(app.exec_())

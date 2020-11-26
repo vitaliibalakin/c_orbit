@@ -101,17 +101,17 @@ class TurnsControl(QMainWindow):
     def turn_number_changed(self, turn_num):
         if self.cur_turn_num != turn_num:
             self.cur_turn_num = turn_num
-            self.chan_cmd.setValue(json.dumps({'cmd': 'turn_num', 'service': 'turns', 'turn_num': turn_num}))
+            self.chan_cmd.setValue(json.dumps({'cmd': 'turn_num', 'client': 'turns', 'turn_num': turn_num}))
 
     def bpm_changed(self):
         self.cur_bpm = self.turns_bpm.currentText()
-        self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'service': 'turns', 'turn_bpm': self.cur_bpm}))
-        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': self.cur_num_pts}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'client': 'turns', 'turn_bpm': self.cur_bpm}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'client': 'turns', 'num_pts': self.cur_num_pts}))
 
     def num_pts_changed(self, bpm_num_pts):
         if self.cur_num_pts != bpm_num_pts:
             self.cur_num_pts = bpm_num_pts
-            self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'service': 'turns', 'num_pts': bpm_num_pts}))
+            self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'client': 'turns', 'num_pts': bpm_num_pts}))
 
     #########################################################
     #                    data proc part                     #

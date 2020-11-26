@@ -87,16 +87,16 @@ class PlotControl(QMainWindow):
     def bckgr(self):
         self.btn_bckgr.setEnabled(False)
         self.spb_bckgr.setEnabled(False)
-        self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr', 'service': 'orbit', 'count': self.spb_bckgr.value()}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr', 'client': 'orbit', 'count': self.spb_bckgr.value()}))
 
     def bckrg_discard(self):
-        self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr_discard', 'service': 'orbit'}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr_discard', 'client': 'orbit'}))
 
     def bpm_btn_clicked(self):
         bpm = self.sender().text()
         self.active_bpm(bpm)
         self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
-        self.chan_cmd.setValue(json.dumps({'cmd': 'cur_bpms', 'service': 'orbit', 'act_bpm': self.cur_bpms}))
+        self.chan_cmd.setValue(json.dumps({'cmd': 'cur_bpms', 'client': 'orbit', 'act_bpm': self.cur_bpms}))
 
     def active_bpm(self, bpm):
         if self.worked_bpms[bpm]:
@@ -160,7 +160,7 @@ class PlotControl(QMainWindow):
         try:
             file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_modes',
                                                     filter='Text Files (*.txt)')[0]
-            self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit', 'service': 'orbit', 'file_name': file_name})))
+            self.chan_cmd.setValue((json.dumps({'cmd': 'load_orbit', 'client': 'orbit', 'file_name': file_name})))
         except Exception as exc:
             self.status_bar.showMessage(exc)
 
@@ -172,7 +172,7 @@ class PlotControl(QMainWindow):
                 file_name = sv_file[0]
                 file_name = re.sub('.txt', '', file_name)
                 file_name = file_name + '.txt'
-                self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit', 'service': 'orbit', 'file_name': file_name})))
+                self.chan_cmd.setValue((json.dumps({'cmd': 'save_orbit', 'client': 'orbit', 'file_name': file_name})))
         except Exception as exc:
             self.status_bar.showMessage(exc)
 

@@ -71,7 +71,7 @@ class TunesControl(QMainWindow):
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
         self.chan_res.valueMeasured.connect(self.cmd_result)
         # put IC mode tunes into their place on res_diag
-        self.chan_cmd.setValue((json.dumps({'cmd': 'start_tunes', 'service': 'tunes'})))
+        self.chan_cmd.setValue((json.dumps({'cmd': 'start_tunes', 'client': 'tunes'})))
 
     def cmd_result(self, chan):
         try:
@@ -113,7 +113,7 @@ class TunesControl(QMainWindow):
         try:
             file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_tunes',
                                                     filter='Text Files (*.txt)')[0]
-            self.chan_cmd.setValue((json.dumps({'cmd': 'load_tunes', 'service': 'tunes', 'file_name': file_name,
+            self.chan_cmd.setValue((json.dumps({'cmd': 'load_tunes', 'client': 'tunes', 'file_name': file_name,
                                                 'mode': self.sender().text()})))
         except Exception as exc:
             self.status_bar.showMessage(str(exc))
@@ -126,7 +126,7 @@ class TunesControl(QMainWindow):
                 file_name = sv_file[0]
                 file_name = re.sub('.txt', '', file_name)
                 file_name = file_name + '.txt'
-                self.chan_cmd.setValue((json.dumps({'cmd': 'save_tunes', 'service': 'tunes', 'file_name': file_name})))
+                self.chan_cmd.setValue((json.dumps({'cmd': 'save_tunes', 'client': 'tunes', 'file_name': file_name})))
         except Exception as exc:
             self.status_bar.showMessage(str(exc))
 

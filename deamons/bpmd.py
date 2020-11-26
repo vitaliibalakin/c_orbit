@@ -28,6 +28,7 @@ class BpmPreproc:
         self.bckgr_it_num = 0
         self.current_orbit = np.empty(0)
         self.current_tunes = np.empty(0)
+        self.client_list = ['orbit', 'tunes', 'turns']
         self.fft_bpm = 'bpm15'
         self.turns_bpm = 'bpm15'
         self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
@@ -142,7 +143,9 @@ class BpmPreproc:
         if cmd:
             chan_val = json.loads(cmd)
             command = chan_val.get('cmd', 'no_cmd')
-            self.cmd_table[command](**chan_val)
+            client = chan_val.get('client', 'no_client')
+            if client in self.client_list:
+                self.cmd_table[command](**chan_val)
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val

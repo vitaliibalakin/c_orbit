@@ -16,7 +16,8 @@ class Table:
         it_id = params.get('id')
         rm_step = params.get('rm_step', 100)
         rm_iter = params.get('rm_iter', 5)
-        cor_dict = {'id': it_id, 'name': name, 'rm_step': RMSpinBox(rm_step, 100), 'rm_iter': RMSpinBox(rm_iter, 1)}
+        cor_dict = {'id': it_id, 'name': name, 'rm_step': RMSpinBox(rm_step, 100, 0),
+                    'rm_iter': RMSpinBox(rm_iter, 1, 0)}
         # new line
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)

@@ -23,6 +23,9 @@ class Handles(QMainWindow):
 
         self.marked_row = None
         self.handles_info = {}
+        self.handles_names = {}
+        self.handles_descr = {}
+        self.cell_col = {0: 'name', 1: 'descr'}
 
         # table def
         self.handles_creating = Table(self.table)
@@ -41,20 +44,26 @@ class Handles(QMainWindow):
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
         self.chan_res.valueMeasured.connect(self.res)
 
-        self.handles_table.itemPressed.connect(self.index)
-        self.handles_table.cellChanged.connect(self.edit_item)
-
         self.load_handles()
+        self.handles_table.cellPressed.connect(self.index)
+        self.handles_table.cellChanged.connect(self.edit_item)
 
     def edit_item(self, row, column):
         text = self.handles_table.item(row, column).text()
-        self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': [row, column],
-                                           'text': text}))
+        if column == 0:
+            cell = self.handles_names
+        else:
+            cell = self.handles_descr
+        if not (cell[row] == text):
+            cell[row] = text
+            text = self.handles_table.item(row, column).text()
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': [row, column],
+                                               'text': text}))
 
-    def index(self, pr_item):
+    def index(self, row, column):
         # paint row & set handle info
         if self.marked_row is not None:
-            if self.marked_row == pr_item.row():
+            if self.marked_row == row:
                 for i in range(self.table.columnCount()):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('white'))
                 self.marked_row = None
@@ -62,7 +71,7 @@ class Handles(QMainWindow):
             else:
                 for i in range(self.handles_table.columnCount()):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('white'))
-                self.marked_row = pr_item.row()
+                self.marked_row = row
                 for i in range(self.handles_table.columnCount()):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor(21, 139, 195))
                 self.handle_info.clear()
@@ -70,7 +79,7 @@ class Handles(QMainWindow):
                 for key, val in handle_i.items():
                     self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
         else:
-            self.marked_row = pr_item.row()
+            self.marked_row = row
             for i in range(self.handles_table.columnCount()):
                 self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor(21, 139, 195))
             handle = self.handles_info[self.marked_row]
@@ -133,6 +142,8 @@ class Handles(QMainWindow):
         try:
             self.marked_row = None
             self.handles_info = {}
+            self.handles_names = {}
+            self.handles_descr = {}
             f = open('saved_handles.txt', 'r')
             handles = json.loads(f.read())
             f.close()
@@ -144,6 +155,8 @@ class Handles(QMainWindow):
                 self.handles_table.setItem(0, 0, QTableWidgetItem(handle['name']))
                 self.handles_table.setItem(0, 1, QTableWidgetItem(handle['descr']))
                 self.handles_info[int(row_num)] = info
+                self.handles_names[int(row_num)] = handle['name']
+                self.handles_descr[int(row_num)] = handle['descr']
 
         except ValueError:
             self.status_bar.showMessage('empty saved file')
@@ -154,6 +167,7 @@ class Handles(QMainWindow):
 
     def res(self, chan):
         res = chan.val
+        print(chan.val)
         if res:
             chan_val = json.loads(res)
             self.status_bar.showMessage(chan_val['res'])

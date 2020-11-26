@@ -37,20 +37,20 @@ class TurnsControl(QMainWindow):
         # fft and turns
         self.fft_p = FFTPlot(self)
         self.coor_p = CoorPlot(self)
-        self.one_turn_p = OneTurnPlot(self)
+        # self.one_turn_p = OneTurnPlot(self)
         p0 = QVBoxLayout()
         self.fft_plot_p.setLayout(p0)
         p0.addWidget(self.coor_p)
-        p0.addWidget(self.one_turn_p)
+        # p0.addWidget(self.one_turn_p)
         p0.addWidget(self.fft_p)
 
         self.fft_e = FFTPlot(self)
         self.coor_e = CoorPlot(self)
-        self.one_turn_e = OneTurnPlot(self)
+        # self.one_turn_e = OneTurnPlot(self)
         p1 = QVBoxLayout()
         self.fft_plot_e.setLayout(p1)
         p1.addWidget(self.coor_e)
-        p1.addWidget(self.one_turn_e)
+        # p1.addWidget(self.one_turn_e)
         p1.addWidget(self.fft_e)
 
         self.turns_p = CurPlot(self)
@@ -64,8 +64,8 @@ class TurnsControl(QMainWindow):
         p3.addWidget(self.turns_e)
 
         # other ordinary channels & callbacks
-        self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
-        self.chan_one_turn.valueMeasured.connect(self.one_turn_proc)
+        # self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
+        # self.chan_one_turn.valueMeasured.connect(self.one_turn_proc)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
         self.chan_turns.valueMeasured.connect(self.cur_proc)
         self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)

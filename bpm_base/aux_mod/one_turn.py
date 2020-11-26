@@ -41,22 +41,22 @@ class OneTurnPlot(pg.PlotWidget):
             del (time[i])
 
         try:
-            params, pcov = optimize.curve_fit(self.osc_fit, time, x, p0=[4, 5, 3, 5e-6, 11])
+            params, pcov = optimize.curve_fit(self.osc_fit, time, x, p0=[5, 5.3, -1.7, 5])
+            # params = [7, 5.3, -1.7, 5]
             self.x_fit_plot.setData(x=np.linspace(0, 1, 100),
-                                    y=self.osc_fit(np.linspace(0, 1, 100), params[0], params[1], params[2], params[3], params[4]),
+                                    y=self.osc_fit(np.linspace(0, 1, 100), params[0], params[1], params[2], params[3]),
                                     pen=pg.mkPen('b', width=1))
-            # self.z_fit_plot.setData(x=self.time, y=x, pen=pg.mkPen('r', width=1))
             print('one_turn_plot', params)
         except RuntimeError:
             print('fit error')
         except ValueError:
             print('one turn wrong chan data')
-        self.x_plot.setData(x=time, y=x, pen=None, symbol='o')
+        self.x_plot.setData(x=time, y=x, pen=pg.mkPen('r', width=1))
         # self.z_plot.setData(x=time, y=z, pen=None, symbol='x')
 
     @staticmethod
-    def osc_fit(t, amp, freq, phase, decr, zero):
-        return amp*np.cos(2*np.pi*freq*t + phase)*np.exp(-decr*t) + zero
+    def osc_fit(t, amp, freq, phase, zero):
+        return amp*np.cos(2*np.pi*freq*t + phase) + zero
 
 
 if __name__ == "__main__":

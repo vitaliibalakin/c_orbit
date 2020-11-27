@@ -22,6 +22,7 @@ class Handles(QMainWindow):
         self.show()
 
         self.marked_row = None
+        self.edit_block = False
         self.self_sender = False
         self.handles_info = {}
         self.handles_names = {}
@@ -50,19 +51,24 @@ class Handles(QMainWindow):
         self.handles_table.cellChanged.connect(self.edit_item)
 
     def edit_item(self, row, column):
+        if self.edit_block:
+            return
+        print(row, column, 'edit', self.handles_descr)
+        # text = self.handles_table.item(row, column).text()
+        # if column == 0:
+        #     cell = self.handles_names
+        # else:
+        #     cell = self.handles_descr
+        #
+        # if not (cell[row] == text):
         text = self.handles_table.item(row, column).text()
-        if column == 0:
-            cell = self.handles_names
-        else:
-            cell = self.handles_descr
-        if not (cell[row] == text):
-            text = self.handles_table.item(row, column).text()
-            self.self_sender = True
-            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': [row, column],
-                                               'text': text}))
+        self.self_sender = True
+        self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': [row, column],
+                                           'text': text}))
 
     def index(self, row, column=0):
         # paint row & set handle info
+        self.edit_block = True
         if self.marked_row is not None:
             if self.marked_row == row:
                 for i in range(self.table.columnCount()):
@@ -74,18 +80,19 @@ class Handles(QMainWindow):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('white'))
                 self.marked_row = row
                 for i in range(self.handles_table.columnCount()):
-                    self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor(21, 139, 195))
+                    self.handles_table.item(row, i).setBackground(Qt.QColor(21, 139, 195))
                 self.handle_info.clear()
-                handle_i = self.handles_info[self.marked_row]
+                handle_i = self.handles_info[row]
                 for key, val in handle_i.items():
                     self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
         else:
             self.marked_row = row
             for i in range(self.handles_table.columnCount()):
-                self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor(21, 139, 195))
-            handle = self.handles_info[self.marked_row]
+                self.handles_table.item(row, i).setBackground(Qt.QColor(21, 139, 195))
+            handle = self.handles_info[row]
             for key, val in handle.items():
                 self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
+        self.edit_block = False
 
     def add(self):
         name = self.handle_name.text()
@@ -109,9 +116,6 @@ class Handles(QMainWindow):
         if self.marked_row is not None:
             self.self_sender = True
             self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'delete_handle', 'row': self.marked_row}))
-            # clear objects
-            self.marked_row = None
-            self.handle_info.clear()
         else:
             self.status_bar.showMessage('Choose row to delete')
 
@@ -142,7 +146,9 @@ class Handles(QMainWindow):
             self.status_bar.showMessage('Choose row to step')
 
     def load_handles(self):
+        print('loading')
         try:
+            self.edit_block = True
             self.handles_info = {}
             self.handles_names = {}
             self.handles_descr = {}
@@ -159,7 +165,7 @@ class Handles(QMainWindow):
                 self.handles_table.insertRow(0)
                 self.handles_table.setItem(0, 0, QTableWidgetItem(handle['name']))
                 self.handles_table.setItem(0, 1, QTableWidgetItem(handle['descr']))
-
+            self.edit_block = False
         except ValueError:
             self.status_bar.showMessage('empty saved file')
 
@@ -168,8 +174,6 @@ class Handles(QMainWindow):
     #########################################################
 
     def res(self, chan):
-        print(chan.val)
-        print(self.handles_info)
         if chan.val:
             cmd_res = json.loads(chan.val)
             client = cmd_res.get('client')
@@ -177,24 +181,30 @@ class Handles(QMainWindow):
             if client == 'handle':
                 self.update_table()
                 self.status_bar.showMessage(res)
+
+                m_row = self.marked_row
+                self.marked_row = None
+                self.handle_info.clear()
                 if res == 'handle_added':
-                    if self.marked_row is not None:
-                        self.index(self.marked_row + 1)
+                    if m_row is not None:
+                        self.index(m_row + 1)
                 elif res == 'handle_deleted':
                     if self.self_sender:
-                        self.index(self.marked_row)
+                        pass
                     else:
                         row = cmd_res['row']
-                        if self.marked_row is not None:
-                            if self.marked_row < row:
-                                pass
-                            elif self.marked_row > row:
-                                self.index(self.marked_row - 1)
+                        if m_row is not None:
+                            if m_row < row:
+                                self.index(m_row)
+                            elif m_row > row:
+                                self.index(m_row - 1)
                 elif res == 'handle_edited':
-                    pass
+                    if m_row is not None:
+                        self.index(m_row)
                 self.self_sender = False
 
     def update_table(self):
+        print('update')
         for i in range(self.handles_table.rowCount()):
             self.handles_table.removeRow(0)
         self.load_handles()

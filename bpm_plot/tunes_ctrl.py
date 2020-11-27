@@ -74,13 +74,12 @@ class TunesControl(QMainWindow):
         self.chan_cmd.setValue((json.dumps({'cmd': 'start_tunes', 'client': 'tunes'})))
 
     def cmd_result(self, chan):
-        try:
-            rec = json.loads(chan.val).get('rec', 'no_rec')
-            if rec == 'tunes':
-                res = json.loads(chan.val).get('res', 'no_res')
-                self.status_bar.showMessage(res)
-        except Exception as exc:
-            print(exc)
+        if chan.val:
+            client = json.loads(chan.val).get('client', 'no_client')
+            if client == 'tunes':
+                action = json.loads(chan.val).get('action')
+                time_stamp = json.loads(chan.val).get('time_stamp')
+                self.status_bar.showMessage(str(time_stamp) + ' ' + str(action))
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val

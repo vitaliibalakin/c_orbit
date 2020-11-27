@@ -183,20 +183,23 @@ class PlotControl(QMainWindow):
         self.data_receiver(chan.val, which='eq')
 
     def cmd_res(self, chan):
-        try:
-            rec = json.loads(chan.val).get('rec', 'no_rec')
-            msg = json.loads(chan.val).get('res', 'no_res')
-            res = msg.split('->')
-            if rec == 'orbit':
-                self.status_bar.showMessage(msg)
-                if res[-1] == 'bckgr_done':
+        if chan.val:
+            client = json.loads(chan.val).get('client')
+            action = json.loads(chan.val).get('action')
+            time_stamp = json.loads(chan.val).get('time_stamp')
+            if client == 'orbit':
+                self.status_bar.showMessage(str(time_stamp) + ' ' + str(action))
+                if action == 'bckgr_done':
                     self.btn_bckgr.setEnabled(True)
                     self.spb_bckgr.setEnabled(True)
-                elif res[-1] == 'no_connection':
-                    self.dict_btns[res[-2]].setStyleSheet("background-color:rgb(172, 183, 142);")
-                    self.dict_lbls[res[-2]].setStyleSheet("background-color:rgb(172, 183, 142);")
-        except Exception as exc:
-            print('cmd_res', exc)
+                elif action == 'no_connection':
+                    bpm_name = json.loads(chan.val).get('bpm')
+                    self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
+                    self.dict_lbls[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
+                # elif msg == 'connected':
+                #     bpm_name = json.loads(chan.val).get('bpm')
+                #     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(0, 255, 0);")
+                #     self.dict_lbls[bpm_name].setStyleSheet("background-color:rgb(0, 255, 0);")
 
 
 if __name__ == "__main__":

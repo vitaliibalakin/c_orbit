@@ -19,7 +19,7 @@ class HandlesProc:
         self.handle_descr = {}
 
         self.cell_col = {0: 'name', 1: 'descr'}
-        self.client_list = ['handle']
+        self.client_list = ['handle', 'rm_proc']
         self.cmd_table = {
             'add_handle': self.add_handle_, 'delete_handle': self.delete_handle_,
             'edit_item': self.edit_item_, 'start_inj_cur': self.start_inj_cur_,
@@ -44,11 +44,11 @@ class HandlesProc:
         if cmd:
             chan_val = json.loads(cmd)
             command = chan_val.get('cmd', 'no_cmd')
-            service = chan_val.get('client', 'no_serv')
-            if service in self.client_list:
-                self.cmd_table[command](**chan_val)
+            client = chan_val.get('client', 'no_serv')
+            if client in self.client_list:
+                self.cmd_table[command](client, **chan_val)
 
-    def add_handle_(self, **kwargs):
+    def add_handle_(self, client, **kwargs):
         handle_params = {}
         info = kwargs.get('info')
         self.handles_renum()
@@ -60,9 +60,9 @@ class HandlesProc:
                 handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
         self.handles[0] = handle_params
         self.save_changes()
-        self.chan_res.setValue(json.dumps({'client': 'handle', 'res': 'handle_added'}))
+        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
 
-    def delete_handle_(self, **kwargs):
+    def delete_handle_(self, client, **kwargs):
         row = kwargs.get('row')
         for k in range(row, len(self.handles) - 1):
             self.handles[k] = self.handles[k + 1]
@@ -70,15 +70,15 @@ class HandlesProc:
         del(self.handles[len(self.handles) - 1])
         del(self.handle_descr[len(self.handle_descr) - 1])
         self.save_changes()
-        self.chan_res.setValue(json.dumps({'client': 'handle', 'res': 'handle_deleted'}))
+        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_deleted'}))
 
-    def edit_item_(self, **kwargs):
+    def edit_item_(self, client, **kwargs):
         row = kwargs.get('item')[0]
         col = kwargs.get('item')[1]
         text = kwargs.get('text')
         self.handle_descr[row][self.cell_col[col]] = text
         self.save_changes()
-        self.chan_res.setValue(json.dumps({'client': 'handle', 'res': 'handle_edited'}))
+        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_edited'}))
 
     def start_inj_cur_(self, **kwargs):
         pass
@@ -126,10 +126,10 @@ class HandlesProc:
     def load_handles(self):
         f = open(DIR + '/saved_handles.txt', 'r')
         handles_s = f.readline()
-        if  handles_s:
+        if handles_s:
             handles = json.loads(handles_s)
             for row_num, handle in handles.items():
-                self.add_handle_(**{'info': handle})
+                self.add_handle_('self', **{'info': handle})
             f.close()
 
 

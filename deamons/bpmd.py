@@ -75,9 +75,9 @@ class BpmPreproc:
         for bpm in self.bpms:
             if bpm.act_state:
                 if bpm.no_connection:
-                    self.send_cmd_res_('-> action ->' + bpm.name + ' -> no_connection', rec='orbit')
+                    self.send_cmd_res_('-> action ->' + bpm.name + ' -> no_connection', client='orbit')
                 else:
-                    self.send_cmd_res_('-> action ->' + bpm.name + ' -> connected', rec='orbit')
+                    self.send_cmd_res_('-> action ->' + bpm.name + ' -> connected', client='orbit')
                 if bpm.marker:
                     permission = 1
                 else:
@@ -145,13 +145,13 @@ class BpmPreproc:
             command = chan_val.get('cmd', 'no_cmd')
             client = chan_val.get('client', 'no_client')
             if client in self.client_list:
-                self.cmd_table[command](**chan_val)
+                self.cmd_table[command](client, **chan_val)
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
         self.to_another_ic_mode_('orbit')
 
-    def turn_bpm_(self, **kwargs):
+    def turn_bpm_(self, client, **kwargs):
         turn_bpm = kwargs.get('turn_bpm')
         for bpm in self.bpms:
             if bpm.name == turn_bpm:
@@ -159,33 +159,32 @@ class BpmPreproc:
             else:
                 bpm.turns_mes = 0
 
-    def turn_num_(self, **kwargs):
+    def turn_num_(self, client, **kwargs):
         turn_num = kwargs.get('turn_num')
         for bpm in self.bpms:
             bpm.turn_num = turn_num
 
-    def turn_bpm_num_pts_(self, **kwargs):
+    def turn_bpm_num_pts_(self, client, **kwargs):
         num_pts = kwargs.get('num_pts')
         for bpm in self.bpms:
             if bpm.turns_mes:
                 bpm.chan_numpts.setValue(num_pts)
 
-    def act_bpm_(self, **kwargs):
+    def act_bpm_(self, client, **kwargs):
         act_bpm = kwargs.get('act_bpm')
-        client = kwargs.get('client')
         for bpm in self.bpms:
             if bpm.name in act_bpm:
                 bpm.act_state = 1
             else:
                 bpm.act_state = 0
-        self.send_cmd_res_('-> action -> act_bpm', rec=client)
+        self.send_cmd_res_('-> action -> act_bpm', client=client)
 
-    def bckgr_discard_(self, **kwargs):
+    def bckgr_discard_(self, client, **kwargs):
         self.bpms_zeros = np.zeros([2, 16])
         self.bpms_deviation = np.zeros([2, 16])
-        self.send_cmd_res_('-> action -> bckgr_discarded', rec='orbit')
+        self.send_cmd_res_('-> action -> bckgr_discarded', client=client)
 
-    def bckgr_start_(self, **kwargs):
+    def bckgr_start_(self, client, **kwargs):
         if self.starting:
             self.starting = False
         else:
@@ -199,15 +198,14 @@ class BpmPreproc:
         print(self.bpms_zeros)
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
-        self.send_cmd_res_('-> action -> bckgr_done', rec='orbit')
+        self.send_cmd_res_('-> action -> bckgr_done', client='orbit')
 
-    def no_cmd_(self, **kwargs):
-        client = kwargs.get('client', 'no_client')
-        self.send_cmd_res_('-> action -> no_cmd', rec=client)
+    def no_cmd_(self, client, **kwargs):
+        self.send_cmd_res_('-> action -> no_cmd', client=client)
 
-    def send_cmd_res_(self, res, rec):
+    def send_cmd_res_(self, res, client):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.chan_res.setValue(json.dumps({'rec': rec, 'res': time_stamp + res}))
+        self.chan_res.setValue(json.dumps({'rec': client, 'res': time_stamp + res}))
 
     #########################################################
     #                     file exchange                     #
@@ -241,7 +239,7 @@ class BpmPreproc:
         else:
             msg = 'action -> start -> '
         self.chan_ctrl_tunes.setValue(json.dumps(ctrl_tunes))
-        self.send_cmd_res_(msg, rec='tunes')
+        self.send_cmd_res_(msg, client='tunes')
 
     def mode_file_edit_(self, file_name, mode_file):
         f = open(mode_file, 'r')
@@ -259,7 +257,7 @@ class BpmPreproc:
             f.close()
             self.load_file_(**{'file_name': data_mode[self.ic_mode], 'client': client})
         except Exception as exc:
-            self.send_cmd_res_('action -> switch mode (no mode file?) -> error ' + str(exc) + '-> ', rec=client)
+            self.send_cmd_res_('action -> switch mode (no mode file?) -> error ' + str(exc) + '-> ', client=client)
 
     def save_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
@@ -283,7 +281,7 @@ class BpmPreproc:
                 msg = 'action -> tunes save -> '
             else:
                 msg = 'action -> tunes chan is empty -> '
-        self.send_cmd_res_(msg, rec=client)
+        self.send_cmd_res_(msg, client=client)
 
     def load_file_(self, **kwargs):
         file_name = kwargs.get('file_name')
@@ -306,7 +304,7 @@ class BpmPreproc:
             if client == 'tunes':
                 self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
             self.mode_file_edit_(file_name, self.mode_d[client])
-            self.send_cmd_res_(msg, rec=client)
+            self.send_cmd_res_(msg, client=client)
         except Exception as exc:
             print(exc)
 

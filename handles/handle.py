@@ -25,8 +25,6 @@ class Handles(QMainWindow):
         self.edit_block = False
         self.self_sender = False
         self.handles_info = {}
-        self.handles_names = {}
-        self.handles_descr = {}
         self.cell_col = {0: 'name', 1: 'descr'}
 
         # table def
@@ -54,13 +52,6 @@ class Handles(QMainWindow):
         if self.edit_block:
             return
         print(row, column, 'edit', self.handles_descr)
-        # text = self.handles_table.item(row, column).text()
-        # if column == 0:
-        #     cell = self.handles_names
-        # else:
-        #     cell = self.handles_descr
-        #
-        # if not (cell[row] == text):
         text = self.handles_table.item(row, column).text()
         self.self_sender = True
         self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': [row, column],
@@ -160,8 +151,6 @@ class Handles(QMainWindow):
                 for cor in handle['cor_list']:
                     info[cor['name'].split('.')[-1]] = cor['step']
                 self.handles_info[int(row_num)] = info
-                self.handles_names[int(row_num)] = handle['name']
-                self.handles_descr[int(row_num)] = handle['descr']
                 self.handles_table.insertRow(0)
                 self.handles_table.setItem(0, 0, QTableWidgetItem(handle['name']))
                 self.handles_table.setItem(0, 1, QTableWidgetItem(handle['descr']))

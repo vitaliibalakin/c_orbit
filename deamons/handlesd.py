@@ -39,18 +39,17 @@ class HandlesProc:
     #########################################################
 
     def cmd(self, chan):
-        cmd = chan.val
-        print(cmd)
-        if cmd:
-            chan_val = json.loads(cmd)
-            command = chan_val.get('cmd', 'no_cmd')
-            client = chan_val.get('client', 'no_serv')
+        if chan.val:
+            cmd = json.loads(chan.val)
+            command = cmd.get('cmd', 'no_cmd')
+            client = cmd.get('client', 'no_serv')
             if client in self.client_list:
-                self.cmd_table[command](client, **chan_val)
+                self.cmd_table[command](**cmd)
 
-    def add_handle_(self, client, **kwargs):
+    def add_handle_(self, **kwargs):
         handle_params = {}
         info = kwargs.get('info')
+        client = kwargs.get('client')
         self.handles_renum()
         self.handle_descr[0] = info
         for cor in info['cor_list']:
@@ -62,19 +61,21 @@ class HandlesProc:
         self.save_changes()
         self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
 
-    def delete_handle_(self, client, **kwargs):
+    def delete_handle_(self, **kwargs):
         row = kwargs.get('row')
+        client = kwargs.get('client')
         for k in range(row, len(self.handles) - 1):
             self.handles[k] = self.handles[k + 1]
             self.handle_descr[k] = self.handle_descr[k + 1]
         del(self.handles[len(self.handles) - 1])
         del(self.handle_descr[len(self.handle_descr) - 1])
         self.save_changes()
-        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_deleted'}))
+        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_deleted', 'row': row}))
 
-    def edit_item_(self, client, **kwargs):
+    def edit_item_(self, **kwargs):
         row = kwargs.get('item')[0]
         col = kwargs.get('item')[1]
+        client = kwargs.get('client')
         text = kwargs.get('text')
         self.handle_descr[row][self.cell_col[col]] = text
         self.save_changes()
@@ -129,7 +130,7 @@ class HandlesProc:
         if handles_s:
             handles = json.loads(handles_s)
             for row_num, handle in handles.items():
-                self.add_handle_('self', **{'info': handle})
+                self.add_handle_(**{'info': handle})
             f.close()
 
 

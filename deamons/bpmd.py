@@ -157,17 +157,20 @@ class BpmPreproc:
                 bpm.turns_mes = 1
             else:
                 bpm.turns_mes = 0
+        self.chan_cmd.setValue('')
 
     def turn_num_(self, **kwargs):
         turn_num = kwargs.get('turn_num')
         for bpm in self.bpms:
             bpm.turn_num = turn_num
+        self.chan_cmd.setValue('')
 
     def turn_bpm_num_pts_(self, **kwargs):
         num_pts = kwargs.get('num_pts')
         for bpm in self.bpms:
             if bpm.turns_mes:
                 bpm.chan_numpts.setValue(num_pts)
+        self.chan_cmd.setValue('')
 
     def act_bpm_(self, **kwargs):
         act_bpm = kwargs.get('act_bpm')
@@ -178,12 +181,14 @@ class BpmPreproc:
             else:
                 bpm.act_state = 0
         self.send_cmd_res_(**{'action': 'act_bpm', 'client': client})
+        self.chan_cmd.setValue('')
 
     def bckgr_discard_(self, **kwargs):
         self.bpms_zeros = np.zeros([2, 16])
         self.bpms_deviation = np.zeros([2, 16])
         client = kwargs.get('client', 'no_client')
         self.send_cmd_res_(**{'action': 'bckgr_discarded', 'client': client})
+        self.chan_cmd.setValue('')
 
     def bckgr_start_(self, **kwargs):
         self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
@@ -197,10 +202,12 @@ class BpmPreproc:
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
         self.send_cmd_res_(**{'action': 'bckgr_done', 'client': 'orbit'})
+        self.chan_cmd.setValue('')
 
     def no_cmd_(self, **kwargs):
         client = kwargs.get('client', 'no_client')
         self.send_cmd_res_(**{'action': 'no_cmd', 'client': client})
+        self.chan_cmd.setValue('')
 
     def send_cmd_res_(self, **kwargs):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')

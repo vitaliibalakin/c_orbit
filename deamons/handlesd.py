@@ -60,6 +60,7 @@ class HandlesProc:
         self.handles[0] = handle_params
         self.save_changes()
         self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
+        self.chan_cmd.setValue('')
 
     def delete_handle_(self, **kwargs):
         row = kwargs.get('row')
@@ -71,6 +72,7 @@ class HandlesProc:
         del(self.handle_descr[len(self.handle_descr) - 1])
         self.save_changes()
         self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_deleted', 'row': row}))
+        self.chan_cmd.setValue('')
 
     def edit_item_(self, **kwargs):
         row = kwargs.get('item')[0]
@@ -80,6 +82,7 @@ class HandlesProc:
         self.handle_descr[row][self.cell_col[col]] = text
         self.save_changes()
         self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_edited'}))
+        self.chan_cmd.setValue('')
 
     def start_inj_cur_(self, **kwargs):
         pass
@@ -90,6 +93,7 @@ class HandlesProc:
         for key, k_val in handle.items():
             new_curr = k_val[0].val + k_val[1]
             k_val[0].setValue(new_curr)
+        self.chan_cmd.setValue('')
 
     def step_down_(self, **kwargs):
         row = kwargs.get('row')
@@ -97,6 +101,7 @@ class HandlesProc:
         for key, k_val in handle.items():
             new_curr = k_val[0].val - k_val[1]
             k_val[0].setValue(new_curr)
+        self.chan_cmd.setValue('')
 
     def cst_step_up_(self, **kwargs):
         row = kwargs.get('row')
@@ -105,6 +110,7 @@ class HandlesProc:
         for key, k_val in handle.items():
             new_curr = k_val[0].val + k_val[1] * factor
             k_val[0].setValue(new_curr)
+        self.chan_cmd.setValue('')
 
     def cst_step_down_(self, **kwargs):
         row = kwargs.get('row')
@@ -113,6 +119,7 @@ class HandlesProc:
         for key, k_val in handle.items():
             new_curr = k_val[0].val - k_val[1] * factor
             k_val[0].setValue(new_curr)
+        self.chan_cmd.setValue('')
 
     def handles_renum(self):
         for i in reversed(range(len(self.handles))):

@@ -62,7 +62,7 @@ class BpmPreproc:
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
             'bckgr_discard': self.bckgr_discard_
         }
-
+        self.start_tunes_()
         print('start')
 
     #########################################################
@@ -216,38 +216,36 @@ class BpmPreproc:
     #########################################################
 
     def start_tunes_(self, **kwargs):
-        flag = 0
         ic_modes = ['p2v2', 'e2v2', 'p2v4', 'e2v4']
         ctrl_tunes = {}
         f = open(self.mode_d['tunes'], 'r')
-        data_mode = json.loads(f.read())
+        if os.fstat(f.fileno()).st_size:
+            data_mode = json.loads(f.read())
+            print(data_mode)
+            for mode in ic_modes:
+                try:
+                    file = open(data_mode[mode], 'r')
+                    if os.fstat(file.fileno()).st_size:
+                        data = np.loadtxt(data_mode[mode])
+                        ctrl_tunes[mode] = np.ndarray.tolist(data)
+                    else:
+                        data = np.zeros(2)
+                        ctrl_tunes[mode] = np.ndarray.tolist(data)
+                        self.send_cmd_res_(
+                            **{'action': 'start tunes', 'error': 'file with saved tunes is empty', 'client': 'tunes'})
+                    file.close()
+                except FileNotFoundError:
+                    ctrl_tunes[mode] = np.ndarray.tolist(np.zeros(2))
+                    self.send_cmd_res_(**{'action': 'start tunes', 'error': 'no mode_tunes_file', 'client': 'tunes'})
+                except KeyError:
+                    ctrl_tunes[mode] = np.ndarray.tolist(np.zeros(2))
+                    self.send_cmd_res_(
+                        **{'action': 'start tunes', 'error': 'no ' + str(mode) + ' value', 'client': 'tunes'})
         f.close()
-        print(data_mode)
-        for mode in ic_modes:
-            try:
-                file = open(data_mode[mode], 'r')
-                if os.fstat(file.fileno()).st_size:
-                    data = np.loadtxt(data_mode[mode])
-                    ctrl_tunes[mode] = np.ndarray.tolist(data)
-                else:
-                    flag = 1
-                    data = np.zeros(2)
-                    ctrl_tunes[mode] = np.ndarray.tolist(data)
-                file.close()
-            except FileNotFoundError:
-                flag = 1
-                ctrl_tunes[mode] = np.ndarray.tolist(np.zeros(2))
-                self.send_cmd_res_(**{'action': 'start tunes', 'error': 'mode FileNotFoundError', 'client': 'tunes'})
-            except KeyError:
-                flag = 1
-                ctrl_tunes[mode] = np.ndarray.tolist(np.zeros(2))
-                self.send_cmd_res_(**{'action': 'start tunes', 'error': 'mode KeyError', 'client': 'tunes'})
-
-        if not flag:
-            self.send_cmd_res_(**{'action': 'start', 'client': 'tunes'})
         self.chan_ctrl_tunes.setValue(json.dumps(ctrl_tunes))
 
     def mode_file_edit_(self, file_name, mode_file):
+        print(mode_file)
         f = open(mode_file, 'r')
         info = f.read()
         if info:

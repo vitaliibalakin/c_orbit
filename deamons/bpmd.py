@@ -181,14 +181,12 @@ class BpmPreproc:
             else:
                 bpm.act_state = 0
         self.send_cmd_res_(**{'action': 'act_bpm', 'client': client})
-        self.chan_cmd.setValue('')
 
     def bckgr_discard_(self, **kwargs):
         self.bpms_zeros = np.zeros([2, 16])
         self.bpms_deviation = np.zeros([2, 16])
         client = kwargs.get('client', 'no_client')
         self.send_cmd_res_(**{'action': 'bckgr_discarded', 'client': client})
-        self.chan_cmd.setValue('')
 
     def bckgr_start_(self, **kwargs):
         self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
@@ -202,17 +200,16 @@ class BpmPreproc:
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
         self.send_cmd_res_(**{'action': 'bckgr_done', 'client': 'orbit'})
-        self.chan_cmd.setValue('')
 
     def no_cmd_(self, **kwargs):
         client = kwargs.get('client', 'no_client')
         self.send_cmd_res_(**{'action': 'no_cmd', 'client': client})
-        self.chan_cmd.setValue('')
 
     def send_cmd_res_(self, **kwargs):
         time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         kwargs['time_stamp'] = time_stamp
         self.chan_res.setValue(json.dumps(kwargs))
+        self.chan_cmd.setValue('')
 
     #########################################################
     #                     file exchange                     #
@@ -225,6 +222,7 @@ class BpmPreproc:
         f = open(self.mode_d['tunes'], 'r')
         data_mode = json.loads(f.read())
         f.close()
+        print(data_mode)
         for mode in ic_modes:
             try:
                 file = open(data_mode[mode], 'r')
@@ -238,12 +236,14 @@ class BpmPreproc:
                 file.close()
             except FileNotFoundError:
                 flag = 1
-                data = np.zeros(2)
-                ctrl_tunes[mode] = np.ndarray.tolist(data)
+                ctrl_tunes[mode] = np.ndarray.tolist(np.zeros(2))
+                self.send_cmd_res_(**{'action': 'start tunes', 'error': 'mode FileNotFoundError', 'client': 'tunes'})
+            except KeyError:
+                flag = 1
+                ctrl_tunes[mode] = np.ndarray.tolist(np.zeros(2))
+                self.send_cmd_res_(**{'action': 'start tunes', 'error': 'mode KeyError', 'client': 'tunes'})
 
-        if flag:
-            self.send_cmd_res_(**{'action': 'start -> file error', 'client': 'tunes'})
-        else:
+        if not flag:
             self.send_cmd_res_(**{'action': 'start', 'client': 'tunes'})
         self.chan_ctrl_tunes.setValue(json.dumps(ctrl_tunes))
 

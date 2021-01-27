@@ -65,7 +65,7 @@ class BPM:
         z_fft = np.fft.rfft((data[h_len: len(data)] - np.mean(data[h_len: len(data)])) * window,
                             len(data[h_len: len(data)]), norm='ortho')
         freq = np.fft.rfftfreq(h_len, 1)
-        self.send_fft(np.array([freq, np.abs(x_fft), np.abs(z_fft)]))
+        self.send_fft(np.concatenate([freq, np.abs(x_fft), np.abs(z_fft)]))
 
         # searching of working DR point
         x_arr = freq[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))]

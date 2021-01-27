@@ -128,6 +128,8 @@ class BpmPreproc:
         self.chan_turns.setValue(data)
 
     def collect_fft(self, data):
+        print(type(data))
+        print(data)
         self.chan_fft.setValue(data)
 
     def collect_coor(self, data):

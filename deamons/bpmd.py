@@ -50,6 +50,7 @@ class BpmPreproc:
         self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
         self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
+        self.chan_turns_matrix = cda.VChan('cxhw:4.bpm_preproc.turns_matrix', max_nelems=259072)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
 
@@ -90,6 +91,7 @@ class BpmPreproc:
             x_orbit_sigma = np.array([])
             z_orbit = np.array([])
             z_orbit_sigma = np.array([])
+            turns_matrix = np.array([])
             for bpm in self.bpms:
                 bpm.marker = 0
                 if bpm.act_state:
@@ -99,6 +101,7 @@ class BpmPreproc:
                     x_orbit_sigma = np.append(x_orbit_sigma, bpm.sigma[0])
                     z_orbit = np.append(z_orbit, bpm.coor[1])
                     z_orbit_sigma = np.append(z_orbit_sigma, bpm.sigma[1])
+                    turns_matrix = np.append(turns_matrix, bpm.turn_arrays)
                 else:
                     one_turn_x = np.append(one_turn_x, 100)
                     one_turn_z = np.append(one_turn_z, 100)
@@ -106,11 +109,13 @@ class BpmPreproc:
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)
                     z_orbit = np.append(z_orbit, 100.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
+                    turns_matrix = np.append(turns_matrix, np.ones(bpm.data_len * 2) * 100.0)
             orbit = np.concatenate([x_orbit, z_orbit])
             std = np.concatenate([x_orbit_sigma, z_orbit_sigma])
             self.current_orbit = np.concatenate([orbit - self.bpms_zeros, std])
             self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
             self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
+            self.chan_turns_matrix.setValue(turns_matrix)
             # print(orbit, self.bpms_zeros)
             # data mining for zeros counting
             if self.bckgr_proc:

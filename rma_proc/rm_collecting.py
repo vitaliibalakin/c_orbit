@@ -177,7 +177,7 @@ class RMA(QMainWindow, DeviceFunc):
         if self.resp_type.currentText() == 'coords':
             for i in range(len(resp_arr[0])):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i], sigma=std_err[:, i])
-                if const[0] < 1E-7:
+                if abs(const[0]) < 1E-7:
                     buffer.append(0)
                     err_buffer.append(0)
                 else:

@@ -18,10 +18,12 @@ class BPM:
         self.act_state = 1
         self.marker = 0
         self.turn_num = 1
+        self.data_len = 1024
         self.turn_slice = (100.0, 100.0)
         self.starting = True
         self.coor = (0, 0)
         self.sigma = (0, 0)
+        self.turn_arrays = np.ndarray([])
         self.x_bound = [0.345, 0.365]
         self.z_bound = [0.2, 0.4]
 
@@ -50,12 +52,14 @@ class BPM:
 
     def data_proc(self, chan):
         data_len = int(len(chan.val) / 4)
+        self.turn_arrays = chan.val[data_len:3 * data_len]
         self.turn_slice = (chan.val[data_len + self.turn_num - 1], chan.val[2 * data_len + self.turn_num - 1])
         self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
         self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
         if self.turns_mes:
             self.fft_proc(chan.val[data_len:3 * data_len])
             self.send_current(chan.val[3*data_len:4*data_len])
+        self.data_len = data_len
 
     def fft_proc(self, data):
         self.send_coor(data)

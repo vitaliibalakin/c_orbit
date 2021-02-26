@@ -113,17 +113,17 @@ class BpmPreproc:
             orbit = np.concatenate([x_orbit, z_orbit])
             std = np.concatenate([x_orbit_sigma, z_orbit_sigma])
             self.current_orbit = np.concatenate([orbit - self.bpms_zeros, std])
-            self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
-            self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
-            self.chan_turns_matrix.setValue(turns_matrix)
-            # print(orbit, self.bpms_zeros)
-            # data mining for zeros counting
+
             if self.bckgr_proc:
-                print(self.bckrg_counter)
                 self.bpms_deviation += orbit
                 self.bckrg_counter -= 1
                 if self.bckrg_counter == 0:
                     self.bckrg_stop_()
+                return
+            self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
+            self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
+            self.chan_turns_matrix.setValue(turns_matrix)
+
 
     def collect_tunes(self, tunes):
         self.current_tunes = tunes
@@ -188,20 +188,20 @@ class BpmPreproc:
         self.send_cmd_res_(**{'action': 'act_bpm', 'client': client})
 
     def bckgr_discard_(self, **kwargs):
-        self.bpms_zeros = np.zeros([2, 16])
-        self.bpms_deviation = np.zeros([2, 16])
+        self.bpms_zeros = np.zeros([32, ])
+        self.bpms_deviation = np.zeros([32, ])
         client = kwargs.get('client', 'no_client')
         self.send_cmd_res_(**{'action': 'bckgr_discarded', 'client': client})
 
     def bckgr_start_(self, **kwargs):
         self.bckgr_it_num, self.bckrg_counter = kwargs.get('count', 5), kwargs.get('count', 5)
-        self.bpms_zeros = np.zeros([2, 16])
-        self.bpms_deviation = np.zeros([2, 16])
+        self.bpms_zeros = np.zeros([32, ])
+        self.bpms_deviation = np.zeros([32, ])
         self.bckgr_proc = True
 
     def bckrg_stop_(self):
         self.bpms_zeros = self.bpms_deviation / self.bckgr_it_num
-        print(self.bpms_zeros)
+        # print(self.bpms_zeros)
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
         self.send_cmd_res_(**{'action': 'bckgr_done', 'client': 'orbit'})

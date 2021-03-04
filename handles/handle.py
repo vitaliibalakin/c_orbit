@@ -2,6 +2,7 @@
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
 from PyQt5 import uic, Qt
+from PyQt5 import QtCore
 import pycx4.qcda as cda
 import sys
 import os
@@ -51,7 +52,6 @@ class Handles(QMainWindow):
     def edit_item(self, row, column):
         if self.edit_block:
             return
-        print(row, column, 'edit', self.handles_descr)
         text = self.handles_table.item(row, column).text()
         self.self_sender = True
         self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'edit_item', 'item': [row, column],
@@ -62,7 +62,7 @@ class Handles(QMainWindow):
         self.edit_block = True
         if self.marked_row is not None:
             if self.marked_row == row:
-                for i in range(self.table.columnCount()):
+                for i in range(self.handles_table.columnCount()):
                     self.handles_table.item(self.marked_row, i).setBackground(Qt.QColor('white'))
                 self.marked_row = None
                 self.handle_info.clear()
@@ -137,7 +137,6 @@ class Handles(QMainWindow):
             self.status_bar.showMessage('Choose row to step')
 
     def load_handles(self):
-        print('loading')
         try:
             self.edit_block = True
             self.handles_info = {}
@@ -152,8 +151,12 @@ class Handles(QMainWindow):
                     info[cor['name'].split('.')[-1]] = cor['step']
                 self.handles_info[int(row_num)] = info
                 self.handles_table.insertRow(0)
-                self.handles_table.setItem(0, 0, QTableWidgetItem(handle['name']))
-                self.handles_table.setItem(0, 1, QTableWidgetItem(handle['descr']))
+                name = QTableWidgetItem(handle['name'])
+                name.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+                descr = QTableWidgetItem(handle['descr'])
+                descr.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+                self.handles_table.setItem(0, 0, name)
+                self.handles_table.setItem(0, 1, descr)
             self.edit_block = False
         except ValueError:
             self.status_bar.showMessage('empty saved file')

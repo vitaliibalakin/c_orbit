@@ -19,7 +19,7 @@ class HandlesProc:
         self.handle_descr = {}
 
         self.cell_col = {0: 'name', 1: 'descr'}
-        self.client_list = ['handle', 'rm_proc']
+        self.client_list = ['handle', 'rm_proc', 'inj_vs_handles']
         self.cmd_table = {
             'add_handle': self.add_handle_, 'delete_handle': self.delete_handle_,
             'edit_item': self.edit_item_, 'start_inj_cur': self.start_inj_cur_,

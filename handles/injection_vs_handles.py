@@ -6,6 +6,7 @@ from PyQt5 import uic, Qt
 from PyQt5 import QtCore
 import pycx4.qcda as cda
 from functools import partial
+import numpy as np
 import os
 import re
 import json
@@ -34,9 +35,9 @@ class InjTune(QMainWindow):
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=True)
-        # self.chan_tunes.valueMeasured.connect(self.tunes_changed)
+        self.chan_tunes.valueMeasured.connect(self.tunes_changed)
         self.chan_extracted = cda.DChan('cxhw:0.dcct.extractioncurrent', on_update=True)
-        # self.chan_extracted.valueMeasured.connect(self.extracted_event)
+        self.chan_extracted.valueMeasured.connect(self.extracted_event)
 
         self.p_win.handles_table.cellPressed.connect(self.index)
         self.handle_1:object = BtnHandle(self.p_win.btn_handle_1, 'Handle #1', 'Handle #2')
@@ -49,6 +50,9 @@ class InjTune(QMainWindow):
         self.shift:function = None  # tune shift func
         self.handle:object = None
         ##########################
+        self.cur_flag:bool = False
+        self.tunes_flag:bool = False
+        ##########################
         self.marked_row:int = None
         self.cross_booked:dict = {'Handle #1': None, 'Handle #2': None}
         ##########################
@@ -56,7 +60,7 @@ class InjTune(QMainWindow):
         self.ring_cur_arr:list = []
         self.ring_cur_data:dict = {}
         ##########################
-        self.n_iter:int = 10
+        self.n_iter:int = 3
         self.counter:int = 0
         self.cur_1_it:int = 0
         self.cur_2_it:int = 0
@@ -65,6 +69,7 @@ class InjTune(QMainWindow):
 
     def start(self) -> None:
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
+            print('start_2')
             self.shift = self.make_shift_2h
             # n*type_1 tune shift
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
@@ -77,6 +82,7 @@ class InjTune(QMainWindow):
             self.cur_2_it = -1 * self.n_iter
             QTimer.singleShot(6000, self.next_step)
         else:
+            print('start_1')
             if self.cross_booked['Handle #1'] is not None:
                 self.handle = self.handle_1
             elif self.cross_booked['Handle #2'] is not None:
@@ -211,10 +217,13 @@ class InjTune(QMainWindow):
             self.tunes_flag = False
 
     def extracted_event(self, chan) -> None:
-        if self.counter >= 10:
+        print('counter', self.counter)
+        if self.counter >= 3:
             self.counter = 0
-            self.ring_cur_data[json.dumps(self.cur_tunes)] = self.ring_cur_arr
+            self.ring_cur_data[json.dumps(self.cur_tunes)] = np.mean(self.ring_cur_arr)
+            print(self.ring_cur_data)
             self.ring_cur_arr = []
+            self.cur_flag = False
             self.shift()
         else:
             if self.cur_flag:
@@ -222,7 +231,7 @@ class InjTune(QMainWindow):
                 self.ring_cur_arr.append(chan.val)
 
     def next_step(self) -> None:
-        self.cur_flag = False
+        print('next step')
         self.tunes_flag = True
 
     def index(self, row:int, column=0) -> None:

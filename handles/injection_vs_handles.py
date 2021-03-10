@@ -65,7 +65,7 @@ class InjTune(QMainWindow):
 
     def start(self) -> None:
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
-            self.shift = make_shift_2h
+            self.shift = self.make_shift_2h
             # n*type_1 tune shift
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                'row': self.handle_1.row, 'factor': self.n_iter}))
@@ -84,7 +84,7 @@ class InjTune(QMainWindow):
             else:
                 self.p_win.status_bar.showMessage('Choose handles')
                 return
-            self.shift = make_shift_1h
+            self.shift = self.make_shift_1h
             self.cur_1_it = -1 * self.n_iter
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                'row': self.handle.row, 'factor': self.n_iter}))
@@ -164,7 +164,6 @@ class InjTune(QMainWindow):
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle_1.row}))
             self.cur_1_it += 1
         QTimer.singleShot(6000, self.next_step)
-
 
     def make_shift_1h(self) -> None:
         print(self.cur_1_it)

@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication
 import sys
 
 import numpy as np
-import pycx4.qcda as cda
+import pycx4.pycda as cda
 import json
 import os
 import re

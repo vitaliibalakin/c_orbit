@@ -15,12 +15,12 @@ import sys
 class BtnHandle:
     def __init__(self, btn, name, mate_name):
         super(BtnHandle, self).__init__()
-        self.widget = btn
-        self.name = name
-        self.mate_name = mate_name
-        self.text = None
-        self.row = None
-        self.flag = False
+        self.widget:object = btn
+        self.name:str = name
+        self.mate_name:str = mate_name
+        self.text:str = None
+        self.row:int = None
+        self.flag:bool = False
 
 class InjTune(QMainWindow):
     def __init__(self):
@@ -39,27 +39,31 @@ class InjTune(QMainWindow):
         # self.chan_extracted.valueMeasured.connect(self.extracted_event)
 
         self.p_win.handles_table.cellPressed.connect(self.index)
-        self.handle_1 = BtnHandle(self.p_win.btn_handle_1, 'Handle #1', 'Handle #2')
+        self.handle_1:object = BtnHandle(self.p_win.btn_handle_1, 'Handle #1', 'Handle #2')
         self.p_win.btn_handle_1.clicked.connect(partial(self.hand_choosed, self.handle_1))
-        self.handle_2 = BtnHandle(self.p_win.btn_handle_2, 'Handle #2', 'Handle #1')
+        self.handle_2:object = BtnHandle(self.p_win.btn_handle_2, 'Handle #2', 'Handle #1')
         self.p_win.btn_handle_2.clicked.connect(partial(self.hand_choosed, self.handle_2))
         self.p_win.btn_start.clicked.connect(self.start)
 
-        ##########################
-        self.marked_row = None
-        self.cross_booked = {'Handle #1': None, 'Handle #2': None}
-        ##########################
-        self.cur_tunes = [0.0, 0.0]
-        ##########################
-        self.n_iter = 10
-        self.cur_1_it = 0
-        self.cur_2_it = 0
         #########################
-        self.shift = None       #  tune shift func
+        self.shift:function = None  # tune shift func
+        self.handle:object = None
+        ##########################
+        self.marked_row:int = None
+        self.cross_booked:dict = {'Handle #1': None, 'Handle #2': None}
+        ##########################
+        self.cur_tunes:list = [0.0, 0.0]
+        self.ring_cur_arr:list = []
+        self.ring_cur_data:dict = {}
+        ##########################
+        self.n_iter:int = 10
+        self.counter:int = 0
+        self.cur_1_it:int = 0
+        self.cur_2_it:int = 0
 
         self.load_handles()
 
-    def start(self):
+    def start(self) -> None:
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
             self.shift = make_shift_2h
             # n*type_1 tune shift
@@ -71,15 +75,22 @@ class InjTune(QMainWindow):
 
             self.cur_1_it = -1 * self.n_iter
             self.cur_2_it = -1 * self.n_iter
-            # QTimer.singleShot(6000, self.set_tune_flag_true)
-        elif self.cross_booked['Handle #1'] is not None:
-            self.shift = make_shift_1h
-        elif self.cross_booked['Handle #2'] is not None:
-            self.shift = make_shift_1h
+            QTimer.singleShot(6000, self.next_step)
         else:
-            self.p_win.status_bar.showMessage('Choose handles')
+            if self.cross_booked['Handle #1'] is not None:
+                self.handle = self.handle_1
+            elif self.cross_booked['Handle #2'] is not None:
+                self.handle = self.handle_2
+            else:
+                self.p_win.status_bar.showMessage('Choose handles')
+                return
+            self.shift = make_shift_1h
+            self.cur_1_it = -1 * self.n_iter
+            self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
+                                               'row': self.handle.row, 'factor': self.n_iter}))
+            QTimer.singleShot(6000, self.next_step)
 
-    def hand_choosed(self, btn):
+    def hand_choosed(self, btn:object) -> None:
         if self.marked_row is not None:
             if self.marked_row != self.cross_booked[btn.mate_name]:
                 if self.marked_row != btn.row:
@@ -102,7 +113,7 @@ class InjTune(QMainWindow):
             else:
                 self.p_win.status_bar.showMessage('Choose handle first')
 
-    def make_shift_2h(self):
+    def make_shift_2h(self) -> None:
         print(self.cur_1_it, self.cur_2_it)
         print('--------------------------')
         if self.cur_1_it == self.n_iter:
@@ -138,7 +149,7 @@ class InjTune(QMainWindow):
                 self.handle_2.widget.text = None
                 self.handle_2.widget.setStyleSheet("background-color:rgb(255, 255, 255);")
                 self.handle_2.widget.setText(self.handle_2.name)
-
+                return
             else:
                 # 2 handle step
                 self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up',
@@ -152,30 +163,70 @@ class InjTune(QMainWindow):
             # 1 handle step
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle_1.row}))
             self.cur_1_it += 1
+        QTimer.singleShot(6000, self.next_step)
 
-    def make_shift_1h(self):
-        pass
 
-    def tunes_changed(self, chan):
+    def make_shift_1h(self) -> None:
+        print(self.cur_1_it)
+        print('--------------------------')
+        if self.cur_1_it == self.n_iter:
+            print('FINISH')
+            f = open('save_inj_tune_resp.txt', 'w')
+            f.write(json.dumps(self.ring_cur_data))
+            f.close()
+
+            self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
+                                               'row': self.handle.row, 'factor': self.n_iter}))
+
+            # to defaults
+            self.handle = None
+            self.marked_row = None
+            self.cross_booked = {'Handle #1': None, 'Handle #2': None}
+            self.cur_tunes = [0.0, 0.0]
+            self.n_iter = 10
+            self.cur_1_it = 0
+            self.cur_2_it = 0
+            self.shift = None
+            # handle #1
+            self.handle_1.flag = False
+            self.handle_1.row = None
+            self.handle_1.widget.text = None
+            self.handle_1.widget.setStyleSheet("background-color:rgb(255, 255, 255);")
+            self.handle_1.widget.setText(self.handle_1.name)
+            # handle #2
+            self.handle_2.flag = False
+            self.handle_2.row = None
+            self.handle_2.widget.text = None
+            self.handle_2.widget.setStyleSheet("background-color:rgb(255, 255, 255);")
+            self.handle_2.widget.setText(self.handle_2.name)
+        else:
+            self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle.row}))
+            self.cur_1_it += 1
+            QTimer.singleShot(6000, self.next_step)
+
+    def tunes_changed(self, chan) -> None:
         if self.tunes_flag:
             self.cur_tunes[0] = chan.val[0]
             self.cur_tunes[1] = chan.val[1]
-            self.ring_cur_data[json.dumps(self.cur_tunes)] = []
             self.cur_flag = True
             self.tunes_flag = False
 
-    def extracted_event(self, chan):
-        if self.counter >= 22:
+    def extracted_event(self, chan) -> None:
+        if self.counter >= 10:
             self.counter = 0
-            self.cur_flag = False
+            self.ring_cur_data[json.dumps(self.cur_tunes)] = self.ring_cur_arr
+            self.ring_cur_arr = []
             self.shift()
         else:
-            if self.cur_flag & self.permission:
-                self.permission = False
+            if self.cur_flag:
                 self.counter += 1
-                self.ring_cur_data[json.dumps(self.cur_tunes)].append(chan.val)
+                self.ring_cur_arr.append(chan.val)
 
-    def index(self, row, column=0):
+    def next_step(self) -> None:
+        self.cur_flag = False
+        self.tunes_flag = True
+
+    def index(self, row:int, column=0) -> None:
         # paint row & set handle info
         if self.marked_row is not None:
             if self.marked_row == row:
@@ -193,7 +244,7 @@ class InjTune(QMainWindow):
             for i in range(self.p_win.handles_table.columnCount()):
                 self.p_win.handles_table.item(row, i).setBackground(Qt.QColor(21, 139, 195))
 
-    def load_handles(self):
+    def load_handles(self) -> None:
         try:
             f = open('saved_handles.txt', 'r')
             handles = json.loads(f.read())
@@ -211,6 +262,6 @@ class InjTune(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(['inj_tune'])
+    app = QApplication(['inj_vs'])
     w = InjTune()
     sys.exit(app.exec_())

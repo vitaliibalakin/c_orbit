@@ -324,20 +324,20 @@ DIR = os.getcwd()
 DIR = re.sub('deamons', 'bpm_plot', DIR)
 
 
-# class KMService(CXService):
-#     def main(self):
-#         print('run main')
-#         self.w = BpmPreproc()
-#
-#     def clean(self):
-#         self.log_str('exiting bpm_prepoc')
-#
-#
-# bp = KMService("bpmd")
+class KMService(CXService):
+    def main(self):
+        print('run main')
+        self.w = BpmPreproc()
 
-if __name__ == "__main__":
-    app = QApplication(['c_orbit'])
-    w = BpmPreproc()
-    sys.exit(app.exec_())
+    def clean(self):
+        self.log_str('exiting bpm_prepoc')
+
+
+bp = KMService("bpmd")
+
+# if __name__ == "__main__":
+#     app = QApplication(['c_orbit'])
+#     w = BpmPreproc()
+#     sys.exit(app.exec_())
 
 

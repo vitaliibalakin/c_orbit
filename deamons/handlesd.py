@@ -145,18 +145,18 @@ DIR = os.getcwd()
 DIR = re.sub('deamons', 'handles', DIR)
 
 
-# class KMService(CXService):
-#     def main(self):
-#         print('run main')
-#         self.w = HandlesProc()
-#
-#     def clean(self):
-#         self.log_str('exiting handles_proc')
-#
-#
-# bp = KMService("handlesd")
+class KMService(CXService):
+    def main(self):
+        print('run main')
+        self.w = HandlesProc()
 
-if __name__ == "__main__":
-    app = QApplication(['handles_proc'])
-    w = HandlesProc()
-    sys.exit(app.exec_())
+    def clean(self):
+        self.log_str('exiting handles_proc')
+
+
+bp = KMService("handlesd")
+
+# if __name__ == "__main__":
+#     app = QApplication(['handles_proc'])
+#     w = HandlesProc()
+#     sys.exit(app.exec_())

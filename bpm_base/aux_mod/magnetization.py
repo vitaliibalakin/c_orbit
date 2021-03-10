@@ -89,7 +89,7 @@ class MagnetizationProc(DeviceFunc):
                            'canhw:12.rst3.sx1_3f4', 'canhw:12.rst3.sx2_2f4', 'canhw:12.rst3.sx1_1f4',
                            'canhw:12.rst3.sx2_1f4', 'canhw:12.rst3.sx1_2f4', 'canhw:12.rst3.sx2_3f4',
                            'canhw:12.rst3.sx1_4f4']
-        self.main_2_mag = {name: Magnetization(self.action_loop, name, step=0.5, stop=5, odz=1.2, prg=self.prg)
+        self.main_2_mag = {name: Magnetization(self.action_loop, name, step=0.5, stop=5, odz=2, prg=self.prg)
                            for name in self.mag_names}
         self.sext_2_mag = {name: Magnetization(self.action_loop, name, step=400, stop=5, odz=100, prg=self.prg)
                            for name in self.sext_names}
@@ -101,25 +101,26 @@ class MagnetizationProc(DeviceFunc):
         QTimer.singleShot(3000, self.start)
 
     def start(self):
-        for name, elem in self.main_2_mag.items():
+        for name, elem in self.elems_2_mag.items():
+            print(elem.name)
             elem.proc()
 
     def action_loop(self, name):
-        if self.main_2_mag[name].status == 'fail':
+        # remember init vals
+        if not (name in self.main_cur):
+            self.main_cur[name] = self.elems_2_mag[name].init_val
+
+        if self.elems_2_mag[name].status == 'fail':
             self.control_sum += 1
             self.progress[name] = -1
             self.cor_fail.append(name)
-        elif self.main_2_mag[name].status == 'completed':
+        elif self.elems_2_mag[name].status == 'completed':
             self.control_sum += 1
             self.progress[name] = 1
 
-        # remember init vals
-        if not (name in self.main_cur):
-            self.main_cur[name] = self.main_2_mag[name].init_val
-
         if self.control_sum == len(self.progress):
             self.control_sum = 0
-            self.prg(146.0)
+            self.prg(146)
         else:
             self.prg(round(self.control_sum/len(self.progress) * 100, 0))
 

@@ -98,6 +98,8 @@ class RMA(QMainWindow, DeviceFunc):
     def start_magn(self):
         self.magn = MagnetizationProc(prg=self.proc_progress)
         self.btn_start_coll.setEnabled(False)
+        self.lbl_elem.setText('MAGN')
+        self.log_msg.append('start magnetization')
 
     def proc_progress(self, val):
         self.elem_prg_bar.setValue(val)
@@ -106,6 +108,7 @@ class RMA(QMainWindow, DeviceFunc):
             self.main_cur = self.magn.main_cur
             self.btn_start_coll.setEnabled(True)
             self.elem_prg_bar.setValue(100)
+            self.log_msg.append('stop magnetization')
 
     ###########################################
     #                COLLECTING               #
@@ -139,8 +142,8 @@ class RMA(QMainWindow, DeviceFunc):
     def action_loop(self, name):
         if not self.stop_proc:
             self.log_msg.append(name.split('.')[-1] + ": " + self.stack_elems[name].status)
-            self.prg_bar.setValue((1 - len(self.stack_names) / self.counter) * 100)
             self.stack_names.remove(name)
+            self.prg_bar.setValue(int((1 - len(self.stack_names) / self.counter) * 100))
             if self.stack_elems[name].status == 'fail':
                 self.cor_fail.append(name)
             elif not self.stack_elems[name].status:

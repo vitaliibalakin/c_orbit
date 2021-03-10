@@ -60,7 +60,7 @@ class InjTune(QMainWindow):
         self.ring_cur_arr:list = []
         self.ring_cur_data:dict = {}
         ##########################
-        self.n_iter:int = 3
+        self.n_iter:int = 1
         self.counter:int = 0
         self.cur_1_it:int = 0
         self.cur_2_it:int = 0
@@ -72,6 +72,7 @@ class InjTune(QMainWindow):
             print('start_2')
             self.shift = self.make_shift_2h
             # n*type_1 tune shift
+            print(self.handle_1.row, self.handle_2.row)
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                'row': self.handle_1.row, 'factor': self.n_iter}))
             # n*type_2 tune shift
@@ -163,7 +164,7 @@ class InjTune(QMainWindow):
                 self.cur_2_it += 1
                 # 2*n* 1 handle step
                 self.cur_1_it = -1 * self.n_iter
-                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'cst_step_up', 'row': self.handle_1.row,
+                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'cst_step_down', 'row': self.handle_1.row,
                                                    'factor': 2 * self.n_iter}))
         else:
             # 1 handle step

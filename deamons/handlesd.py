@@ -106,7 +106,6 @@ class HandlesProc:
     def cst_step_up_(self, **kwargs):
         row = kwargs.get('row')
         factor = kwargs.get('factor')
-        print(row, factor)
         handle = self.handles[row]
         for key, k_val in handle.items():
             new_curr = k_val[0].val + k_val[1] * factor
@@ -116,7 +115,6 @@ class HandlesProc:
     def cst_step_down_(self, **kwargs):
         row = kwargs.get('row')
         factor = kwargs.get('factor')
-        print(row, factor)
         handle = self.handles[row]
         for key, k_val in handle.items():
             new_curr = k_val[0].val - k_val[1] * factor

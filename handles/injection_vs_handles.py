@@ -69,7 +69,7 @@ class InjTune(QMainWindow):
 
     def start(self) -> None:
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
-            print('start_2')
+            self.p_win.status_bar.showMessage('Start 2 knobs procedure')
             self.shift = self.make_shift_2h
             # n*type_1 tune shift
             print(self.handle_1.row, self.handle_2.row)
@@ -83,7 +83,7 @@ class InjTune(QMainWindow):
             self.cur_2_it = -1 * self.n_iter
             QTimer.singleShot(6000, self.next_step)
         else:
-            print('start_1')
+            self.p_win.status_bar.showMessage('Start 1 knob procedure')
             if self.cross_booked['Handle #1'] is not None:
                 self.handle = self.handle_1
             elif self.cross_booked['Handle #2'] is not None:
@@ -121,12 +121,10 @@ class InjTune(QMainWindow):
                 self.p_win.status_bar.showMessage('Choose handle first')
 
     def make_shift_2h(self) -> None:
-        print(self.cur_1_it, self.cur_2_it)
-        print('--------------------------')
         if self.cur_1_it == self.n_iter:
             if self.cur_2_it == self.n_iter:
                 # end & save
-                print('FINISH')
+                self.p_win.status_bar.showMessage('FINISH')
                 f = open('save_inj_tune_resp.txt', 'w')
                 f.write(json.dumps(self.ring_cur_data))
                 f.close()
@@ -173,10 +171,8 @@ class InjTune(QMainWindow):
         QTimer.singleShot(6000, self.next_step)
 
     def make_shift_1h(self) -> None:
-        print(self.cur_1_it)
-        print('--------------------------')
         if self.cur_1_it == self.n_iter:
-            print('FINISH')
+            self.p_win.status_bar.showMessage('FINISH')
             f = open('save_inj_tune_resp.txt', 'w')
             f.write(json.dumps(self.ring_cur_data))
             f.close()
@@ -218,7 +214,6 @@ class InjTune(QMainWindow):
             self.tunes_flag = False
 
     def extracted_event(self, chan) -> None:
-        print('counter', self.counter)
         if self.counter >= 3:
             self.counter = 0
             self.ring_cur_data[json.dumps(self.cur_tunes)] = np.mean(self.ring_cur_arr)
@@ -232,7 +227,6 @@ class InjTune(QMainWindow):
                 self.ring_cur_arr.append(chan.val)
 
     def next_step(self) -> None:
-        print('next step')
         self.tunes_flag = True
 
     def index(self, row:int, column=0) -> None:

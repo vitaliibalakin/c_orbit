@@ -340,4 +340,3 @@ bp = KMService("bpmd")
 #     w = BpmPreproc()
 #     sys.exit(app.exec_())
 
-

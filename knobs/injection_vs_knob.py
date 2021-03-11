@@ -27,7 +27,7 @@ class InjTune(QMainWindow):
     def __init__(self):
         super(InjTune, self).__init__()
         direc = os.getcwd()
-        direc = re.sub('handles', 'uis', direc)
+        direc = re.sub('knobs', 'uis', direc)
         self.p_win = uic.loadUi(direc + "/inj_vs_tune.ui")
         self.setWindowTitle('InjResp')
         self.p_win.show()
@@ -100,7 +100,7 @@ class InjTune(QMainWindow):
             elif self.cross_booked['Handle #2'] is not None:
                 self.handle = self.handle_2
             else:
-                self.p_win.status_bar.showMessage('Choose handles')
+                self.p_win.status_bar.showMessage('Choose knobs')
                 self.p_win.btn_handle_1.setEnabled(True)
                 self.p_win.btn_handle_2.setEnabled(True)
                 self.p_win.n_shots.setEnabled(True)

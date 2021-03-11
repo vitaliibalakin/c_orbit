@@ -76,6 +76,6 @@ class HandlesTable:
 
     # def get_handle_list(self):
     #     names = []
-    #     for el in self.handles:
+    #     for el in self.knobs:
     #         names.append(el['name'])
     #     return names

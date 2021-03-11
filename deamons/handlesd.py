@@ -142,7 +142,7 @@ class HandlesProc:
 
 
 DIR = os.getcwd()
-DIR = re.sub('deamons', 'handles', DIR)
+DIR = re.sub('deamons', 'knobs', DIR)
 
 
 class KMService(CXService):

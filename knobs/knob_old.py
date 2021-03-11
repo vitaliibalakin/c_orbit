@@ -7,8 +7,8 @@ import os
 import re
 import json
 
-from handles.handle_creating_table import Table
-from handles.handles_table_old import HandlesTable
+from knobs.knob_creating_table import Table
+from knobs.knobs_table_old import HandlesTable
 from bpm_base.aux_mod.tree_table import TreeTableCom
 
 
@@ -16,7 +16,7 @@ class Handles(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         direc = os.getcwd()
-        direc = re.sub('handles', 'uis', direc)
+        direc = re.sub('knobs', 'uis', direc)
         uic.loadUi(direc + "/handle_window.ui", self)
         self.setWindowTitle('Handles')
         self.show()
@@ -83,7 +83,7 @@ class Handles(QMainWindow):
         else:
             self.status_bar.showMessage('Enter the handle name')
             return
-        # save current handles
+        # save current knobs
         f = open('saved_handles.txt', 'w')
         f.write(json.dumps(self.handles.handle_descr))
         f.close()
@@ -96,7 +96,7 @@ class Handles(QMainWindow):
         if self.marked_row is not None:
             self.handles.remove_row(self.marked_row)
 
-            # save current handles
+            # save current knobs
             f = open('saved_handles.txt', 'w')
             f.write(json.dumps(self.handles.handle_descr))
             f.close()

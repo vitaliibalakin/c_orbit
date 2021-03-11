@@ -203,6 +203,6 @@ class PlotControl(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(['orbit_ctrl'])
+    app = QApplication(['orbit'])
     w = PlotControl()
     sys.exit(app.exec_())

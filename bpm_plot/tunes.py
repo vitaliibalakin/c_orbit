@@ -131,6 +131,6 @@ class TunesControl(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(['tunes_ctrl'])
+    app = QApplication(['tunes'])
     w = TunesControl()
     sys.exit(app.exec_())

@@ -9,7 +9,7 @@ import os
 import re
 import json
 
-from handles.handle_creating_table import Table
+from knobs.knob_creating_table import Table
 from bpm_base.aux_mod.tree_table import TreeTableCom
 
 
@@ -17,7 +17,7 @@ class Handles(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         direc = os.getcwd()
-        direc = re.sub('handles', 'uis', direc)
+        direc = re.sub('knobs', 'uis', direc)
         uic.loadUi(direc + "/handle_window.ui", self)
         self.setWindowTitle('Handles')
         self.show()

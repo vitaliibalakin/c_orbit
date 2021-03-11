@@ -161,7 +161,7 @@ class RMA(QMainWindow, DeviceFunc):
         init_val = data[1]
         buffer = []
         err_buffer = []
-        cur = np.arange(-1 * info.step * (info.n_iter-1), info.step * info.n_iter, info.step) + init_val
+        cur = np.arange(-1 * info.step * (info.n_mesh - 1), info.step * info.n_mesh, info.step) + init_val
         if self.resp_type.currentText() == 'coords':
             for i in range(len(resp_arr[0])):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i], sigma=std_err[:, i])
@@ -176,7 +176,7 @@ class RMA(QMainWindow, DeviceFunc):
             # collect tunes x|z to convert cur -> grad in another application and then plot betas
             buffer = np.ndarray.tolist(np.append(resp_arr[:, 0], resp_arr[:, 1]))
         self.resp_matr_dict[name] = {'data': buffer, 'si_err': err_buffer,
-                                     'step': info.step, 'n_iter': info.n_iter - 1, 'init': init_val}
+                                     'step': info.step, 'n_iter': info.n_mesh - 1, 'init': init_val}
         print(self.resp_matr_dict)
 
     @staticmethod

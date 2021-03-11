@@ -32,8 +32,8 @@ class InjTune(QMainWindow):
         self.setWindowTitle('InjResp')
         self.p_win.show()
 
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=True)
+        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=True)
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=True)
         self.chan_tunes.valueMeasured.connect(self.tunes_changed)
         self.chan_extracted = cda.DChan('cxhw:0.dcct.extractioncurrent', on_update=True)
@@ -60,27 +60,38 @@ class InjTune(QMainWindow):
         self.ring_cur_arr:list = []
         self.ring_cur_data:dict = {}
         ##########################
-        self.n_iter:int = 1
         self.counter:int = 0
+        self.n_amount:int = 36
+        self.shots_counter:int = 1
+        self.n_mesh:int = 1
+        self.n_shots:int = 3
         self.cur_1_it:int = 0
         self.cur_2_it:int = 0
-
+        ##########################
         self.load_handles()
 
     def start(self) -> None:
+        self.n_shots = self.p_win.n_shots.value()
+        self.n_mesh = self.p_win.n_mesh.value()
+        self.n_amount = (self.n_mesh * 2) ** 2
+        self.p_win.btn_handle_1.setEnabled(False)
+        self.p_win.btn_handle_2.setEnabled(False)
+        self.p_win.n_shots.setEnabled(False)
+        self.p_win.n_mesh.setEnabled(False)
+        self.p_win.btn_start.setEnabled(False)
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
             self.p_win.status_bar.showMessage('Start 2 knobs procedure')
             self.shift = self.make_shift_2h
             # n*type_1 tune shift
             print(self.handle_1.row, self.handle_2.row)
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
-                                               'row': self.handle_1.row, 'factor': self.n_iter}))
+                                               'row': self.handle_1.row, 'factor': self.n_mesh}))
             # n*type_2 tune shift
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
-                                               'row': self.handle_2.row, 'factor': self.n_iter}))
+                                               'row': self.handle_2.row, 'factor': self.n_mesh}))
 
-            self.cur_1_it = -1 * self.n_iter
-            self.cur_2_it = -1 * self.n_iter
+            self.cur_1_it = -1 * self.n_mesh
+            self.cur_2_it = -1 * self.n_mesh
             QTimer.singleShot(6000, self.next_step)
         else:
             self.p_win.status_bar.showMessage('Start 1 knob procedure')
@@ -90,11 +101,16 @@ class InjTune(QMainWindow):
                 self.handle = self.handle_2
             else:
                 self.p_win.status_bar.showMessage('Choose handles')
+                self.p_win.btn_handle_1.setEnabled(True)
+                self.p_win.btn_handle_2.setEnabled(True)
+                self.p_win.n_shots.setEnabled(True)
+                self.p_win.n_mesh.setEnabled(True)
+                self.p_win.btn_start.setEnabled(True)
                 return
             self.shift = self.make_shift_1h
-            self.cur_1_it = -1 * self.n_iter
+            self.cur_1_it = -1 * self.n_mesh
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
-                                               'row': self.handle.row, 'factor': self.n_iter}))
+                                               'row': self.handle.row, 'factor': self.n_mesh}))
             QTimer.singleShot(6000, self.next_step)
 
     def hand_choosed(self, btn:object) -> None:
@@ -121,8 +137,8 @@ class InjTune(QMainWindow):
                 self.p_win.status_bar.showMessage('Choose handle first')
 
     def make_shift_2h(self) -> None:
-        if self.cur_1_it == self.n_iter:
-            if self.cur_2_it == self.n_iter:
+        if self.cur_1_it == self.n_mesh:
+            if self.cur_2_it == self.n_mesh:
                 # end & save
                 self.p_win.status_bar.showMessage('FINISH')
                 f = open('save_inj_tune_resp.txt', 'w')
@@ -131,14 +147,16 @@ class InjTune(QMainWindow):
 
                 # to init state
                 self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
-                                                   'row': self.handle_1.row, 'factor': self.n_iter}))
+                                                   'row': self.handle_1.row, 'factor': self.n_mesh}))
                 self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
-                                                   'row': self.handle_2.row, 'factor': self.n_iter}))
+                                                   'row': self.handle_2.row, 'factor': self.n_mesh}))
                 # to defaults
                 self.marked_row = None
                 self.cross_booked = {'Handle #1': None, 'Handle #2': None}
                 self.cur_tunes = [0.0, 0.0]
-                self.n_iter = 10
+                self.n_mesh = 3
+                self.counter = 0
+                self.n_amount = 36
                 self.cur_1_it = 0
                 self.cur_2_it = 0
                 self.shift = None
@@ -154,38 +172,50 @@ class InjTune(QMainWindow):
                 self.handle_2.widget.text = None
                 self.handle_2.widget.setStyleSheet("background-color:rgb(255, 255, 255);")
                 self.handle_2.widget.setText(self.handle_2.name)
+
+                self.p_win.btn_handle_1.setEnabled(True)
+                self.p_win.btn_handle_2.setEnabled(True)
+                self.p_win.n_shots.setEnabled(True)
+                self.p_win.n_mesh.setEnabled(True)
+                self.p_win.btn_start.setEnabled(True)
                 return
             else:
+                self.counter += 1
+                self.p_win.progress_bar.setValue(int(self.counter / self.n_amount))
                 # 2 handle step
                 self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up',
                                                    'row': self.handle_2.row}))
                 self.cur_2_it += 1
                 # 2*n* 1 handle step
-                self.cur_1_it = -1 * self.n_iter
+                self.cur_1_it = -1 * self.n_mesh
                 self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'cst_step_down', 'row': self.handle_1.row,
-                                                   'factor': 2 * self.n_iter}))
+                                                   'factor': 2 * self.n_mesh}))
         else:
+            self.counter += 1
+            self.p_win.progress_bar.setValue(int(self.counter / self.n_amount))
             # 1 handle step
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle_1.row}))
             self.cur_1_it += 1
         QTimer.singleShot(6000, self.next_step)
 
     def make_shift_1h(self) -> None:
-        if self.cur_1_it == self.n_iter:
+        if self.cur_1_it == self.n_mesh:
             self.p_win.status_bar.showMessage('FINISH')
             f = open('save_inj_tune_resp.txt', 'w')
             f.write(json.dumps(self.ring_cur_data))
             f.close()
 
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
-                                               'row': self.handle.row, 'factor': self.n_iter}))
+                                               'row': self.handle.row, 'factor': self.n_mesh}))
 
             # to defaults
             self.handle = None
             self.marked_row = None
             self.cross_booked = {'Handle #1': None, 'Handle #2': None}
             self.cur_tunes = [0.0, 0.0]
-            self.n_iter = 10
+            self.n_mesh = 3
+            self.n_amount = 36
+            self.counter = 0
             self.cur_1_it = 0
             self.cur_2_it = 0
             self.shift = None
@@ -201,10 +231,19 @@ class InjTune(QMainWindow):
             self.handle_2.widget.text = None
             self.handle_2.widget.setStyleSheet("background-color:rgb(255, 255, 255);")
             self.handle_2.widget.setText(self.handle_2.name)
+
+            self.p_win.btn_handle_1.setEnabled(True)
+            self.p_win.btn_handle_2.setEnabled(True)
+            self.p_win.n_shots.setEnabled(True)
+            self.p_win.n_mesh.setEnabled(True)
+            self.p_win.btn_start.setEnabled(True)
+            return
         else:
+            self.counter += 1
+            self.p_win.progress_bar.setValue(int(self.counter / self.n_amount))
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle.row}))
             self.cur_1_it += 1
-            QTimer.singleShot(6000, self.next_step)
+        QTimer.singleShot(6000, self.next_step)
 
     def tunes_changed(self, chan) -> None:
         if self.tunes_flag:
@@ -214,16 +253,15 @@ class InjTune(QMainWindow):
             self.tunes_flag = False
 
     def extracted_event(self, chan) -> None:
-        if self.counter >= 3:
-            self.counter = 0
+        if self.shots_counter >= self.n_shots:
+            self.shots_counter = 1
             self.ring_cur_data[json.dumps(self.cur_tunes)] = np.mean(self.ring_cur_arr)
-            print(self.ring_cur_data)
             self.ring_cur_arr = []
             self.cur_flag = False
             self.shift()
         else:
             if self.cur_flag:
-                self.counter += 1
+                self.shots_counter += 1
                 self.ring_cur_arr.append(chan.val)
 
     def next_step(self) -> None:

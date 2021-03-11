@@ -50,6 +50,7 @@ class RMA(QMainWindow, DeviceFunc):
 
     def set_default(self):
         self.resp_type.setEnabled(True)
+        self.magn = None
         self.move_all = False
         self.prg_bar.setValue(0)
         self.elem_prg_bar.setValue(0)
@@ -96,18 +97,28 @@ class RMA(QMainWindow, DeviceFunc):
     ###########################################
 
     def start_magn(self):
-        self.magn = MagnetizationProc(prg=self.proc_progress)
+        if self.magn is None:
+            self.magn = MagnetizationProc(prg=self.proc_progress, elem_prg=self.elem_progress)
         self.btn_start_coll.setEnabled(False)
+        self.btn_start_magn.setEnabled(False)
+        self.btn_stop_proc.setEnabled(False)
         self.lbl_elem.setText('MAGN')
         self.log_msg.append('start magnetization')
+        self.prg_bar.setValue(0)
+        self.magn.start()
+
+    def elem_progress(self, val):
+        self.elem_prg_bar.setValue(val)
 
     def proc_progress(self, val):
-        self.elem_prg_bar.setValue(val)
+        self.prg_bar.setValue(val)
         if val == 146:
             self.cor_fail = self.magn.cor_fail
             self.main_cur = self.magn.main_cur
             self.btn_start_coll.setEnabled(True)
-            self.elem_prg_bar.setValue(100)
+            self.btn_start_magn.setEnabled(True)
+            self.btn_stop_proc.setEnabled(True)
+            self.prg_bar.setValue(100)
             self.log_msg.append('stop magnetization')
 
     ###########################################
@@ -117,6 +128,7 @@ class RMA(QMainWindow, DeviceFunc):
     def start_rma(self):
         self.resp_type.setEnabled(False)
         self.btn_start_magn.setEnabled(False)
+        self.btn_start_coll.setEnabled(False)
         self.log_msg.append('start_rma')
         self.prg_bar.setValue(0)
         # deleting from stack FAIL elems
@@ -160,6 +172,7 @@ class RMA(QMainWindow, DeviceFunc):
                 self.log_msg.append('RMA stage completed, saving RM')
                 self.btn_start_magn.setEnabled(True)
                 self.resp_type.setEnabled(True)
+                self.btn_start_coll.setEnabled(True)
                 self.save_rma()
                 self.set_default()
         else:

@@ -60,7 +60,7 @@ class DeviceFunc:
         values[chan.name.split('.')[-1]][chan.name.split('.')[-2]] = chan.val
 
     def checking_equality(self, val_dict, call_ok, call_err, diff):
-        print('check')
+        # print('check')
         if abs(val_dict['Iset'] - val_dict['Imes']) < diff:
             call_ok()
         else:
@@ -68,7 +68,7 @@ class DeviceFunc:
 
     @staticmethod
     def err_verification(val_dict, call_ok, call_err, diff):
-        print('recheck')
+        # print('recheck')
         if abs(val_dict['Iset'] - val_dict['Imes']) < diff:
             call_ok()
         else:

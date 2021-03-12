@@ -111,7 +111,6 @@ class MagnetizationProc(DeviceFunc):
 
     def action_loop(self, name):
         # remember init vals
-        print(self.control_sum)
         if not (name in self.main_cur):
             self.main_cur[name] = self.elems_2_mag[name].init_val
 

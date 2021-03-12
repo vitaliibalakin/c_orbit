@@ -37,6 +37,7 @@ class RMA(QMainWindow, DeviceFunc):
 
         self.cor_set_table.itemPressed.connect(self.index)
 
+        self.magn = None
         self.set_default()
 
         self.btn_start_coll.clicked.connect(self.start_rma)
@@ -50,7 +51,6 @@ class RMA(QMainWindow, DeviceFunc):
 
     def set_default(self):
         self.resp_type.setEnabled(True)
-        self.magn = None
         self.move_all = False
         self.prg_bar.setValue(0)
         self.elem_prg_bar.setValue(0)
@@ -180,6 +180,7 @@ class RMA(QMainWindow, DeviceFunc):
             self.log_msg.append('External interruption')
             self.btn_start_magn.setEnabled(True)
             self.resp_type.setEnabled(True)
+            self.btn_start_coll.setEnabled(True)
             self.set_default()
 
     def rma_string_calc(self, name, data, std_err):

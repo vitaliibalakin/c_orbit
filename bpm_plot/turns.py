@@ -124,7 +124,7 @@ class TurnsControl(QMainWindow):
             elif self.ic_mode == 'e':
                 self.one_turn_e.one_turn_plot(chan.val)
             else:
-                print('WTF one_turn_proc')
+                self.status_bar.showMessage('WTF one_turn_proc')
 
     def cur_proc(self, chan):
         if chan.val.any():
@@ -133,7 +133,7 @@ class TurnsControl(QMainWindow):
             elif self.ic_mode == 'e':
                 self.turns_e.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
             else:
-                print('WTF cur_proc')
+                self.status_bar.showMessage('WTF cur_proc')
 
     def fft_proc(self, chan):
         if chan.val.any():
@@ -142,7 +142,7 @@ class TurnsControl(QMainWindow):
             elif self.ic_mode == 'e':
                 self.fft_e.fft_plot(chan.val)
             else:
-                print('WTF fft_proc')
+                self.status_bar.showMessage('WTF fft_proc')
 
     def coor_proc(self, chan):
         if chan.val.any():
@@ -151,7 +151,7 @@ class TurnsControl(QMainWindow):
             elif self.ic_mode == 'e':
                 self.coor_e.coor_plot(chan.val)
             else:
-                print('WTF coor_proc')
+                self.status_bar.showMessage('WTF coor_proc')
 
     def mode_proc(self, chan):
         if chan.val:
@@ -163,7 +163,7 @@ class TurnsControl(QMainWindow):
                 self.tab_fourier.setCurrentIndex(0)
                 self.tab_turns.setCurrentIndex(0)
             else:
-                print('WTF mode_proc')
+                self.status_bar.showMessage('WTF mode_proc')
 
 
 if __name__ == "__main__":

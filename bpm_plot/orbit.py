@@ -136,7 +136,7 @@ class PlotControl(QMainWindow):
         try:
             self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
         except Exception as exc:
-            print('mode_changed', exc)
+            self.status_bar.showMessage('mode_changed', exc)
 
     def act_bpm(self, chan):
         try:
@@ -154,7 +154,7 @@ class PlotControl(QMainWindow):
                     self.active_bpm(bpm)
             self.orbit_to_lbl(self.cur_orbit[:32])
         except Exception as exc:
-            print('act_bpm', exc)
+            self.status_bar.showMessage('act_bpm', exc)
 
     def load_file_(self):
         try:

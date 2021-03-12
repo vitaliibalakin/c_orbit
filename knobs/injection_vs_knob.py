@@ -83,7 +83,7 @@ class InjTune(QMainWindow):
             self.p_win.status_bar.showMessage('Start 2 knobs procedure')
             self.shift = self.make_shift_2h
             # n*type_1 tune shift
-            print(self.handle_1.row, self.handle_2.row)
+            # self.status_bar.showMessage(self.handle_1.row, self.handle_2.row)
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                'row': self.handle_1.row, 'factor': self.n_mesh}))
             # n*type_2 tune shift

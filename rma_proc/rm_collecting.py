@@ -136,7 +136,7 @@ class RMA(QMainWindow, DeviceFunc):
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
                 self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], cor['id'],
-                                                           step=cor['rm_step'].value(), n_iter=cor['rm_iter'].value(),
+                                                           step=cor['rm_step'].value(), n_mesh=cor['rm_iter'].value(),
                                                            prg=self.elem_prg_bar, resp_type=self.resp_type.currentText())
         if not len(self.cor_fail):
             self.log_msg.append('Fail List EMPTY')

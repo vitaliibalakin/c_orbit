@@ -6,7 +6,7 @@ import numpy as np
 
 
 class CorMeasure(DeviceFunc):
-    def __init__(self, call_upon_completion, name, it_id, step, n_iter, prg, resp_type='coords'):
+    def __init__(self, call_upon_completion, name, it_id, step, n_mesh, prg, resp_type='coords'):
         super(CorMeasure, self).__init__()
         self.chans = {'Iset': None, 'Imes': None}
         self.val = {'Iset': None, 'Imes': None, 'time': None}
@@ -14,9 +14,9 @@ class CorMeasure(DeviceFunc):
         self.id = it_id
         self.init_val = None
         self.step = step
-        self.n_iter = -1 * n_iter
+        self.n_mesh = -1 * n_mesh
         self.prg = prg
-        self.stop = n_iter + 1
+        self.stop = n_mesh + 1
         self.response = None
         self.std_err = None
         self.status = None
@@ -55,11 +55,11 @@ class CorMeasure(DeviceFunc):
                     self.err_verification(self.val, self.data_is_ready, self.cor_error, 100)
 
     def proc(self):
-        self.prg.setValue((self.n_iter / 2 / (self.stop-1) + 1 / 2) * 100)
+        self.prg.setValue((self.n_mesh / 2 / (self.stop-1) + 1 / 2) * 100)
         if not self.flag:
             self.flag = True
             self.init_val = self.val['Iset']
-        if self.n_iter == self.stop:
+        if self.n_mesh == self.stop:
             self.flag = False
             self.status = 'completed'
             self.chans['Iset'].setValue(self.init_val)
@@ -67,9 +67,9 @@ class CorMeasure(DeviceFunc):
             self.std_err = self.cor_std[1:]
             self.callback(self.name)
         else:
-            self.chans['Iset'].setValue(self.init_val + self.n_iter * self.step)
-            # print(self.name, self.n_iter)
-            self.n_iter += 1
+            self.chans['Iset'].setValue(self.init_val + self.n_mesh * self.step)
+            # print(self.name, self.n_mesh)
+            self.n_mesh += 1
             self.time_flag = True
             self.time_stamp = time.time() + 3
 

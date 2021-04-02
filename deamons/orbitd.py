@@ -18,25 +18,30 @@ from bpm_base.bpm import BPM
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
-        self.mode_d = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
-        self.ic_mode = ''
-        self.bckgr_proc = False
-        self.bpms_zeros = np.zeros(32,)
-        self.bpms_deviation = np.zeros(32,)
-        self.bckrg_counter = 0
-        self.bckgr_it_num = 0
-        self.current_orbit = np.empty(0)
-        self.current_tunes = np.empty(0)
-        self.client_list = ['orbit', 'tunes', 'turns']
-        self.fft_bpm = 'bpm15'
-        self.turns_bpm = 'bpm15'
-        self.bpms_list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
+        self.mode_d: dict = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
+        self.ic_mode : str = ''
+        self.bckgr_proc : bool = False
+        self.bpms_zeros : nparray = np.zeros(32,)
+        self.bpms_deviation : nparray = np.zeros(32,)
+        self.bckrg_counter : int = 0
+        self.bckgr_it_num : int = 0
+        self.current_orbit : nparray = np.empty(0)
+        self.current_tunes : nparray = np.empty(0)
+        self.client_list: list = ['orbit', 'tunes', 'turns']
+        self.fft_bpm : str = 'bpm15'
+        self.turns_bpm : str = 'bpm15'
+        self.bpms_list : list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                           'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        self.bpms = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
-                         self.collect_fft, self.collect_coor) for bpm in self.bpms_list]
+        self.bpms : list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
+                         self.collect_fft, self.collect_coor, self.calc_inj_param) for bpm in self.bpms_list]
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
+        self.inj_bpms : dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
+                                'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
+        self.inj_coors : dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
+        self.m_x1_x2 : list = []
+        self.m_x2_septum : list = []
 
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
         self.chan_ctrl_tunes = cda.StrChan('cxhw:4.bpm_preproc.control_tunes', max_nelems=1024)
@@ -61,7 +66,7 @@ class BpmPreproc:
             'num_pts': self.turn_bpm_num_pts_, 'turn_num': self.turn_num_,
             'no_cmd': self.no_cmd_,
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
-            'bckgr_discard': self.bckgr_discard_
+            'bckgr_discard': self.bckgr_discard_, 'load_inj_matrix': self.load_inj_m_
         }
         self.start_tunes_()
         print('start')
@@ -102,6 +107,8 @@ class BpmPreproc:
                     z_orbit = np.append(z_orbit, bpm.coor[1])
                     z_orbit_sigma = np.append(z_orbit_sigma, bpm.sigma[1])
                     turns_matrix = np.append(turns_matrix, bpm.turn_arrays)
+                    if bpm.name in self.inj_bpms[self.ic_mode]:
+                        self.inj_coors[bpm.name] = [bpm.turn_arrays[0], bpm.turn_arrays[bpm.data_len]]
                 else:
                     one_turn_x = np.append(one_turn_x, 100)
                     one_turn_z = np.append(one_turn_z, 100)
@@ -113,6 +120,7 @@ class BpmPreproc:
             orbit = np.concatenate([x_orbit, z_orbit])
             std = np.concatenate([x_orbit_sigma, z_orbit_sigma])
             self.current_orbit = np.concatenate([orbit - self.bpms_zeros, std])
+            self.calc_inj_param()
 
             if self.bckgr_proc:
                 self.bpms_deviation += orbit
@@ -137,6 +145,18 @@ class BpmPreproc:
 
     def collect_coor(self, data):
         self.chan_coor.setValue(data)
+
+    def calc_inj_param(self):
+        # x corr from first bpm on beam way
+        x1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][0]
+        # x corr from second bpm on beam way
+        x2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][0]
+        # y corr from first bpm on beam way
+        y1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][1]
+        # y corr from second bpm on beam way
+        y2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][1]
+        if  self.m_x1_x2 and self.m_x2_septum:
+            pass
 
     #########################################################
     #                     command part                      #
@@ -205,6 +225,9 @@ class BpmPreproc:
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
         self.send_cmd_res_(**{'action': 'bckgr_done', 'client': 'orbit'})
+
+    def load_inj_m_(self, **kwargs):
+        pass
 
     def no_cmd_(self, **kwargs):
         client = kwargs.get('client', 'no_client')

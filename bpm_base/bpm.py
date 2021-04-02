@@ -11,59 +11,62 @@ class BPM:
         super(BPM, self).__init__()
         self.collect_orbit, self.collect_tunes, self.send_current, self.send_fft, self.send_coor = \
             collect_orbit, collect_tunes, send_current, send_fft, send_coor
-        self.last_data_upd = 0
-        self.no_connection = False
-        self.name = bpm
-        self.turns_mes = 0
-        self.act_state = 1
-        self.marker = 0
-        self.turn_num = 1
-        self.data_len = 1024
-        self.turn_slice = (100.0, 100.0)
-        self.starting = True
-        self.coor = (0, 0)
-        self.sigma = (0, 0)
-        self.turn_arrays = np.ndarray([])
-        self.x_bound = [0.345, 0.365]
-        self.z_bound = [0.2, 0.4]
+        self.last_data_upd : int = 0
+        self.no_connection : bool = False
+        self.name : str = bpm
+        self.turns_mes : int = 0
+        self.act_state : int = 1
+        self.marker : int = 0
+        self.turn_num : int = 1
+        self.data_len : int = 1024
+        self.turn_slice : tuple = (100.0, 100.0)
+        self.starting : bool = True
+        self.coor : tuple = (0, 0)
+        self.sigma : tuple = (0, 0)
+        self.turn_arrays : nparray = np.ndarray([])
+        self.x_bound : list = [0.345, 0.365]
+        self.z_bound : list = [0.2, 0.4]
 
         self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=524288)
-        self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
-        self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
+        self.chan_datatxzi.valueMeasured.connect(self.data_proc)
         self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=4096)
         self.chan_tunes_range.valueMeasured.connect(self.tunes_range)
-        self.chan_datatxzi.valueMeasured.connect(self.data_proc)
-        self.chan_marker.valueMeasured.connect(self.marker_proc)
+        # self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
+        # self.chan_marker.valueMeasured.connect(self.marker_proc)
 
-    def marker_proc(self, chan):
-        if self.starting:
-            self.last_data_upd = time.time()
-            self.starting = False
-        else:
-            if time.time() - self.last_data_upd < 10:
-                self.last_data_upd = time.time()
-                if self.no_connection:
-                    self.no_connection = False
-            else:
-                self.last_data_upd = time.time()
-                self.no_connection = True
-        self.marker = 1
-        self.collect_orbit()
+    # def marker_proc(self, chan):
+    #     if self.starting:
+    #         self.last_data_upd = time.time()
+    #         self.starting = False
+    #     else:
+    #         if time.time() - self.last_data_upd < 10:
+    #             self.last_data_upd = time.time()
+    #             if self.no_connection:
+    #                 self.no_connection = False
+    #         else:
+    #             self.last_data_upd = time.time()
+    #             self.no_connection = True
+    #     self.marker = 1
+    #     self.collect_orbit()
+
 
     def data_proc(self, chan):
         data_len = int(len(chan.val) / 4)
+        self.data_len = data_len
         self.turn_arrays = chan.val[data_len:3 * data_len]
         self.turn_slice = (chan.val[data_len + self.turn_num - 1], chan.val[2 * data_len + self.turn_num - 1])
         self.coor = (np.mean(chan.val[data_len:2 * data_len]), np.mean(chan.val[2 * data_len:3 * data_len]))
         self.sigma = (np.std(chan.val[data_len:2 * data_len]), np.std(chan.val[2 * data_len:3 * data_len]))
+        self.marker = 1
+
+        self.collect_orbit()
         if self.turns_mes:
             self.fft_proc(chan.val[data_len:3 * data_len])
             self.send_current(chan.val[3*data_len:4*data_len])
-        self.data_len = data_len
 
     def fft_proc(self, data):
         self.send_coor(data)
-        h_len = len(data) // 2
+        h_len = self.data_len
         window = sp.nuttall(h_len)
         x_fft = np.fft.rfft((data[:h_len] - np.mean(data[:h_len])) * window, len(data[:h_len]), norm='ortho')
         z_fft = np.fft.rfft((data[h_len: len(data)] - np.mean(data[h_len: len(data)])) * window,

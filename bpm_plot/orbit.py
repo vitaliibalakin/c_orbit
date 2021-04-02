@@ -68,6 +68,7 @@ class PlotControl(QMainWindow):
         self.btn_bckgr_discard.clicked.connect(self.bckrg_discard)
         self.btn_save.clicked.connect(self.save_file_)
         self.btn_bckgr.clicked.connect(self.bckgr)
+        self.btn_inj_m.clicked.connect(self.load_inj_matrix)
 
         # other ordinary channels
         self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
@@ -83,6 +84,14 @@ class PlotControl(QMainWindow):
         self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
+
+    def load_inj_matrix(self):
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/injection_m',
+                                                    filter='Text Files (*.txt)')[0]
+            self.chan_cmd.setValue(json.dumps({'cmd': 'load_inj_matrix', 'client': 'orbit', 'file_name': file_name}))
+        except Exception as exc:
+            self.status_bar.showMessage(exc)
 
     def bckgr(self):
         self.btn_bckgr.setEnabled(False)

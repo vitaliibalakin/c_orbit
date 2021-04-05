@@ -11,21 +11,21 @@ class BPM:
         super(BPM, self).__init__()
         self.collect_orbit, self.collect_tunes, self.send_current, self.send_fft, self.send_coor = \
             collect_orbit, collect_tunes, send_current, send_fft, send_coor
-        self.last_data_upd : int = 0
-        self.no_connection : bool = False
-        self.name : str = bpm
-        self.turns_mes : int = 0
-        self.act_state : int = 1
-        self.marker : int = 0
-        self.turn_num : int = 1
-        self.data_len : int = 1024
-        self.turn_slice : tuple = (100.0, 100.0)
-        self.starting : bool = True
-        self.coor : tuple = (0, 0)
-        self.sigma : tuple = (0, 0)
-        self.turn_arrays : nparray = np.ndarray([])
-        self.x_bound : list = [0.345, 0.365]
-        self.z_bound : list = [0.2, 0.4]
+        self.last_data_upd: int = 0
+        self.no_connection: bool = False
+        self.name: str = bpm
+        self.turns_mes: int = 0
+        self.act_state: int = 1
+        self.marker: int = 0
+        self.turn_num: int = 1
+        self.data_len: int = 1024
+        self.turn_slice: tuple = (100.0, 100.0)
+        self.starting: bool = True
+        self.coor: tuple = (0, 0)
+        self.sigma: tuple = (0, 0)
+        self.turn_arrays: nparray = np.ndarray([])
+        self.x_bound: list = [0.345, 0.365]
+        self.z_bound: list = [0.2, 0.4]
 
         self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=524288)
         self.chan_datatxzi.valueMeasured.connect(self.data_proc)

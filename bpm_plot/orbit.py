@@ -25,41 +25,42 @@ class PlotControl(QMainWindow):
         self.show()
 
         # variables for under control objects init
-        self.ic_mode = ''
-        self.cur_orbit = np.zeros(32)
-        self.bpms = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
-                     'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        self.cur_bpms = self.bpms.copy()
-        self.bpm_coor = [21.4842, 23.39292, 24.6282, 26.5572, 0.8524, 2.7974, 4.0234, 5.9514, 7.7664, 9.6884,
-                         10.9154, 12.8604, 14.5802, 16.5152, 17.7697, 19.6742]
-        self.bpm_btns = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
-                         self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
-                         self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]
-        self.bpm_lbls = [self.lbl_bpm01, self.lbl_bpm02, self.lbl_bpm03, self.lbl_bpm04, self.lbl_bpm05, self.lbl_bpm07,
-                         self.lbl_bpm08, self.lbl_bpm09, self.lbl_bpm10, self.lbl_bpm11, self.lbl_bpm12, self.lbl_bpm13,
-                         self.lbl_bpm14, self.lbl_bpm15, self.lbl_bpm16, self.lbl_bpm17]
-        self.worked_bpms = {bpm: 1 for bpm in self.bpms}
-        self.dict_btns = {self.bpms[i]: self.bpm_btns[i] for i in range(len(self.bpms))}
-        self.dict_lbls = {self.bpms[i]: self.bpm_lbls[i] for i in range(len(self.bpms))}
+        self.ic_mode: str
+        self.cur_orbit: nparray = np.zeros(32)
+        self.bpms: list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
+                          'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.cur_bpms: list = self.bpms.copy()
+        self.bpm_coor: list = [21.4842, 23.39292, 24.6282, 26.5572, 0.8524, 2.7974, 4.0234, 5.9514, 7.7664, 9.6884,
+                               10.9154, 12.8604, 14.5802, 16.5152, 17.7697, 19.6742]
+        self.bpm_btns: list = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
+                               self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
+                               self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]
+        self.bpm_lbls:  list = [self.lbl_bpm01, self.lbl_bpm02, self.lbl_bpm03, self.lbl_bpm04, self.lbl_bpm05, self.lbl_bpm07,
+                                self.lbl_bpm08, self.lbl_bpm09, self.lbl_bpm10, self.lbl_bpm11, self.lbl_bpm12, self.lbl_bpm13,
+                                self.lbl_bpm14, self.lbl_bpm15, self.lbl_bpm16, self.lbl_bpm17]
+        self.worked_bpms: dict = {bpm: 1 for bpm in self.bpms}
+        self.dict_btns: dict = {self.bpms[i]: self.bpm_btns[i] for i in range(len(self.bpms))}
+        self.dict_lbls: dict = {self.bpms[i]: self.bpm_lbls[i] for i in range(len(self.bpms))}
         for btn in self.bpm_btns:
             btn.clicked.connect(self.bpm_btn_clicked)
 
         # under control objects init
-        self.orbit_plots = {'x_orbit': OrbitPlot('x', aper_files + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
-                            'z_orbit': OrbitPlot('z', aper_files + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
+        self.orbit_plots: dict = {'x_orbit': OrbitPlot('x', aper_files + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
+                                  'z_orbit': OrbitPlot('z', aper_files + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
 
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbit_plots.items():
             p.addWidget(plot)
 
-        self.btn_dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
-                         'p2v2': self.btn_sel_p2v2}
+        self.btn_dict: dict = {'e2v4': self.btn_sel_e2v4, 'p2v4': self.btn_sel_p2v4, 'e2v2': self.btn_sel_e2v2,
+                               'p2v2': self.btn_sel_p2v2}
         for key, btn in self.btn_dict.items():
             btn.clicked.connect(self.load_file_)
 
-        self.colors = {'e2v4': 'background-color:#55ffff;', 'p2v4': 'background-color:#ff86ff;',
-                       'e2v2': 'background-color:#75ff91;', 'p2v2': 'background-color:#ff6b6b;'}
+        self.colors: dict = {'e2v4': 'background-color:#55ffff;', 'p2v4': 'background-color:#ff86ff;',
+                             'e2v2': 'background-color:#75ff91;', 'p2v2': 'background-color:#ff6b6b;'}
+        self.inj_mode_matr: dict = {'p': False, 'e': False}
 
         # self.btn_bot_on.clicked.connect(self.bot_ctrl)
         # self.btn_bot_off.clicked.connect(self.bot_ctrl)
@@ -89,7 +90,7 @@ class PlotControl(QMainWindow):
         try:
             file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/injection_m',
                                                     filter='Text Files (*.txt)')[0]
-            self.chan_cmd.setValue(json.dumps({'cmd': 'load_inj_matrix', 'client': 'orbit', 'file_name': file_name}))
+            self.chan_cmd.setValue(json.dumps({'cmd': 'load_inj_matrix', 'client': 'inj', 'file_name': file_name}))
         except Exception as exc:
             self.status_bar.showMessage(exc)
 
@@ -142,10 +143,11 @@ class PlotControl(QMainWindow):
         # self.ic_mode = 'p2v2'  # delete after tests
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
-        try:
-            self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
-        except Exception as exc:
-            self.status_bar.showMessage('mode_changed', exc)
+        self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
+        if self.inj_mode_matr[self.ic_mode[0]]:
+            self.btn_inj_m.setStyleSheet(self.colors[self.ic_mode])
+        else:
+            self.btn_inj_m.setStyleSheet("background-color:rgb(255, 255, 255);")
 
     def act_bpm(self, chan):
         try:
@@ -201,10 +203,18 @@ class PlotControl(QMainWindow):
                 if action == 'bckgr_done':
                     self.btn_bckgr.setEnabled(True)
                     self.spb_bckgr.setEnabled(True)
-                elif action == 'no_connection':
-                    bpm_name = json.loads(chan.val).get('bpm')
-                    self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
-                    self.dict_lbls[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
+            elif client == 'inj':
+                if action == 'load -> transport matrices':
+                    self.btn_inj_m.setStyleSheet(self.colors[self.ic_mode])
+                    self.inj_mode_matr[self.ic_mode[0]] = True
+                elif action == 'load -> inj file error':
+                    self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(255, 255, 255);")
+                    self.inj_mode_matr[self.ic_mode[0]] = False
+
+                # elif action == 'no_connection':
+                #     bpm_name = json.loads(chan.val).get('bpm')
+                #     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
+                #     self.dict_lbls[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
                 # elif msg == 'connected':
                 #     bpm_name = json.loads(chan.val).get('bpm')
                 #     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(0, 255, 0);")

@@ -18,30 +18,31 @@ from bpm_base.bpm import BPM
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
-        self.mode_d: dict = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt'}
-        self.ic_mode : str = ''
-        self.bckgr_proc : bool = False
-        self.bpms_zeros : nparray = np.zeros(32,)
-        self.bpms_deviation : nparray = np.zeros(32,)
-        self.bckrg_counter : int = 0
-        self.bckgr_it_num : int = 0
-        self.current_orbit : nparray = np.empty(0)
-        self.current_tunes : nparray = np.empty(0)
-        self.client_list: list = ['orbit', 'tunes', 'turns']
-        self.fft_bpm : str = 'bpm15'
-        self.turns_bpm : str = 'bpm15'
-        self.bpms_list : list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
-                          'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        self.bpms : list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
+        self.mode_d: dict = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt',
+                             'inj': DIR + '/mode_inj_file.txt'}
+        self.ic_mode: str
+        self.bckgr_proc: bool = False
+        self.bpms_zeros: nparray = np.zeros(32,)
+        self.bpms_deviation: nparray = np.zeros(32,)
+        self.bckrg_counter: int = 0
+        self.bckgr_it_num: int = 0
+        self.current_orbit: nparray = np.empty(0)
+        self.current_tunes: nparray = np.empty(0)
+        self.client_list: list = ['orbit', 'tunes', 'turns', 'inj']
+        self.fft_bpm: str = 'bpm15'
+        self.turns_bpm: str = 'bpm15'
+        self.bpms_list: list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
+                                'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
                          self.collect_fft, self.collect_coor, self.calc_inj_param) for bpm in self.bpms_list]
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
-        self.inj_bpms : dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
-                                'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
-        self.inj_coors : dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
-        self.m_x1_x2 : list = []
-        self.m_x2_septum : list = []
+        self.inj_bpms: dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
+                               'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
+        self.inj_coors: dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
+        self.m_x1_x2: list
+        self.m_x2_septum: list
 
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
         self.chan_ctrl_tunes = cda.StrChan('cxhw:4.bpm_preproc.control_tunes', max_nelems=1024)
@@ -61,12 +62,13 @@ class BpmPreproc:
 
         self.cmd_table = {
             'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
+            'load_inj_matrix': self.load_file_,
             'save_orbit': self.save_file_, 'save_tunes': self.save_file_,
             'cur_bpms': self.act_bpm_, 'turn_bpm': self.turn_bpm_,
             'num_pts': self.turn_bpm_num_pts_, 'turn_num': self.turn_num_,
             'no_cmd': self.no_cmd_,
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
-            'bckgr_discard': self.bckgr_discard_, 'load_inj_matrix': self.load_inj_m_
+            'bckgr_discard': self.bckgr_discard_
         }
         self.start_tunes_()
         print('start')
@@ -151,11 +153,11 @@ class BpmPreproc:
         x1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][0]
         # x corr from second bpm on beam way
         x2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][0]
-        # y corr from first bpm on beam way
-        y1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][1]
-        # y corr from second bpm on beam way
-        y2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][1]
-        if  self.m_x1_x2 and self.m_x2_septum:
+        # # y corr from first bpm on beam way
+        # y1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][1]
+        # # y corr from second bpm on beam way
+        # y2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][1]
+        if self.m_x1_x2 and self.m_x2_septum:
             pass
 
     #########################################################
@@ -227,7 +229,19 @@ class BpmPreproc:
         self.send_cmd_res_(**{'action': 'bckgr_done', 'client': 'orbit'})
 
     def load_inj_m_(self, **kwargs):
-        pass
+        file_name = kwargs.get('file_name')
+        client = kwargs.get('client')
+        try:
+            file = open(file_name, 'r')
+            if os.fstat(file.fileno()).st_size:
+                data = np.loadtxt(file_name)
+                # matrices parameters is here
+                self.send_cmd_res_(**{'action': 'load -> transport matrices', 'client': client})
+            else:
+                self.send_cmd_res_(**{'action': 'load -> inj file error', 'client': client})
+            file.close()
+        except Exception as exc:
+            self.send_cmd_res_(**{'action': 'inj_' + exc, 'client': client})
 
     def no_cmd_(self, **kwargs):
         client = kwargs.get('client', 'no_client')
@@ -300,7 +314,7 @@ class BpmPreproc:
         client = kwargs.get('client')
         if client == 'orbit':
             data = self.current_orbit
-            print(data)
+            # print(data)
             if data.any():
                 self.chan_ctrl_orbit.setValue(data)
                 np.savetxt(file_name, data)
@@ -336,11 +350,14 @@ class BpmPreproc:
             file.close()
             if client == 'orbit':
                 self.chan_ctrl_orbit.setValue(data)
-            if client == 'tunes':
+            elif client == 'tunes':
                 self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
+            elif client == 'inj':
+                self.m_x1_x2 = data[0:2, :]
+                self.m_x2_septum = data[2:, :]
             self.mode_file_edit_(file_name, self.mode_d[client])
         except Exception as exc:
-            print('ratatata', exc)
+            self.send_cmd_res_(**{'action': 'loading_' + exc, 'client': client})
 
 
 DIR = os.getcwd()

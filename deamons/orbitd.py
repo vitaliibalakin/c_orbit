@@ -340,12 +340,14 @@ class BpmPreproc:
             file = open(file_name, 'r')
             if os.fstat(file.fileno()).st_size:
                 data = np.loadtxt(file_name)
-                self.send_cmd_res_(**{'action': 'loaded', 'client': client})
+                self.send_cmd_res_(**{'action': 'load -> loaded', 'client': client})
             else:
                 if client == 'orbit':
                     data = np.zeros(64)
                 elif client == 'tunes':
                     data = np.zeros(2)
+                elif client == 'inj':
+                    data = np.ones([2,2])
                 self.send_cmd_res_(**{'action': 'load -> file error', 'client': client})
             file.close()
             if client == 'orbit':

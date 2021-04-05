@@ -204,10 +204,10 @@ class PlotControl(QMainWindow):
                     self.btn_bckgr.setEnabled(True)
                     self.spb_bckgr.setEnabled(True)
             elif client == 'inj':
-                if action == 'load -> transport matrices':
+                if action == 'load -> loaded':
                     self.btn_inj_m.setStyleSheet(self.colors[self.ic_mode])
                     self.inj_mode_matr[self.ic_mode[0]] = True
-                elif action == 'load -> inj file error':
+                elif action == 'load -> file error':
                     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(255, 255, 255);")
                     self.inj_mode_matr[self.ic_mode[0]] = False
 

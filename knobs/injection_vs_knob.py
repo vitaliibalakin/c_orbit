@@ -73,7 +73,6 @@ class InjTune(QMainWindow):
     def start(self) -> None:
         self.n_shots = self.p_win.n_shots.value()
         self.n_mesh = self.p_win.n_mesh.value()
-        self.n_amount = (self.n_mesh * 2) ** 2
         self.p_win.btn_handle_1.setEnabled(False)
         self.p_win.btn_handle_2.setEnabled(False)
         self.p_win.n_shots.setEnabled(False)
@@ -82,6 +81,7 @@ class InjTune(QMainWindow):
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
             self.p_win.status_bar.showMessage('Start 2 knobs procedure')
             self.shift = self.make_shift_2h
+            self.n_amount = (self.n_mesh * 2) ** 2
             # n*type_1 tune shift
             # self.status_bar.showMessage(self.handle_1.row, self.handle_2.row)
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
@@ -108,6 +108,7 @@ class InjTune(QMainWindow):
                 self.p_win.btn_start.setEnabled(True)
                 return
             self.shift = self.make_shift_1h
+            self.n_amount = (self.n_mesh * 2)
             self.cur_1_it = -1 * self.n_mesh
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                'row': self.handle.row, 'factor': self.n_mesh}))

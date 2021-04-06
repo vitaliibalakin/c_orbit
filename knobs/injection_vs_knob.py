@@ -181,7 +181,7 @@ class InjTune(QMainWindow):
                 return
             else:
                 self.counter += 1
-                self.p_win.progress_bar.setValue(int(self.counter / self.n_amount))
+                self.p_win.progress_bar.setValue(int(self.counter / self.n_amount * 100))
                 # 2 handle step
                 self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up',
                                                    'row': self.handle_2.row}))
@@ -192,7 +192,7 @@ class InjTune(QMainWindow):
                                                    'factor': 2 * self.n_mesh}))
         else:
             self.counter += 1
-            self.p_win.progress_bar.setValue(int(self.counter / self.n_amount))
+            self.p_win.progress_bar.setValue(int(self.counter / self.n_amount * 100))
             # 1 handle step
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle_1.row}))
             self.cur_1_it += 1
@@ -240,7 +240,7 @@ class InjTune(QMainWindow):
             return
         else:
             self.counter += 1
-            self.p_win.progress_bar.setValue(int(self.counter / self.n_amount))
+            self.p_win.progress_bar.setValue(int(self.counter / self.n_amount * 100))
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'step_up', 'row': self.handle.row}))
             self.cur_1_it += 1
         QTimer.singleShot(6000, self.next_step)

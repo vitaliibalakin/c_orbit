@@ -7,8 +7,16 @@
     <x>0</x>
     <y>0</y>
     <width>1033</width>
-    <height>776</height>
+    <height>770</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Chilanka</family>
+    <weight>50</weight>
+    <italic>true</italic>
+    <bold>false</bold>
+   </font>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -140,6 +148,9 @@
      </item>
      <item row="0" column="10">
       <widget class="QSpinBox" name="spb_bckgr">
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
        <property name="minimum">
         <number>1</number>
        </property>
@@ -181,6 +192,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -202,6 +219,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -225,6 +248,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -246,6 +275,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -269,6 +304,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -290,6 +331,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -313,6 +360,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -334,6 +387,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -357,6 +416,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -378,6 +443,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -401,6 +472,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -422,6 +499,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -445,6 +528,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -466,6 +555,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -489,6 +584,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
        </property>
@@ -510,6 +611,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color:rgb(0, 255, 0)</string>
@@ -540,6 +647,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -567,6 +680,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -596,6 +715,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -623,6 +748,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -652,6 +783,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -679,6 +816,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -708,6 +851,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -735,6 +884,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -764,6 +919,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -791,6 +952,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -820,6 +987,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -847,6 +1020,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -876,6 +1055,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -903,6 +1088,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -932,6 +1123,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="toolTipDuration">
         <number>0</number>
        </property>
@@ -959,6 +1156,12 @@
          <width>75</width>
          <height>100</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Chilanka</family>
+         <italic>true</italic>
+        </font>
        </property>
        <property name="toolTipDuration">
         <number>0</number>
@@ -1044,6 +1247,9 @@
        <property name="buttonSymbols">
         <enum>QAbstractSpinBox::NoButtons</enum>
        </property>
+       <property name="decimals">
+        <number>2</number>
+       </property>
       </widget>
      </item>
     </layout>
@@ -1055,7 +1261,7 @@
      <x>0</x>
      <y>0</y>
      <width>1033</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

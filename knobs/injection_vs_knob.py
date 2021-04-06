@@ -251,15 +251,15 @@ class InjTune(QMainWindow):
 
     def tunes_changed(self, chan) -> None:
         if self.tunes_flag:
-            self.cur_tunes[0] = chan.val[0]
-            self.cur_tunes[1] = chan.val[1]
+            self.cur_tunes[0] = round(chan.val[0], 3)
+            self.cur_tunes[1] = round(chan.val[1], 3)
             self.cur_flag = True
             self.tunes_flag = False
 
     def extracted_event(self, chan) -> None:
         if self.shots_counter >= self.n_shots:
             self.shots_counter = 1
-            self.ring_cur_data[json.dumps(self.cur_tunes)] = np.mean(self.ring_cur_arr)
+            self.ring_cur_data[json.dumps(self.cur_tunes)] = round(np.mean(self.ring_cur_arr), 1)
             self.ring_cur_arr = []
             self.cur_flag = False
             self.shift()

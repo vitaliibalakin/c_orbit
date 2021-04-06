@@ -82,7 +82,7 @@ class InjTune(QMainWindow):
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
             self.p_win.status_bar.showMessage('Start 2 knobs procedure')
             self.shift = self.make_shift_2h
-            self.n_amount = (self.n_mesh * 2) ** 2
+            self.n_amount = (self.n_mesh * 2 + 1) ** 2
             # n*type_1 tune shift
             # self.status_bar.showMessage(self.handle_1.row, self.handle_2.row)
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
@@ -109,7 +109,7 @@ class InjTune(QMainWindow):
                 self.p_win.btn_start.setEnabled(True)
                 return
             self.shift = self.make_shift_1h
-            self.n_amount = (self.n_mesh * 2)
+            self.n_amount = (self.n_mesh * 2 + 1)
             self.cur_1_it = -1 * self.n_mesh
             self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                'row': self.handle.row, 'factor': self.n_mesh}))
@@ -154,7 +154,7 @@ class InjTune(QMainWindow):
                 self.chan_cmd.setValue(json.dumps({'client': 'inj_vs_handles', 'cmd': 'cst_step_down',
                                                    'row': self.handle_2.row, 'factor': self.n_mesh}))
                 # to defaults
-                self.marked_row = None
+                self.index(self.marked_row)
                 self.cross_booked = {'Handle #1': None, 'Handle #2': None}
                 self.cur_tunes = [0.0, 0.0]
                 self.n_mesh = 3
@@ -214,7 +214,7 @@ class InjTune(QMainWindow):
 
             # to defaults
             self.handle = None
-            self.marked_row = None
+            self.index(self.marked_row)
             self.cross_booked = {'Handle #1': None, 'Handle #2': None}
             self.cur_tunes = [0.0, 0.0]
             self.n_mesh = 3
@@ -251,15 +251,16 @@ class InjTune(QMainWindow):
 
     def tunes_changed(self, chan) -> None:
         if self.tunes_flag:
-            self.cur_tunes[0] = round(chan.val[0], 3)
-            self.cur_tunes[1] = round(chan.val[1], 3)
+            self.cur_tunes[0] = round(chan.val[0], 5)
+            self.cur_tunes[1] = round(chan.val[1], 5)
             self.cur_flag = True
             self.tunes_flag = False
 
     def extracted_event(self, chan) -> None:
         if self.shots_counter >= self.n_shots:
-            self.shots_counter = 1
-            self.ring_cur_data[json.dumps(self.cur_tunes)] = round(np.mean(self.ring_cur_arr), 1)
+            self.shots_counter = 0
+            self.ring_cur_data[self.counter] = {json.dumps(self.cur_tunes): round(np.mean(self.ring_cur_arr), 1)}
+            print(self.counter)
             self.ring_cur_arr = []
             self.cur_flag = False
             self.shift()

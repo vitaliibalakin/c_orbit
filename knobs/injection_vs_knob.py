@@ -78,6 +78,7 @@ class InjTune(QMainWindow):
         self.p_win.n_shots.setEnabled(False)
         self.p_win.n_mesh.setEnabled(False)
         self.p_win.btn_start.setEnabled(False)
+        self.p_win.progress_bar.setValue(0)
         if self.cross_booked['Handle #1'] is not None and self.cross_booked['Handle #2'] is not None:
             self.p_win.status_bar.showMessage('Start 2 knobs procedure')
             self.shift = self.make_shift_2h
@@ -142,6 +143,7 @@ class InjTune(QMainWindow):
             if self.cur_2_it == self.n_mesh:
                 # end & save
                 self.p_win.status_bar.showMessage('FINISH')
+                self.p_win.progress_bar.setValue(100)
                 f = open('save_inj_tune_resp.txt', 'w')
                 f.write(json.dumps(self.ring_cur_data))
                 f.close()
@@ -202,6 +204,7 @@ class InjTune(QMainWindow):
     def make_shift_1h(self) -> None:
         if self.cur_1_it == self.n_mesh:
             self.p_win.status_bar.showMessage('FINISH')
+            self.p_win.progress_bar.setValue(100)
             f = open('save_inj_tune_resp.txt', 'w')
             f.write(json.dumps(self.ring_cur_data))
             f.close()

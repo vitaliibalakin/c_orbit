@@ -22,12 +22,12 @@ class BpmPreproc:
                              'inj': DIR + '/mode_inj_file.txt'}
         self.ic_mode: str
         self.bckgr_proc: bool = False
-        self.bpms_zeros: nparray = np.zeros(32,)
-        self.bpms_deviation: nparray = np.zeros(32,)
+        self.bpms_zeros = np.zeros(32,)
+        self.bpms_deviation = np.zeros(32,)
         self.bckrg_counter: int = 0
         self.bckgr_it_num: int = 0
-        self.current_orbit: nparray = np.empty(0)
-        self.current_tunes: nparray = np.empty(0)
+        self.current_orbit = np.empty(0)
+        self.current_tunes = np.empty(0)
         self.client_list: list = ['orbit', 'tunes', 'turns', 'inj']
         self.fft_bpm: str = 'bpm15'
         self.turns_bpm: str = 'bpm15'
@@ -41,7 +41,7 @@ class BpmPreproc:
         self.inj_bpms: dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
                                'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
         self.inj_coors: dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
-        self.m_x1_x2: list
+        self.m_x1_septum: list
         self.m_x2_septum: list
 
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
@@ -59,6 +59,7 @@ class BpmPreproc:
         self.chan_turns_matrix = cda.VChan('cxhw:4.bpm_preproc.turns_matrix', max_nelems=259072)
         self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
         self.chan_mode.valueMeasured.connect(self.mode_changed)
+        # self.chan_inj = cda.VChan('cxhw:4.bpm_preproc.injection_par', max_nelems=4)
 
         self.cmd_table = {
             'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
@@ -157,9 +158,12 @@ class BpmPreproc:
         # y1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][1]
         # # y corr from second bpm on beam way
         # y2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][1]
-        if self.m_x1_x2 and self.m_x2_septum:
-            pass
-
+        if self.m_x1_septum and self.m_x2_septum:
+            coord = (self.m_x2_septum[0][1] * x1 - self.m_x1_septum[0][1] * x2) \
+                    / (self.m_x2_septum[0][1] * self.m_x1_septum[0][0] - self.m_x1_septum[0][1] * self.m_x2_septum[0][0])
+            angle = (self.m_x1_septum[0][0] * x2 - self.m_x2_septum[0][0] * x1) \
+                    / (self.m_x2_septum[0][1] * self.m_x1_septum[0][0] - self.m_x1_septum[0][1] * self.m_x2_septum[0][0])
+            # self.chan_inj.setValue(np.array([coord, angle]))
     #########################################################
     #                     command part                      #
     #########################################################
@@ -355,7 +359,7 @@ class BpmPreproc:
             elif client == 'tunes':
                 self.chan_ctrl_tunes.setValue(json.dumps({mode: np.ndarray.tolist(data)}))
             elif client == 'inj':
-                self.m_x1_x2 = data[0:2, :]
+                self.m_x1_septum = data[0:2, :]
                 self.m_x2_septum = data[2:, :]
             self.mode_file_edit_(file_name, self.mode_d[client])
         except Exception as exc:

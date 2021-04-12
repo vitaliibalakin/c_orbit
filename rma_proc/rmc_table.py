@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5 import QtCore
 from bpm_base.aux_mod.rm_spin_box import RMSpinBox
 
 
@@ -21,7 +22,9 @@ class Table:
         # new line
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)
-        self.table.setItem(row_num, 0, QTableWidgetItem(name.split('.')[-1]))
+        name_w = QTableWidgetItem(name.split('.')[-1])
+        name_w.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.table.setItem(row_num, 0, name_w)
         self.table.setCellWidget(row_num, 1, cor_dict['rm_step'])
         self.table.setCellWidget(row_num, 2, cor_dict['rm_iter'])
         self.cor_dict[row_num] = cor_dict

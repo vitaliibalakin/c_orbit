@@ -25,20 +25,21 @@ class Handles(QMainWindow):
         self.marked_row = None
         self.edit_block = False
         self.self_sender = False
-        self.handles_info = {}
+        self.knobs_info = {}
         self.cell_col = {0: 'name', 1: 'descr'}
 
         # table def
-        self.handles_creating = Table(self.table)
+        self.knobs_creating = Table(self.table)
         # tree widget
-        self.tree = TreeTableCom(self.handles_creating, 0, self.tree_widget)
+        self.tree = TreeTableCom(self.knobs_creating, 0, self.tree_widget)
         # callbacks
         self.btn_up.clicked.connect(self.step_up)
         self.btn_cst_up.clicked.connect(self.cst_step_up)
         self.btn_down.clicked.connect(self.step_down)
         self.btn_cst_down.clicked.connect(self.cst_step_down)
-        self.btn_add_handle.clicked.connect(self.add)
-        self.btn_del_handle.clicked.connect(self.delete)
+        self.btn_copy_knob.clicked.connect(self.copy)
+        self.btn_add_knob.clicked.connect(self.add)
+        self.btn_del_knob.clicked.connect(self.delete)
 
         # control channels
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
@@ -73,35 +74,41 @@ class Handles(QMainWindow):
                 for i in range(self.handles_table.columnCount()):
                     self.handles_table.item(row, i).setBackground(Qt.QColor(21, 139, 195))
                 self.handle_info.clear()
-                handle_i = self.handles_info[row]
+                handle_i = self.knobs_info[row]
                 for key, val in handle_i.items():
-                    self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
+                    self.handle_info.append('Name: ' + val['name'] + ' | ' + 'Step: ' + str(val['step']))
         else:
             self.marked_row = row
             for i in range(self.handles_table.columnCount()):
                 self.handles_table.item(row, i).setBackground(Qt.QColor(21, 139, 195))
-            handle = self.handles_info[row]
+            handle = self.knobs_info[row]
             for key, val in handle.items():
-                self.handle_info.append('Name: ' + key + ' | ' + 'Step: ' + str(val))
+                self.handle_info.append('Name: ' + val['name'] + ' | ' + 'Step: ' + str(val['step']))
         self.edit_block = False
 
     def add(self):
         name = self.handle_name.text()
         descr = self.handle_descr.text()
         if name:
-            if self.handles_creating.cor_list:
-                for elem in self.handles_creating.cor_list:
+            if self.knobs_creating.cor_list:
+                for elem in self.knobs_creating.cor_list:
                     elem['step'] = elem['step'].value()
-                info = {'name': name, 'descr': descr, 'cor_list': self.handles_creating.cor_list}
+                info = {'name': name, 'descr': descr, 'cor_list': self.knobs_creating.cor_list}
                 self.self_sender = True
                 self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'info': info}))
                 self.handle_name.setText('')
-                self.handles_creating.free()
-                self.tree.free()
+                self.tree.free_dev_set()
             else:
                 self.status_bar.showMessage('Choose elements for handle creating')
         else:
             self.status_bar.showMessage('Enter the handle name')
+
+    def copy(self):
+        if self.marked_row is not None:
+            self.tree.free_dev_set()
+            for count, info in self.knobs_info[self.marked_row].items():
+                self.tree.set_item_selected(info['id'])
+                self.knobs_creating.add_row(**info)
 
     def delete(self):
         if self.marked_row is not None:
@@ -139,17 +146,19 @@ class Handles(QMainWindow):
     def load_handles(self):
         try:
             self.edit_block = True
-            self.handles_info = {}
-            self.handles_names = {}
-            self.handles_descr = {}
+            self.knobs_info = {}
+            self.knobs_names = {}
+            self.knobs_descr = {}
             f = open('saved_handles.txt', 'r')
             handles = json.loads(f.read())
             f.close()
             for row_num, handle in handles.items():
                 info = {}
+                i = 0
                 for cor in handle['cor_list']:
-                    info[cor['name'].split('.')[-1]] = cor['step']
-                self.handles_info[int(row_num)] = info
+                    info[i] = {'id': cor['id'], 'name': cor['name'].split('.')[-1], 'step': cor['step']}
+                    i += 1
+                self.knobs_info[int(row_num)] = info
                 self.handles_table.insertRow(0)
                 name = QTableWidgetItem(handle['name'])
                 name.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)

@@ -13,7 +13,8 @@ class Table:
     def add_row(self, **params):
         name = params.get('name', 'noname')
         it_id = params.get('id')
-        cor_dict = {'id': it_id, 'name': name, 'step': RMSpinBox(0, 100)}
+        step = it_id = params.get('step', 0)
+        cor_dict = {'id': it_id, 'name': name, 'step': RMSpinBox(step, 100)}
 
         row_num = self.table.rowCount()
         self.table.insertRow(row_num)

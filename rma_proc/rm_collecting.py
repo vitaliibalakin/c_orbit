@@ -31,9 +31,9 @@ class RMA(QMainWindow, DeviceFunc):
         self.show()
 
         # table def
-        self.table = Table(self.cor_set_table)
+        self.resp_creating = Table(self.cor_set_table)
         # tree def
-        self.tree = TreeTableCom(self.table, 40, self.tree_widget)
+        self.tree = TreeTableCom(self.resp_creating, 40, self.tree_widget)
 
         self.cor_set_table.itemPressed.connect(self.index)
 
@@ -85,12 +85,12 @@ class RMA(QMainWindow, DeviceFunc):
                 self.cor_set_table.item(marked_entry, 0).setBackground(Qt.QColor('green'))
 
     def move_right(self):
-        self.table.common_step(self.selected_rows, self.rm_step_box.value(),
-                               self.st_step_box.value(), self.move_all)
+        self.resp_creating.common_step(self.selected_rows, self.rm_step_box.value(),
+                                       self.st_step_box.value(), self.move_all)
 
     def move_left(self):
-        self.table.common_step(self.selected_rows, (-1) * self.rm_step_box.value(),
-                               (-1) * self.st_step_box.value(), self.move_all)
+        self.resp_creating.common_step(self.selected_rows, (-1) * self.rm_step_box.value(),
+                                       (-1) * self.st_step_box.value(), self.move_all)
 
     ###########################################
     #               MAGNETIZATION!            #
@@ -132,7 +132,7 @@ class RMA(QMainWindow, DeviceFunc):
         self.log_msg.append('start_rma')
         self.prg_bar.setValue(0)
         # deleting from stack FAIL elems
-        for num, cor in self.table.cor_dict.items():
+        for num, cor in self.resp_creating.cor_dict.items():
             if not (cor['name'] in self.cor_fail):
                 self.stack_names.append(cor['name'])
                 self.stack_elems[cor['name']] = CorMeasure(self.action_loop, cor['name'], cor['id'],
@@ -216,7 +216,7 @@ class RMA(QMainWindow, DeviceFunc):
     ###########################################
 
     def save_table(self):
-        table = self.table.cor_dict.copy()
+        table = self.resp_creating.cor_dict.copy()
         for num, table_line in table.items():
             for key in table_line:
                 if not (key == 'name' or key == 'id'):
@@ -240,11 +240,10 @@ class RMA(QMainWindow, DeviceFunc):
             f = open(file_name, 'r')
             table = json.loads(f.readline())
             f.close()
-            self.table.free()
-            self.tree.free()
+            self.tree.free_dev_set()
             for num, line in table.items():
                 self.tree.set_item_selected(line['id'])
-                self.table.add_row(**line)
+                self.resp_creating.add_row(**line)
             self.log_msg.append('TABLE loaded')
         except Exception as exc:
             self.log_msg.append(str(exc))

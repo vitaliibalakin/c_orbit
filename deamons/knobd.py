@@ -154,7 +154,7 @@ class KMService(CXService):
         self.log_str('exiting handles_proc')
 
 
-bp = KMService("handlesd")
+bp = KMService("knobd")
 
 # if __name__ == "__main__":
 #     w = HandlesProc()

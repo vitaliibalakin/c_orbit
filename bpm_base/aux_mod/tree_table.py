@@ -62,7 +62,11 @@ class TreeTableCom:
         self.tree.set_item_state(self.tree.dev_id_ws[it_id][0], SELECTED)
         self.dev_choosed.add(it_id)
 
-    def free(self):
+    def free_dev_set(self):
         for it_id in self.dev_choosed:
-            self.tree.set_item_state(self.tree.dev_id_ws[it_id][0], UNSELECTED)
-        self.dev_choosed = set()
+            self.tree.item_click_cb(self.tree.dev_id_ws[it_id][0], '')
+
+        # self.tree_dev(set())
+        # for it_id in self.dev_choosed:
+        #     self.tree.set_item_state(self.tree.dev_id_ws[it_id][0], UNSELECTED)
+        # self.dev_choosed = set()

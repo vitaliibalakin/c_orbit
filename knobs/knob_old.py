@@ -90,7 +90,7 @@ class Handles(QMainWindow):
 
         # clear objects
         self.handles_creating.free()
-        self.tree.free()
+        self.tree.free_dev_set()
 
     def remove(self):
         if self.marked_row is not None:

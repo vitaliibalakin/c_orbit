@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QMainWindow, QApplication, QFileDialog
 from PyQt5 import uic
 import numpy as np
+import pycx4.qcda as cda
 import json
 import os
 import sys
@@ -48,6 +49,8 @@ class RMC(QMainWindow):
         p.addWidget(self.plt)
         self.show()
 
+        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+
         self.sing_reg.sigRegionChangeFinished.connect(self.sing_reg_upd)
         self.btn_calc_reverse.clicked.connect(self.reverse_rm)
         self.btn_load_matrix.clicked.connect(self.load_rm)
@@ -73,10 +76,6 @@ class RMC(QMainWindow):
             self.status_bar.showMessage(str(exc))
 
     def reverse_rm(self):
-        # self.rm = np.array([[1, 0, 0, 0, 2],
-        #                     [0, 0, 3, 0, 0],
-        #                     [0, 0, 0, 0, 0],
-        #                     [0, 4, 0, 0, 0]])
         if self.rm.any():
             u, sing_vals, vh = np.linalg.svd(np.transpose(self.rm))
             s_r = np.zeros((vh.shape[0], u.shape[0]))
@@ -102,6 +101,8 @@ class RMC(QMainWindow):
     def save_handle(self):
         if self.rev_rm.any():
             curr = np.dot(self.rev_rm, self.assemble_kick())
+            print(np.dot(np.transpose(self.rm), curr))
+            print('currents', curr)
             cor_list = []
             i = 0
             for key, param in self.rm_info.items():

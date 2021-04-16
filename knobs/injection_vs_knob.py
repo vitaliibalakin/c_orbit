@@ -34,6 +34,7 @@ class InjTune(QMainWindow):
 
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=True)
         self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=True)
+        self.chan_res.valueMeasured.connect(self.res)
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=True)
         self.chan_tunes.valueMeasured.connect(self.tunes_changed)
         self.chan_extracted = cda.DChan('cxhw:0.dcct.extractioncurrent', on_update=True)
@@ -260,7 +261,6 @@ class InjTune(QMainWindow):
         if self.shots_counter >= self.n_shots:
             self.shots_counter = 0
             self.ring_cur_data[self.counter] = {json.dumps(self.cur_tunes): round(np.mean(self.ring_cur_arr), 1)}
-            print(self.counter)
             self.ring_cur_arr = []
             self.cur_flag = False
             self.shift()
@@ -305,6 +305,32 @@ class InjTune(QMainWindow):
                 self.p_win.handles_table.setItem(0, 1, descr)
         except ValueError:
             self.status_bar.showMessage('empty saved file')
+
+    def res(self, chan) -> None:
+        if chan.val:
+            cmd_res = json.loads(chan.val)
+            client = cmd_res.get('client')
+            res = cmd_res.get('res')
+            if client == 'handle':
+                self.update_table()
+
+                m_row = self.marked_row
+                self.marked_row = None
+                if res == 'handle_added':
+                    if m_row is not None:
+                        self.index(m_row + 1)
+                elif res == 'handle_deleted':
+                    row = cmd_res['row']
+                    if m_row is not None:
+                        if m_row < row:
+                            self.index(m_row)
+                        elif m_row > row:
+                            self.index(m_row - 1)
+
+    def update_table(self) -> None:
+        for i in range(self.p_win.handles_table.rowCount()):
+            self.p_win.handles_table.removeRow(0)
+        self.load_handles()
 
 
 if __name__ == "__main__":

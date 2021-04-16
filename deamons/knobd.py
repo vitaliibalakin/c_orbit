@@ -40,9 +40,11 @@ class HandlesProc:
 
     def cmd(self, chan):
         if chan.val:
+            print(chan.val)
             cmd = json.loads(chan.val)
             command = cmd.get('cmd', 'no_cmd')
             client = cmd.get('client', 'no_serv')
+            print(command, client)
             if client in self.client_list:
                 self.cmd_table[command](**cmd)
 
@@ -138,24 +140,24 @@ class HandlesProc:
             handles = json.loads(handles_s)
             for row_num, handle in handles.items():
                 self.add_handle_(**{'info': handle})
-            f.close()
+        f.close()
 
 
 DIR = os.getcwd()
 DIR = re.sub('deamons', 'knobs', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = HandlesProc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = HandlesProc()
+#
+#     def clean(self):
+#         self.log_str('exiting handles_proc')
+#
+#
+# bp = KMService("knobd")
 
-    def clean(self):
-        self.log_str('exiting handles_proc')
-
-
-bp = KMService("knobd")
-
-# if __name__ == "__main__":
-#     w = HandlesProc()
-#     cda.main_loop()
+if __name__ == "__main__":
+    w = HandlesProc()
+    cda.main_loop()

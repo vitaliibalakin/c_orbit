@@ -35,17 +35,6 @@ class BPM:
         # self.chan_marker.valueMeasured.connect(self.marker_proc)
 
     # def marker_proc(self, chan):
-    #     if self.starting:
-    #         self.last_data_upd = time.time()
-    #         self.starting = False
-    #     else:
-    #         if time.time() - self.last_data_upd < 10:
-    #             self.last_data_upd = time.time()
-    #             if self.no_connection:
-    #                 self.no_connection = False
-    #         else:
-    #             self.last_data_upd = time.time()
-    #             self.no_connection = True
     #     self.marker = 1
     #     self.collect_orbit()
 

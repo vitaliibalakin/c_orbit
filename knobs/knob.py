@@ -205,7 +205,7 @@ class Handles(QMainWindow):
                 self.self_sender = False
 
     def update_table(self):
-        print('update')
+        # print('update')
         for i in range(self.handles_table.rowCount()):
             self.handles_table.removeRow(0)
         self.load_handles()

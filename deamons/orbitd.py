@@ -34,7 +34,7 @@ class BpmPreproc:
         self.bpms_list: list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
                                 'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
         self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
-                         self.collect_fft, self.collect_coor, self.calc_inj_param) for bpm in self.bpms_list]
+                         self.collect_fft, self.collect_coor) for bpm in self.bpms_list]
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
@@ -82,10 +82,6 @@ class BpmPreproc:
         permission = 0
         for bpm in self.bpms:
             if bpm.act_state:
-                # if bpm.no_connection:
-                #     self.send_cmd_res_(**{'action': 'no_connection', 'bpm': bpm.name, 'client': 'orbit'})
-                # else:
-                #     self.send_cmd_res_(**{'action': 'connected', 'bpm': bpm.name, 'client': 'orbit'})
                 if bpm.marker:
                     permission = 1
                 else:
@@ -370,19 +366,18 @@ DIR = os.getcwd()
 DIR = re.sub('deamons', 'bpm_plot', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = BpmPreproc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = BpmPreproc()
+#
+#     def clean(self):
+#         self.log_str('exiting bpm_prepoc')
+#
+#
+# bp = KMService("bpmd")
 
-    def clean(self):
-        self.log_str('exiting bpm_prepoc')
-
-
-bp = KMService("bpmd")
-
-# if __name__ == "__main__":
-#     app = QApplication(['c_orbit'])
-#     w = BpmPreproc()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    w = BpmPreproc()
+    cda.main_loop()
 

@@ -211,15 +211,6 @@ class PlotControl(QMainWindow):
                     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(255, 255, 255);")
                     self.inj_mode_matr[self.ic_mode[0]] = False
 
-                # elif action == 'no_connection':
-                #     bpm_name = json.loads(chan.val).get('bpm')
-                #     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
-                #     self.dict_lbls[bpm_name].setStyleSheet("background-color:rgb(172, 183, 142);")
-                # elif msg == 'connected':
-                #     bpm_name = json.loads(chan.val).get('bpm')
-                #     self.dict_btns[bpm_name].setStyleSheet("background-color:rgb(0, 255, 0);")
-                #     self.dict_lbls[bpm_name].setStyleSheet("background-color:rgb(0, 255, 0);")
-
 
 if __name__ == "__main__":
     app = QApplication(['orbit'])

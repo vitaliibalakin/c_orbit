@@ -147,17 +147,17 @@ DIR = os.getcwd()
 DIR = re.sub('deamons', 'knobs', DIR)
 
 
-# class KMService(CXService):
-#     def main(self):
-#         print('run main')
-#         self.w = HandlesProc()
-#
-#     def clean(self):
-#         self.log_str('exiting handles_proc')
-#
-#
-# bp = KMService("knobd")
+class KMService(CXService):
+    def main(self):
+        print('run main')
+        self.w = HandlesProc()
 
-if __name__ == "__main__":
-    w = HandlesProc()
-    cda.main_loop()
+    def clean(self):
+        self.log_str('exiting handles_proc')
+
+
+bp = KMService("knobd")
+
+# if __name__ == "__main__":
+#     w = HandlesProc()
+#     cda.main_loop()

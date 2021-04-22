@@ -22,7 +22,7 @@ class HandlesProc:
         self.client_list = ['handle', 'rm_proc', 'inj_vs_handles']
         self.cmd_table = {
             'add_handle': self.add_handle_, 'delete_handle': self.delete_handle_,
-            'edit_item': self.edit_item_, 'start_inj_cur': self.start_inj_cur_,
+            'edit_item': self.edit_item_,
             'step_up': self.step_up_, 'cst_step_up': self.cst_step_up_,
             'step_down': self.step_down_, 'cst_step_down': self.cst_step_down_
         }
@@ -40,11 +40,9 @@ class HandlesProc:
 
     def cmd(self, chan):
         if chan.val:
-            print(chan.val)
             cmd = json.loads(chan.val)
             command = cmd.get('cmd', 'no_cmd')
             client = cmd.get('client', 'no_serv')
-            print(command, client)
             if client in self.client_list:
                 self.cmd_table[command](**cmd)
 
@@ -85,9 +83,6 @@ class HandlesProc:
         self.save_changes()
         self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_edited'}))
         self.chan_cmd.setValue('')
-
-    def start_inj_cur_(self, **kwargs):
-        pass
 
     def step_up_(self, **kwargs):
         row = kwargs.get('row')

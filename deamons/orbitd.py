@@ -41,8 +41,8 @@ class BpmPreproc:
         self.inj_bpms: dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
                                'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
         self.inj_coors: dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
-        self.m_x1_septum: list
-        self.m_x2_septum: list
+        self.m_x1_septum: list = []
+        self.m_x2_septum: list = []
 
         self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
         self.chan_ctrl_tunes = cda.StrChan('cxhw:4.bpm_preproc.control_tunes', max_nelems=1024)
@@ -227,21 +227,6 @@ class BpmPreproc:
         self.bckgr_proc = False
         self.bckgr_it_num, self.bckrg_counter = 0, 0
         self.send_cmd_res_(**{'action': 'bckgr_done', 'client': 'orbit'})
-
-    def load_inj_m_(self, **kwargs):
-        file_name = kwargs.get('file_name')
-        client = kwargs.get('client')
-        try:
-            file = open(file_name, 'r')
-            if os.fstat(file.fileno()).st_size:
-                data = np.loadtxt(file_name)
-                # matrices parameters is here
-                self.send_cmd_res_(**{'action': 'load -> transport matrices', 'client': client})
-            else:
-                self.send_cmd_res_(**{'action': 'load -> inj file error', 'client': client})
-            file.close()
-        except Exception as exc:
-            self.send_cmd_res_(**{'action': 'inj_' + exc, 'client': client})
 
     def no_cmd_(self, **kwargs):
         client = kwargs.get('client', 'no_client')

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from PyQt5.QtWidgets import QVBoxLayout, QMainWindow, QApplication, QFileDialog
 from PyQt5 import uic
+from scipy import optimize
 import json
 import sys
 import numpy as np
@@ -8,7 +9,7 @@ import os
 import re
 import pyqtgraph as pg
 
-from bpm_base.aux_mod import Converter
+from bpm_base.aux_mod.wrapper import Converter
 
 
 class BetaProc(QMainWindow):
@@ -21,19 +22,20 @@ class BetaProc(QMainWindow):
         pg.setConfigOption('foreground', 'k')
 
         self.l_coor = {'1f1': 19.8192, '1f2': 16.3552, '1f4': 18.0872, '2f1': 21.3192, '2f2': 24.7832, '2f4': 23.0512,
-                       '3f1': 6.1064, '3f4': 4.3744, '4f1': 7.6064, '4f2': 11.0704, '4f4': 9.3384, '1d1': 20.1192,
-                       '2d1': 21.0192, '3d1': 6.4064, '4d1': 7.3064, '1f3': 14.410195, '2f3': 26.7222, '3f3': 0.6974,
-                       '4f3': 13.015395, '1d2': 15.945205, '2d2': 25.193195, '3d2': 2.2324, '4d2': 11.480395,
-                       '1d3': 14.78019, '2d3': 26.352195, '3d3': 1.0674, '4d3': 12.645395}
+                       '3f1': 6.1064, '3f2': 2.6424, '3f4': 4.3744, '4f1': 7.6064, '4f2': 11.0704, '4f4': 9.3384,
+                       '1d1': 20.1192, '2d1': 21.0192, '3d1': 6.4064, '4d1': 7.3064, '1f3': 14.410195, '2f3': 26.7222,
+                       '3f3': 0.6974, '4f3': 13.015395, '1d2': 15.945205, '2d2': 25.193195, '3d2': 2.2324,
+                       '4d2': 11.480395,'1d3': 14.78019, '2d3': 26.352195, '3d3': 1.0674, '4d3': 12.645395}
+
         self.lens_type = {'1f1': 'du60', '1f2': 'du60', '1f4': 'du60', '2f1': 'du60', '2f2': 'du60', '2f4': 'du60',
-                          '3f1': 'du60', '3f4': 'du60', '4f1': 'du60', '4f2': 'du60', '4f4': 'du60', '1d1': 'du60',
-                          '2d1': 'du60', '3d1': 'du60', '4d1': 'du60', '1f3': 'du80', '2f3': 'du80', '3f3': 'du80',
-                          '4f3': 'du80', '1d2': 'du80', '2d2': 'du80', '3d2': 'du80', '4d2': 'du80',
+                          '3f1': 'du60', '3f2':'du60', '3f4': 'du60', '4f1': 'du60', '4f2': 'du60', '4f4': 'du60',
+                          '1d1': 'du60', '2d1': 'du60', '3d1': 'du60', '4d1': 'du60', '1f3': 'du80', '2f3': 'du80',
+                          '3f3': 'du80', '4f3': 'du80', '1d2': 'du80', '2d2': 'du80', '3d2': 'du80', '4d2': 'du80',
                           '1d3': 'du80', '2d3': 'du80', '3d3': 'du80', '4d3': 'du80'}
 
         self.c_main = {'1f1': 'qf1n2', '1f2': 'qf1n2', '1f4': 'qf4',
                        '2f1': 'qf1n2', '2f2': 'qf1n2', '2f4': 'qf4',
-                       '3f1': 'qf1n2', '3f4': 'qf4',
+                       '3f1': 'qf1n2', '3f2':'qf1n2', '3f4': 'qf4',
                        '4f1': 'qf1n2', '4f2': 'qf1n2', '4f4': 'qf4',
                        '1d1': 'qd1', '2d1': 'qd1', '3d1': 'qd1', '4d1': 'qd1',
                        '1f3': 'qf3', '2f3': 'qf3', '3f3': 'qf3', '4f3': 'qf3',
@@ -68,10 +70,11 @@ class BetaProc(QMainWindow):
         self.plt_y.plot(model.s, model.betay, pen=pg.mkPen('b', width=2))
 
         self.btn_plt_beta.clicked.connect(self.plot_beta)
+        self.btn_save_betas.clicked.connect(self.save_betas)
 
     @staticmethod
     def cur2grad(e_type, cur, main_cur):
-        energy = 392e6
+        energy = 430e6
         if e_type == 'du60':
             i = - cur / 1000 * 1.5 + main_cur
             grad = 16.83524125 + 2.832126125 * i - 0.0015659738 * i ** 2 + 2.84666125e-6 * i ** 3 - \
@@ -93,40 +96,43 @@ class BetaProc(QMainWindow):
         cors_list = []
         beta_x, beta_y = [], []
         i = 0
-        try:
-            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_rms',
-                                                    filter='Text Files (*.txt)')[0]
-            f = open(file_name, 'r')
-            rm_info = json.loads(f.readline().split('#')[-1])
-            keys = list(rm_info.keys())
-            f.close()
-            rm = np.loadtxt(file_name, skiprows=1)
-            stop = rm.shape[0]
-            while i != stop:
-                cors_list.append(keys[i].split('.')[-1][1:])
-                cur = np.arange(-1 * rm_info[keys[i]]['step'] * rm_info[keys[i]]['n_iter'],
-                                rm_info[keys[i]]['step'] * (rm_info[keys[i]]['n_iter'] + 1),
-                                rm_info[keys[i]]['step']) + rm_info[keys[i]]['init']
-                x = rm[i][:2 * rm_info[keys[i]]['n_iter'] + 1]
-                y = rm[i][2 * rm_info[keys[i]]['n_iter'] + 1:]
-                grad = self.cur2grad(self.lens_type[keys[i]], cur, rm_info['main'][self.c_main[keys[i]]])
-                # const_x, pcov = optimize.curve_fit(self.lin_fit, grad, x)
-                # const_y, pcov = optimize.curve_fit(self.lin_fit, grad, y)
-                # beta_x.append(const_x[0])
-                # beta_y.append(const_y[0])
-                i += 1
-            # s = [self.l_coor[key] for key in cors_list]
-            # self.plt_x.plot(sing_vals, s, pen=None, symbol='o')
-            # self.plt_x.plot(sing_vals, s, pen=None, symbol='o')
-            self.beta_x, self.beta_y = beta_x, beta_y
-            self.rm_info = rm_info
-            self.status_bar.showMessage('Betas plotted')
-        except KeyError as exc:
-            self.status_bar.showMessage(str(exc))
+        # try:
+        file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_rms',
+                                                filter='Text Files (*.txt)')[0]
+        f = open(file_name, 'r')
+        rm_info = json.loads(f.readline().split('#')[-1])
+        keys = list(rm_info.keys())
+        f.close()
+        rm = np.loadtxt(file_name, skiprows=1)
+        stop = rm.shape[0]
+        while i != stop:
+            cors_list.append(keys[i].split('.')[-1][1:4])
+            cur = np.arange(-1 * rm_info[keys[i]]['step'] * rm_info[keys[i]]['n_iter'],
+                            rm_info[keys[i]]['step'] * (rm_info[keys[i]]['n_iter'] + 1),
+                            rm_info[keys[i]]['step']) + rm_info[keys[i]]['init']
+            x = rm[i][:2 * int(rm_info[keys[i]]['n_iter']) + 1]
+            y = rm[i][2 * int(rm_info[keys[i]]['n_iter']) + 1:]
+            grad = self.cur2grad(self.lens_type[keys[i].split('.')[-1][1:4]], cur,
+                                 rm_info['main']['canhw:12.' + self.c_main[keys[i].split('.')[-1][1:4]]])
+            const_x, pcov = optimize.curve_fit(self.lin_fit, grad, x)
+            const_y, pcov = optimize.curve_fit(self.lin_fit, grad, y)
+            beta_x.append(const_x[0] * 4 * np.pi / 0.18)
+            beta_y.append(-const_y[0] * 4 * np.pi / 0.18)
+            i += 1
+        s = [self.l_coor[key] for key in cors_list]
+        print(s)
+        self.plt_x.plot(s, beta_x, pen=None, symbol='o')
+        self.plt_y.plot(s, beta_y, pen=None, symbol='o')
+        self.beta_x, self.beta_y = beta_x, beta_y
+        # print(beta_x, beta_y)
+        self.rm_info = rm_info
+        self.status_bar.showMessage('Betas plotted')
+        # except KeyError as exc:
+        #     self.status_bar.showMessage(str(exc))
 
     def save_betas(self):
-        if self.beta_x.any() and self.beta_y.any():
-            np.savetxt('saved_rms/' + self.rev_rm_name.text() + '.txt', np.array([self.beta_x, self.beta_y]),
+        if self.beta_x and self.beta_y:
+            np.savetxt('saved_rms/' + self.beta_text.text() + '.txt', np.array([self.beta_x, self.beta_y]),
                        header=json.dumps(self.rm_info))
             self.status_bar.showMessage('Betas saved')
         else:

@@ -131,7 +131,7 @@ class BetaProc(QMainWindow):
         self.plt_x.plot(s, beta_x, pen=None, symbol='x')
         self.error_y.setData(x=np.array(s), y=np.array(beta_y), top=np.array(beta_y_err), bottom=np.array(beta_y_err), beam=0.3)
         self.plt_y.plot(s, beta_y, pen=None, symbol='x')
-        self.beta_x, self.beta_y = beta_x, beta_y
+        self.beta_x, self.beta_y, self.cors_list = beta_x, beta_y, cors_list
         self.rm_info = rm_info
         self.status_bar.showMessage('Betas plotted')
         # except KeyError as exc:
@@ -140,7 +140,7 @@ class BetaProc(QMainWindow):
     def save_betas(self):
         if self.beta_x and self.beta_y:
             np.savetxt('saved_rms/' + self.beta_text.text() + '.txt', np.array([self.beta_x, self.beta_y]),
-                       header=json.dumps(self.rm_info))
+                       header=json.dumps(self.cors_list))
             self.status_bar.showMessage('Betas saved')
         else:
             self.status_bar.showMessage('Betas is empty')

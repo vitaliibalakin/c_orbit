@@ -49,6 +49,10 @@ class BetaProc(QMainWindow):
 
         self.plt_x = pg.PlotWidget(parent=self)
         self.plt_y = pg.PlotWidget(parent=self)
+        self.error_x = pg.ErrorBarItem()
+        self.plt_x.addItem(self.error_x)
+        self.error_y = pg.ErrorBarItem()
+        self.plt_y.addItem(self.error_y)
         self.plt_x.setLabel('left', 'beta_x', units='m')
         self.plt_y.setLabel('left', 'beta_y', units='m')
         self.plt_x.setLabel('bottom', 'S', units='m')
@@ -95,6 +99,7 @@ class BetaProc(QMainWindow):
     def plot_beta(self):
         cors_list = []
         beta_x, beta_y = [], []
+        beta_x_err, beta_y_err = [], []
         i = 0
         # try:
         file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_rms',
@@ -114,17 +119,19 @@ class BetaProc(QMainWindow):
             y = rm[i][2 * int(rm_info[keys[i]]['n_iter']) + 1:]
             grad = self.cur2grad(self.lens_type[keys[i].split('.')[-1][1:4]], cur,
                                  rm_info['main']['canhw:12.' + self.c_main[keys[i].split('.')[-1][1:4]]])
-            const_x, pcov = optimize.curve_fit(self.lin_fit, grad, x)
-            const_y, pcov = optimize.curve_fit(self.lin_fit, grad, y)
-            beta_x.append(const_x[0] * 4 * np.pi / 0.18)
-            beta_y.append(-const_y[0] * 4 * np.pi / 0.18)
+            const_x, pcov_x = optimize.curve_fit(self.lin_fit, grad, x * 4 * np.pi / 0.18)
+            const_y, pcov_y = optimize.curve_fit(self.lin_fit, grad, y * 4 * np.pi / 0.18)
+            beta_x.append(const_x[0])
+            beta_x_err.append(np.sqrt(np.diag(pcov_x))[0])
+            beta_y.append(-const_y[0])
+            beta_y_err.append(np.sqrt(np.diag(pcov_y))[0])
             i += 1
         s = [self.l_coor[key] for key in cors_list]
-        print(s)
-        self.plt_x.plot(s, beta_x, pen=None, symbol='o')
-        self.plt_y.plot(s, beta_y, pen=None, symbol='o')
+        self.error_x.setData(x=np.array(s), y=np.array(beta_x), top=np.array(beta_x_err), bottom=np.array(beta_x_err), beam=0.3)
+        self.plt_x.plot(s, beta_x, pen=None, symbol='x')
+        self.error_y.setData(x=np.array(s), y=np.array(beta_y), top=np.array(beta_y_err), bottom=np.array(beta_y_err), beam=0.3)
+        self.plt_y.plot(s, beta_y, pen=None, symbol='x')
         self.beta_x, self.beta_y = beta_x, beta_y
-        # print(beta_x, beta_y)
         self.rm_info = rm_info
         self.status_bar.showMessage('Betas plotted')
         # except KeyError as exc:

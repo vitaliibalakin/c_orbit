@@ -22,11 +22,11 @@ class Handles(QMainWindow):
         self.setWindowTitle('Handles')
         self.show()
 
-        self.marked_row = None
-        self.edit_block = False
-        self.self_sender = False
-        self.knobs_info = {}
-        self.cell_col = {0: 'name', 1: 'descr'}
+        self.marked_row: int = None
+        self.edit_block: bool = False
+        self.self_sender: bool = False
+        self.knobs_info: dict = {}
+        self.cell_col: dict = {0: 'name', 1: 'descr'}
 
         # table def
         self.knobs_creating = Table(self.table)
@@ -76,14 +76,14 @@ class Handles(QMainWindow):
                 self.handle_info.clear()
                 handle_i = self.knobs_info[row]
                 for key, val in handle_i.items():
-                    self.handle_info.append('Name: ' + val['name'] + ' | ' + 'Step: ' + str(val['step']))
+                    self.handle_info.append('Name: ' + val['name'].split('.')[-1] + ' | ' + 'Step: ' + str(val['step']))
         else:
             self.marked_row = row
             for i in range(self.handles_table.columnCount()):
                 self.handles_table.item(row, i).setBackground(Qt.QColor(21, 139, 195))
             handle = self.knobs_info[row]
             for key, val in handle.items():
-                self.handle_info.append('Name: ' + val['name'] + ' | ' + 'Step: ' + str(val['step']))
+                self.handle_info.append('Name: ' + val['name'].split('.')[-1] + ' | ' + 'Step: ' + str(val['step']))
         self.edit_block = False
 
     def add(self):
@@ -93,15 +93,21 @@ class Handles(QMainWindow):
             if self.knobs_creating.cor_list:
                 for elem in self.knobs_creating.cor_list:
                     elem['step'] = elem['step'].value()
-                info = {'name': name, 'descr': descr, 'cor_list': self.knobs_creating.cor_list}
                 self.self_sender = True
-                self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'info': info}))
+                self.knob_transfer(name, descr, self.knobs_creating.cor_list)
                 self.handle_name.setText('')
                 self.tree.free_dev_set()
             else:
                 self.status_bar.showMessage('Choose elements for handle creating')
         else:
             self.status_bar.showMessage('Enter the handle name')
+
+    def knob_transfer(self, name, descr, cor_list):
+        self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'name': name, 'descr': descr}))
+        for cor in cor_list:
+            print(cor)
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_cor', 'cor': cor}))
+        self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'handle_complete'}))
 
     def copy(self):
         if self.marked_row is not None:
@@ -156,7 +162,7 @@ class Handles(QMainWindow):
                 info = {}
                 i = 0
                 for cor in handle['cor_list']:
-                    info[i] = {'id': cor['id'], 'name': cor['name'].split('.')[-1], 'step': cor['step']}
+                    info[i] = {'id': cor['id'], 'name': cor['name'], 'step': cor['step']}
                     i += 1
                 self.knobs_info[int(row_num)] = info
                 self.handles_table.insertRow(0)
@@ -179,6 +185,7 @@ class Handles(QMainWindow):
             cmd_res = json.loads(chan.val)
             client = cmd_res.get('client')
             res = cmd_res.get('res')
+            print('client:', client, 'res:', res)
             if client == 'handle':
                 self.update_table()
                 self.status_bar.showMessage(res)

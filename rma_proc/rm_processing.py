@@ -21,19 +21,20 @@ class RMC(QMainWindow):
         self.setWindowTitle('RM calc')
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.sb_kick = [self.sb_x_1, self.sb_x_2, self.sb_x_3, self.sb_x_4, self.sb_x_5, self.sb_x_6, self.sb_x_7,
-                        self.sb_x_8, self.sb_x_9, self.sb_x_10, self.sb_x_11, self.sb_x_12, self.sb_x_13,
-                        self.sb_x_14, self.sb_x_15, self.sb_x_16,
-                        self.sb_y_1, self.sb_y_2, self.sb_y_3, self.sb_y_4, self.sb_y_5, self.sb_y_6, self.sb_y_7,
-                        self.sb_y_8, self.sb_y_9, self.sb_y_10, self.sb_y_11, self.sb_y_12, self.sb_y_13,
-                        self.sb_y_14, self.sb_y_15, self.sb_y_16]
+        self.sb_kick: list = [
+            self.sb_x_1, self.sb_x_2, self.sb_x_3, self.sb_x_4, self.sb_x_5, self.sb_x_6, self.sb_x_7,
+            self.sb_x_8, self.sb_x_9, self.sb_x_10, self.sb_x_11, self.sb_x_12, self.sb_x_13,
+            self.sb_x_14, self.sb_x_15, self.sb_x_16,
+            self.sb_y_1, self.sb_y_2, self.sb_y_3, self.sb_y_4, self.sb_y_5, self.sb_y_6, self.sb_y_7,
+            self.sb_y_8, self.sb_y_9, self.sb_y_10, self.sb_y_11, self.sb_y_12, self.sb_y_13,
+            self.sb_y_14, self.sb_y_15, self.sb_y_16]
         #                     1, 2, 3, 4, 5, 7, 8, 9, 10,11,12,13,14,15,16,17
         self.kick = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
         self.rm = np.array([])
         self.rev_rm = np.array([])
-        self.rm_info = {}
+        self.rm_info: dict = {}
         # sing values plot def
         self.plt = pg.PlotWidget(parent=self)
         self.plt.showGrid(x=True, y=True)
@@ -41,7 +42,7 @@ class RMC(QMainWindow):
         self.plt.setRange(yRange=[0, 0.01])
         self.plt_vals = pg.PlotDataItem()
         self.sing_reg = pg.LinearRegionItem(values=[0, 0.01], orientation=pg.LinearRegionItem.Horizontal)
-        self.sing_val_range = (0, 10)
+        self.sing_val_range: tuple = (0, 10)
         self.plt.addItem(self.sing_reg)
         self.plt.addItem(self.plt_vals)
         p = QVBoxLayout()
@@ -108,13 +109,19 @@ class RMC(QMainWindow):
             for key, param in self.rm_info.items():
                 cor_list.append({'name': key, 'id': param['id'], 'step': round(curr[i], 0)})
                 i += 1
-            info = {'name': self.handle_name.text(), 'descr': self.handle_descr.text(), 'cor_list': cor_list}
+            self.knob_transfer(self, self.handle_name.text(), self.handle_descr.text(), cor_list)
             self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'info': info}))
             self.handle_name.setText('def_h_name')
             self.handle_descr.setText('def_h_descr')
             self.status_bar.showMessage('Handle saved')
         else:
             self.status_bar.showMessage('Calculate reverse matrix first')
+
+    def knob_transfer(self, name, descr, cor_list):
+        self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'name': name, 'descr': descr}))
+        for cor in cor_list:
+            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_cor', 'cor': cor}))
+        self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'handle_complete'}))
 
     def assemble_kick(self):
         for i in range(len(self.sb_kick)):

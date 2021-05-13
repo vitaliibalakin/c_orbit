@@ -15,17 +15,18 @@ from cservice import CXService
 class HandlesProc:
     def __init__(self):
         super(HandlesProc, self).__init__()
-        self.handles = {}
-        self.handle_descr = {}
+        self.handles: dict = {}
+        self.handle_descr: dict = {}
 
-        self.cell_col = {0: 'name', 1: 'descr'}
-        self.client_list = ['handle', 'rm_proc', 'inj_vs_handles']
-        self.cmd_table = {
-            'add_handle': self.add_handle_, 'delete_handle': self.delete_handle_,
-            'edit_item': self.edit_item_,
+        self.cell_col: dict = {0: 'name', 1: 'descr'}
+        self.client_list: list = ['handle', 'rm_proc', 'inj_vs_handles']
+        self.cmd_table: dict = {
+            'add_handle': self.add_handle_, 'handle_complete': self.handle_complete_, 'add_cor': self.add_cor_,
+            'delete_handle': self.delete_handle_, 'edit_item': self.edit_item_,
             'step_up': self.step_up_, 'cst_step_up': self.cst_step_up_,
             'step_down': self.step_down_, 'cst_step_down': self.cst_step_down_
         }
+        self.knob_is_adding: bool = False
 
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
         self.chan_cmd.valueMeasured.connect(self.cmd)
@@ -47,20 +48,31 @@ class HandlesProc:
                 self.cmd_table[command](**cmd)
 
     def add_handle_(self, **kwargs):
-        handle_params = {}
-        info = kwargs.get('info')
+        if not self.knob_is_adding:
+            name = kwargs.get('name')
+            descr = kwargs.get('descr')
+            client = kwargs.get('client')
+            self.handles_renum()
+            self.handles[0] = {}
+            self.handle_descr[0] = {'name': name, 'descr': descr, 'cor_list': []}
+            self.knob_is_adding = True
+            self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_receiving'}))
+
+    def add_cor_(self, **kwargs):
+        cor = kwargs.get('cor')
+        self.handle_descr[0]['cor_list'].append(cor)
+        if cor['name'].split('.')[-1][0] == 'G':
+            self.handles[0][cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
+        else:
+            self.handles[0][cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
+
+    def handle_complete_(self, **kwargs):
         client = kwargs.get('client')
-        self.handles_renum()
-        self.handle_descr[0] = info
-        for cor in info['cor_list']:
-            if cor['name'].split('.')[-1][0] == 'G':
-                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
-            else:
-                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
-        self.handles[0] = handle_params
-        self.save_changes()
-        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
-        self.chan_cmd.setValue('')
+        if self.knob_is_adding:
+            self.knob_is_adding = False
+            self.save_changes()
+            self.chan_cmd.setValue('')
+            self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
 
     def delete_handle_(self, **kwargs):
         row = kwargs.get('row')
@@ -133,10 +145,23 @@ class HandlesProc:
         handles_s = f.readline()
         if handles_s:
             handles = json.loads(handles_s)
-            for row_num, handle in handles.items():
-                self.add_handle_(**{'info': handle})
+            for row_num, knob in handles.items():
+                self.load_handle_(knob)
         f.close()
 
+    def load_handle_(self, knob):
+        handle_params = {}
+        self.handles_renum()
+        self.handle_descr[0] = knob
+        for cor in knob['cor_list']:
+            if cor['name'].split('.')[-1][0] == 'G':
+                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
+            else:
+                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
+        self.handles[0] = handle_params
+        self.save_changes()
+        self.chan_res.setValue(json.dumps({'client': 'handle', 'res': 'handles_loaded'}))
+        self.chan_cmd.setValue('')
 
 DIR = os.getcwd()
 DIR = re.sub('deamons', 'knobs', DIR)

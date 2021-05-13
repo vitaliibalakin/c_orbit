@@ -105,7 +105,6 @@ class Handles(QMainWindow):
     def knob_transfer(self, name, descr, cor_list):
         self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'name': name, 'descr': descr}))
         for cor in cor_list:
-            print(cor)
             self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_cor', 'cor': cor}))
         self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'handle_complete'}))
 
@@ -157,6 +156,7 @@ class Handles(QMainWindow):
             self.knobs_descr = {}
             f = open('saved_handles.txt', 'r')
             handles = json.loads(f.read())
+            print(handles)
             f.close()
             for row_num, handle in handles.items():
                 info = {}
@@ -185,7 +185,6 @@ class Handles(QMainWindow):
             cmd_res = json.loads(chan.val)
             client = cmd_res.get('client')
             res = cmd_res.get('res')
-            print('client:', client, 'res:', res)
             if client == 'handle':
                 self.update_table()
                 self.status_bar.showMessage(res)

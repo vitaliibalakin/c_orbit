@@ -27,6 +27,8 @@ class HandlesProc:
             'step_down': self.step_down_, 'cst_step_down': self.cst_step_down_
         }
         self.knob_is_adding: bool = False
+        self.tmp = {}
+        self.i = 0
 
         self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
         self.chan_cmd.valueMeasured.connect(self.cmd)
@@ -64,7 +66,13 @@ class HandlesProc:
         if cor['name'].split('.')[-1][0] == 'G':
             self.handles[0][cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
         else:
-            self.handles[0][cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
+            channel = cda.DChan(cor['name'] + '.Iset', private=1)
+            self.handles[0][cor['name'].split('.')[-1]] = [channel, cor['step']]
+            self.handles[0][cor['name'].split('.')[-1]][0].valueMeasured.connect(self.connection_check)
+        print('connection added')
+
+    def connection_check(self, chan):
+        print(chan.val)
 
     def handle_complete_(self, **kwargs):
         client = kwargs.get('client')
@@ -136,6 +144,7 @@ class HandlesProc:
             self.handles[i + 1] = self.handles.pop(i)
 
     def save_changes(self):
+        print(self.handle_descr)
         f = open(DIR + '/saved_handles.txt', 'w')
         f.write(json.dumps(self.handle_descr))
         f.close()
@@ -155,9 +164,9 @@ class HandlesProc:
         self.handle_descr[0] = knob
         for cor in knob['cor_list']:
             if cor['name'].split('.')[-1][0] == 'G':
-                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
+                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset', private=1), cor['step']]
             else:
-                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset'), cor['step']]
+                handle_params[cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Iset', private=1), cor['step']]
         self.handles[0] = handle_params
         self.save_changes()
         self.chan_res.setValue(json.dumps({'client': 'handle', 'res': 'handles_loaded'}))

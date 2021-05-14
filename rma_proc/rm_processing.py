@@ -110,7 +110,6 @@ class RMC(QMainWindow):
                 cor_list.append({'name': key, 'id': param['id'], 'step': round(curr[i], 0)})
                 i += 1
             self.knob_transfer(self.handle_name.text(), self.handle_descr.text(), cor_list)
-            self.chan_cmd.setValue(json.dumps({'client': 'handle', 'cmd': 'add_handle', 'info': info}))
             self.handle_name.setText('def_h_name')
             self.handle_descr.setText('def_h_descr')
             self.status_bar.showMessage('Handle saved')

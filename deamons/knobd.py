@@ -44,6 +44,7 @@ class HandlesProc:
     def cmd(self, chan):
         if chan.val:
             cmd = json.loads(chan.val)
+
             command = cmd.get('cmd', 'no_cmd')
             client = cmd.get('client', 'no_serv')
             if client in self.client_list:
@@ -69,10 +70,11 @@ class HandlesProc:
             channel = cda.DChan(cor['name'] + '.Iset', private=1)
             self.handles[0][cor['name'].split('.')[-1]] = [channel, cor['step']]
             self.handles[0][cor['name'].split('.')[-1]][0].valueMeasured.connect(self.connection_check)
-        print('connection added')
+        # print('connection added')
 
     def connection_check(self, chan):
-        print(chan.val)
+        pass
+        # print(chan.val)
 
     def handle_complete_(self, **kwargs):
         client = kwargs.get('client')
@@ -144,7 +146,6 @@ class HandlesProc:
             self.handles[i + 1] = self.handles.pop(i)
 
     def save_changes(self):
-        print(self.handle_descr)
         f = open(DIR + '/saved_handles.txt', 'w')
         f.write(json.dumps(self.handle_descr))
         f.close()
@@ -176,17 +177,17 @@ DIR = os.getcwd()
 DIR = re.sub('deamons', 'knobs', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = HandlesProc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = HandlesProc()
+#
+#     def clean(self):
+#         self.log_str('exiting handles_proc')
+#
+#
+# bp = KMService("knobd")
 
-    def clean(self):
-        self.log_str('exiting handles_proc')
-
-
-bp = KMService("knobd")
-
-# if __name__ == "__main__":
-#     w = HandlesProc()
-#     cda.main_loop()
+if __name__ == "__main__":
+    w = HandlesProc()
+    cda.main_loop()

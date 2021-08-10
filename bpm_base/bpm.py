@@ -69,8 +69,8 @@ class BPM:
         z_arr = freq[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))]
         x_index = np.argmax(np.abs(x_fft)[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))])
         z_index = np.argmax(np.abs(z_fft)[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))])
-        x_tune = round(x_arr[x_index], 3)
-        z_tune = round((1 - z_arr[z_index]), 3)
+        x_tune = round(x_arr[x_index], 4)
+        z_tune = round((1 - z_arr[z_index]), 4)
         self.collect_tunes(np.array([x_tune, z_tune]))
 
     def tunes_range(self, chan):

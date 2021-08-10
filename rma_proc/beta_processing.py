@@ -69,7 +69,7 @@ class BetaProc(QMainWindow):
         p.addWidget(self.plt_y)
         self.show()
 
-        model = Converter().sdds_to_pandas('ElementName', 's', 'betax', 'betay', file='dr_twiss.twi')
+        model = Converter().sdds_to_pandas('ElementName', 's', 'betax', 'betay', file='dr_twiss_pos.twi')
         self.plt_x.plot(model.s, model.betax, pen=pg.mkPen('r', width=2))
         self.plt_y.plot(model.s, model.betay, pen=pg.mkPen('b', width=2))
 
@@ -129,8 +129,11 @@ class BetaProc(QMainWindow):
         s = [self.l_coor[key] for key in cors_list]
         self.error_x.setData(x=np.array(s), y=np.array(beta_x), top=np.array(beta_x_err), bottom=np.array(beta_x_err), beam=0.3)
         self.plt_x.plot(s, beta_x, pen=None, symbol='x')
+        print(s)
+        print(beta_x_err)
         self.error_y.setData(x=np.array(s), y=np.array(beta_y), top=np.array(beta_y_err), bottom=np.array(beta_y_err), beam=0.3)
         self.plt_y.plot(s, beta_y, pen=None, symbol='x')
+        print(beta_y_err)
         self.beta_x, self.beta_y, self.cors_list = beta_x, beta_y, cors_list
         self.rm_info = rm_info
         self.status_bar.showMessage('Betas plotted')

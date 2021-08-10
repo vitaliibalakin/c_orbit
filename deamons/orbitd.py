@@ -128,6 +128,7 @@ class BpmPreproc:
                     self.bckrg_stop_()
                 return
             self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
+            print(orbit)
             self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
             self.chan_turns_matrix.setValue(turns_matrix)
 
@@ -351,18 +352,18 @@ DIR = os.getcwd()
 DIR = re.sub('deamons', 'bpm_plot', DIR)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = BpmPreproc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = BpmPreproc()
+#
+#     def clean(self):
+#         self.log_str('exiting bpm_prepoc')
+#
+#
+# bp = KMService("bpmd")
 
-    def clean(self):
-        self.log_str('exiting bpm_prepoc')
-
-
-bp = KMService("bpmd")
-
-# if __name__ == "__main__":
-#     w = BpmPreproc()
-#     cda.main_loop()
+if __name__ == "__main__":
+    w = BpmPreproc()
+    cda.main_loop()
 

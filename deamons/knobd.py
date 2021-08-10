@@ -44,7 +44,7 @@ class HandlesProc:
     def cmd(self, chan):
         if chan.val:
             cmd = json.loads(chan.val)
-
+            print(cmd)
             command = cmd.get('cmd', 'no_cmd')
             client = cmd.get('client', 'no_serv')
             if client in self.client_list:

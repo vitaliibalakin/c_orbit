@@ -1,0 +1,4 @@
+# knobd configuration data
+
+cmd name=cxhw:4.bpm_preproc.cmd   max_nelems=1024    on_update=1
+res name=cxhw:4.bpm_preproc.res   max_nelems=1024    on_update=1

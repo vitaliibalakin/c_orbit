@@ -10,6 +10,7 @@ import os
 import re
 import datetime
 from cservice import CXService
+from conf.conf_parser import load_config
 
 
 class HandlesProc:
@@ -30,9 +31,10 @@ class HandlesProc:
         self.tmp = {}
         self.i = 0
 
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        chan_conf = load_config('knobd_conf.txt')
+        self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
         self.chan_cmd.valueMeasured.connect(self.cmd)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        self.chan_res = cda.StrChan(**chan_conf['res'])
 
         self.load_handles()
         print('start')

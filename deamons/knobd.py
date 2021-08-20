@@ -10,7 +10,24 @@ import os
 import re
 import datetime
 from cservice import CXService
-from conf.conf_parser import load_config
+
+def load_config(conf_name):
+    config_sett = {}
+    conf_file = open(conf_name, "r")
+    for line in conf_file.readlines():
+        if line[0] == '#':
+            pass
+        else:
+            result = re.match(r'(\w+)', line)
+            if result:
+                chan_name = result.group()
+                config_sett[chan_name] = {}
+                config_sett[chan_name].update({elem.split('=')[0]: elem.split('=')[1]
+                                               for elem in re.findall(r'\s(\S+=\w+:\S+)', line)})
+                config_sett[chan_name].update({elem.split('=')[0]: int(elem.split('=')[1])
+                                               for elem in re.findall(r'\s(\S+=\d+)', line)})
+
+    return config_sett
 
 
 class HandlesProc:
@@ -31,10 +48,15 @@ class HandlesProc:
         self.tmp = {}
         self.i = 0
 
-        chan_conf = load_config('knobd_conf.txt')
-        self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
-        self.chan_cmd.valueMeasured.connect(self.cmd)
-        self.chan_res = cda.StrChan(**chan_conf['res'])
+        try:
+            chan_conf = load_config('config/knobd_conf.txt')
+            self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
+            self.chan_cmd.valueMeasured.connect(self.cmd)
+            self.chan_res = cda.StrChan(**chan_conf['res'])
+        except KeyError as error:
+            print('knobd chans init gives ', error)
+        except FileNotFoundError as error:
+            print('knobd chans init gives ', error)
 
         self.load_handles()
         print('start')

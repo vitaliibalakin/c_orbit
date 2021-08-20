@@ -1,5 +1,6 @@
 # orbitd configuration data
 
+[chans_list]
 tunes           name=cxhw:4.bpm_preproc.tunes           max_nelems=2
 control_tunes   name=cxhw:4.bpm_preproc.control_tunes   max_nelems=1024
 fft             name=cxhw:4.bpm_preproc.fft             max_nelems=262144
@@ -12,3 +13,15 @@ control_orbit   name=cxhw:4.bpm_preproc.control_orbit   max_nelems=64
 turns           name=cxhw:4.bpm_preproc.turns           max_nelems=131072
 turns_matrix    name=cxhw:4.bpm_preproc.turns_matrix    max_nelems=259072
 modet           name=cxhw:0.k500.modet                  max_nelems=4        on_update=1
+[end]
+
+[bpm_list]
+bpm01,bpm02,bpm03,bpm04,
+bpm05,bpm07,bpm08,bpm09,
+bpm10,bpm11,bpm12,bpm13,
+bpm14,bpm15,bpm16,bpm17
+[end]
+
+[client_list]
+orbit,tunes,turns,inj
+[end]

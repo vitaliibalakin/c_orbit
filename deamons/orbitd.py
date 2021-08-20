@@ -14,52 +14,100 @@ import datetime
 from cservice import CXService
 from bpm_base.bpm import BPM
 
+def load_config(conf_name):
+    conf_file = open(conf_name, "r")
+    configuration = conf_file.readlines()
+
+    def load_chans(i_b, data):
+        chans_sett = {}
+        while True:
+            result = re.match(r'(\w+)', data[i_b])
+            if result:
+                chan_name = result.group()
+                chans_sett[chan_name] = {}
+                chans_sett[chan_name].update({elem.split('=')[0]: elem.split('=')[1]
+                                               for elem in re.findall(r'\s(\S+=\w+:\S+)', data[i_b])})
+                chans_sett[chan_name].update({elem.split('=')[0]: int(elem.split('=')[1])
+                                               for elem in re.findall(r'\s(\S+=\d+)', data[i_b])})
+            i_b += 1
+            if data[i_b] == '[end]\n':
+                return i_b, chans_sett
+
+    def load_list(i_b, data):
+        d_str = ''
+        d_list = []
+        while True:
+            d_str += data[i_b][:-1]
+            i_b += 1
+            if data[i_b] == '[end]\n':
+                d_list = d_str.split(',')
+                return i_b, d_list
+
+    i = 0
+    while i < len(configuration):
+        if configuration[i] == '[chans_list]\n':
+            i_next, chans_config_sett = load_chans(i + 1, configuration)
+            i = i_next
+        elif configuration[i] == '[bpm_list]\n':
+            i_next, bpm_config_sett = load_list(i + 1, configuration)
+            i = i_next
+        elif configuration[i] == '[client_list]\n':
+            i_next, client_config_sett = load_list(i + 1, configuration)
+            i = i_next
+        i += 1
+    return chans_config_sett, bpm_config_sett, client_config_sett
+
 
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
         self.mode_d: dict = {'orbit': DIR + '/mode_file.txt', 'tunes': DIR + '/mode_tunes_file.txt',
                              'inj': DIR + '/mode_inj_file.txt'}
+
+        chans_conf, bpms_list, self.client_list  = load_config('config/orbitd_conf.txt')
+
+        self.bpms_zeros = np.zeros(2 * len(bpms_list),)
+        self.bpms_deviation = np.zeros(2 * len(bpms_list),)
         self.ic_mode: str
         self.bckgr_proc: bool = False
-        self.bpms_zeros = np.zeros(32,)
-        self.bpms_deviation = np.zeros(32,)
         self.bckrg_counter: int = 0
         self.bckgr_it_num: int = 0
         self.current_orbit = np.empty(0)
         self.current_tunes = np.empty(0)
-        self.client_list: list = ['orbit', 'tunes', 'turns', 'inj']
+        self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
+                         self.collect_fft, self.collect_coor) for bpm in bpms_list]
+
         self.fft_bpm: str = 'bpm15'
         self.turns_bpm: str = 'bpm15'
-        self.bpms_list: list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11',
-                                'bpm12', 'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
-        self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
-                         self.collect_fft, self.collect_coor) for bpm in self.bpms_list]
         for bpm in self.bpms:
             if bpm.name == 'bpm15':
                 bpm.turns_mes = 1
+
         self.inj_bpms: dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
                                'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
         self.inj_coors: dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
         self.m_x1_septum: list = []
         self.m_x2_septum: list = []
 
-        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2)
-        self.chan_ctrl_tunes = cda.StrChan('cxhw:4.bpm_preproc.control_tunes', max_nelems=1024)
-        # order: p2v2, e2v2, p2v4, e2v4
-        self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
-        self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
-        self.chan_cmd.valueMeasured.connect(self.cmd)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
-        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
-        self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
-        self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
-        self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
-        self.chan_turns_matrix = cda.VChan('cxhw:4.bpm_preproc.turns_matrix', max_nelems=259072)
-        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
-        self.chan_mode.valueMeasured.connect(self.mode_changed)
-        # self.chan_inj = cda.VChan('cxhw:4.bpm_preproc.injection_par', max_nelems=4)
+        try:
+            self.chan_tunes = cda.VChan(**chans_conf['tunes'])
+            self.chan_ctrl_tunes = cda.StrChan(**chans_conf['control_tunes'])
+            # order: p2v2, e2v2, p2v4, e2v4
+            self.chan_fft = cda.VChan(**chans_conf['fft'])
+            self.chan_coor = cda.VChan(**chans_conf['coor'])
+            self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
+            self.chan_cmd.valueMeasured.connect(self.cmd)
+            self.chan_res = cda.StrChan(**chans_conf['res'])
+            self.chan_orbit = cda.VChan(**chans_conf['orbit'])
+            self.chan_one_turn = cda.VChan(**chans_conf['one_turn'])
+            self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
+            self.chan_turns = cda.VChan(**chans_conf['turns'])
+            self.chan_turns_matrix = cda.VChan(**chans_conf['turns_matrix'])
+            self.chan_mode = cda.StrChan(**chans_conf['modet'])
+            self.chan_mode.valueMeasured.connect(self.mode_changed)
+            # self.chan_inj = cda.VChan('cxhw:4.bpm_preproc.injection_par', max_nelems=4)
+        except KeyError as error:
+            print('orbitd chans init gives ', error)
 
         self.cmd_table = {
             'load_orbit': self.load_file_, 'load_tunes': self.load_file_,

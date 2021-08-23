@@ -2,8 +2,43 @@
 import numpy as np
 import json
 import time
+import re
 import pycx4.pycda as cda
 import scipy.signal as sp
+
+
+def load_config_bpm(conf_name, bpm_name):
+    conf_file = open(conf_name, "r")
+    configuration = conf_file.readlines()
+    bpm_find = False
+
+    def load_chans(i_b, data):
+        chans_sett = {}
+        while True:
+            result = re.match(r'(\w+)', data[i_b])
+            if result:
+                chan_name = result.group()
+                chans_sett[chan_name] = {}
+                chans_sett[chan_name].update({elem.split('=')[0]: elem.split('=')[1]
+                                              for elem in re.findall(r'\s(\S+=\w+:\S+)', data[i_b])})
+                chans_sett[chan_name].update({elem.split('=')[0]: int(elem.split('=')[1])
+                                              for elem in re.findall(r'\s(\S+=\d+)', data[i_b])})
+            i_b += 1
+
+            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
+                return i_b, chans_sett
+    i = 0
+    while i < len(configuration):
+        if configuration[i] == '[' + bpm_name + ']\n':
+            bpm_find = True
+            i_next, chans_config_sett = load_chans(i + 1, configuration)
+            i = i_next
+        i += 1
+
+    if bpm_find:
+        return chans_config_sett
+    else:
+        print(bpm_name + ' is absent in config file')
 
 
 class BPM:
@@ -11,6 +46,9 @@ class BPM:
         super(BPM, self).__init__()
         self.collect_orbit, self.collect_tunes, self.send_current, self.send_fft, self.send_coor = \
             collect_orbit, collect_tunes, send_current, send_fft, send_coor
+
+        chans_conf = load_config_bpm('config/bpm_conf.txt', bpm)
+
         self.last_data_upd: int = 0
         self.no_connection: bool = False
         self.name: str = bpm
@@ -27,10 +65,10 @@ class BPM:
         self.x_bound: list = [0.345, 0.365]
         self.z_bound: list = [0.2, 0.4]
 
-        self.chan_datatxzi = cda.VChan('cxhw:37.ring.' + bpm + '.datatxzi', max_nelems=524288)
+        self.chan_datatxzi = cda.VChan(**chans_conf['datatxzi'])
         self.chan_datatxzi.valueMeasured.connect(self.data_proc)
-        self.chan_numpts = cda.DChan('cxhw:37.ring.' + bpm + '.numpts')
-        self.chan_tunes_range = cda.StrChan('cxhw:4.bpm_preproc.tunes_range', max_nelems=4096)
+        self.chan_numpts = cda.DChan(**chans_conf['numpts'])
+        self.chan_tunes_range = cda.StrChan(**chans_conf['tunes_range'])
         self.chan_tunes_range.valueMeasured.connect(self.tunes_range)
         # self.chan_marker = cda.DChan('cxhw:37.ring.' + bpm + '.marker')
         # self.chan_marker.valueMeasured.connect(self.marker_proc)

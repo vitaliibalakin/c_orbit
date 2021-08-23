@@ -25,3 +25,9 @@ bpm14,bpm15,bpm16,bpm17
 [client_list]
 orbit,tunes,turns,inj
 [end]
+
+[mode_files]
+orbit   mode_file.txt
+tunes   mode_tunes_file.txt
+inj     mode_inj_file.txt
+[end]

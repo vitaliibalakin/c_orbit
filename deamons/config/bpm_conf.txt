@@ -1,0 +1,97 @@
+# bpm configuration data
+
+[bpm01]
+datatxzi    name=cxhw:37.ring.bpm01.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm01.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm02]
+datatxzi    name=cxhw:37.ring.bpm02.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm02.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm03]
+datatxzi    name=cxhw:37.ring.bpm03.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm03.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm04]
+datatxzi    name=cxhw:37.ring.bpm04.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm04.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm05]
+datatxzi    name=cxhw:37.ring.bpm05.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm05.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm07]
+datatxzi    name=cxhw:37.ring.bpm07.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm07.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm08]
+datatxzi    name=cxhw:37.ring.bpm08.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm08.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm09]
+datatxzi    name=cxhw:37.ring.bpm09.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm09.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm10]
+datatxzi    name=cxhw:37.ring.bpm10.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm10.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm11]
+datatxzi    name=cxhw:37.ring.bpm11.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm11.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm12]
+datatxzi    name=cxhw:37.ring.bpm12.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm12.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm13]
+datatxzi    name=cxhw:37.ring.bpm13.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm13.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm14]
+datatxzi    name=cxhw:37.ring.bpm14.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm14.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm15]
+datatxzi    name=cxhw:37.ring.bpm15.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm15.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm16]
+datatxzi    name=cxhw:37.ring.bpm16.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm16.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]
+
+[bpm17]
+datatxzi    name=cxhw:37.ring.bpm17.datatxzi    max_nelems=524288
+numpts      name=cxhw:37.ring.bpm17.numpts
+tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
+[end]

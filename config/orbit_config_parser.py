@@ -59,6 +59,7 @@ def load_config_orbit(conf_name, DIR):
         i += 1
 
     if control_sum == 4:
-        return chans_config_sett, bpm_config_sett, client_config_sett, mode_d
+        return {'chans_conf': chans_config_sett, 'bpm_conf': bpm_config_sett, 'client_conf': client_config_sett,
+                'mode_d': mode_d}
     else:
         print('wrong control_sum: orbitd config file is incomplete')

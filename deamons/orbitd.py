@@ -19,8 +19,11 @@ from c_orbit.config.orbit_config_parser import load_config_orbit
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
-        chans_conf, bpms_list, self.client_list, self.mode_d  = load_config_orbit(CONF + '/orbitd_conf.txt', DIR)
-
+        soft_conf  = load_config_orbit(CONF + '/orbitd_conf.txt', DIR)
+        chans_conf = soft_conf['chans_conf']
+        bpms_list = soft_conf['bpm_conf']
+        self.client_list = soft_conf['client_conf']
+        self.mode_d =  soft_conf['mode_d']
         # checking config
         for chan in ['tunes', 'control_tunes', 'fft', 'coor', 'cmd', 'res', 'orbit', 'one_turn', 'control_orbit',
                      'turns', 'turns_matrix', 'modet']:

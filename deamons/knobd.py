@@ -10,24 +10,7 @@ import os
 import re
 import datetime
 from cservice import CXService
-
-def load_config(conf_name):
-    config_sett = {}
-    conf_file = open(conf_name, "r")
-    for line in conf_file.readlines():
-        if line[0] == '#':
-            pass
-        else:
-            result = re.match(r'(\w+)', line)
-            if result:
-                chan_name = result.group()
-                config_sett[chan_name] = {}
-                config_sett[chan_name].update({elem.split('=')[0]: elem.split('=')[1]
-                                               for elem in re.findall(r'\s(\S+=\w+:\S+)', line)})
-                config_sett[chan_name].update({elem.split('=')[0]: int(elem.split('=')[1])
-                                               for elem in re.findall(r'\s(\S+=\d+)', line)})
-
-    return config_sett
+from c_orbit.config.knob_config_parser import load_config_knob
 
 
 class HandlesProc:
@@ -48,15 +31,14 @@ class HandlesProc:
         self.tmp = {}
         self.i = 0
 
-        try:
-            chan_conf = load_config('config/knobd_conf.txt')
-            self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
-            self.chan_cmd.valueMeasured.connect(self.cmd)
-            self.chan_res = cda.StrChan(**chan_conf['res'])
-        except KeyError as error:
-            print('knobd chans init gives ', error)
-        except FileNotFoundError as error:
-            print('knobd chans init gives ', error)
+        chan_conf = load_config_knob(CONF + '/knobd_conf.txt')
+        for chan in ['res', 'cmd']:
+            if chan not in chan_conf:
+                print(chan + ' is absent in knobd_conf')
+
+        self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
+        self.chan_cmd.valueMeasured.connect(self.cmd)
+        self.chan_res = cda.StrChan(**chan_conf['res'])
 
         self.load_handles()
         print('start')
@@ -197,8 +179,9 @@ class HandlesProc:
         self.chan_res.setValue(json.dumps({'client': 'handle', 'res': 'handles_loaded'}))
         self.chan_cmd.setValue('')
 
-DIR = os.getcwd()
-DIR = re.sub('deamons', 'knobs', DIR)
+PATH = os.getcwd()
+DIR = re.sub('deamons', 'knobs', PATH)
+CONF = re.sub('deamons', 'config', PATH)
 
 
 # class KMService(CXService):

@@ -13,74 +13,19 @@ import re
 import datetime
 from cservice import CXService
 from bpm_base.bpm import BPM
+from c_orbit.config.orbit_config_parser import load_config_orbit
 
-def load_config(conf_name):
-    conf_file = open(conf_name, "r")
-    configuration = conf_file.readlines()
-    control_sum = 0
-
-    def load_chans(i_b, data):
-        chans_sett = {}
-        while True:
-            result = re.match(r'(\w+)', data[i_b])
-            if result:
-                chan_name = result.group()
-                chans_sett[chan_name] = {}
-                chans_sett[chan_name].update({elem.split('=')[0]: elem.split('=')[1]
-                                               for elem in re.findall(r'\s(\S+=\w+:\S+)', data[i_b])})
-                chans_sett[chan_name].update({elem.split('=')[0]: int(elem.split('=')[1])
-                                               for elem in re.findall(r'\s(\S+=\d+)', data[i_b])})
-            i_b += 1
-            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
-                return i_b, chans_sett
-
-    def load_list(i_b, data):
-        d_str = ''
-        d_list = []
-        while True:
-            d_str += data[i_b][:-1]
-            i_b += 1
-            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
-                d_list = d_str.split(',')
-                return i_b, d_list
-
-    def load_mode_filenames(i_b, data):
-        mode_d = {}
-        while True:
-            mode_d[re.findall(r'(\S+)', data[i_b])[0]] = DIR + '/' + re.findall(r'(\S+)', data[i_b])[1]
-            i_b += 1
-            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
-                return i_b, mode_d
-
-    i = 0
-    while i < len(configuration):
-        if configuration[i] == '[chans_list]\n':
-            control_sum += 1
-            i_next, chans_config_sett = load_chans(i + 1, configuration)
-            i = i_next
-        elif configuration[i] == '[bpm_list]\n':
-            control_sum += 1
-            i_next, bpm_config_sett = load_list(i + 1, configuration)
-            i = i_next
-        elif configuration[i] == '[client_list]\n':
-            control_sum += 1
-            i_next, client_config_sett = load_list(i + 1, configuration)
-            i = i_next
-        elif configuration[i] == '[mode_files]\n':
-            control_sum += 1
-            i_next, mode_d = load_mode_filenames(i + 1, configuration)
-            i = i_next
-        i += 1
-
-    if control_sum == 4:
-        return chans_config_sett, bpm_config_sett, client_config_sett, mode_d
-    else:
-        print('orbitd config file is incomplete')
 
 class BpmPreproc:
     def __init__(self):
         super(BpmPreproc, self).__init__()
-        chans_conf, bpms_list, self.client_list, self.mode_d  = load_config('config/orbitd_conf.txt')
+        chans_conf, bpms_list, self.client_list, self.mode_d  = load_config_orbit(CONF + '/orbitd_conf.txt', DIR)
+
+        # checking config
+        for chan in ['tunes', 'control_tunes', 'fft', 'coor', 'cmd', 'res', 'orbit', 'one_turn', 'control_orbit',
+                     'turns', 'turns_matrix', 'modet']:
+            if chan not in chans_conf:
+                print(chan + ' is absent in orbitd_conf')
 
         self.bpms_zeros = np.zeros(2 * len(bpms_list),)
         self.bpms_deviation = np.zeros(2 * len(bpms_list),)
@@ -91,7 +36,7 @@ class BpmPreproc:
         self.current_orbit = np.empty(0)
         self.current_tunes = np.empty(0)
         self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
-                         self.collect_fft, self.collect_coor) for bpm in bpms_list]
+                         self.collect_fft, self.collect_coor, CONF) for bpm in bpms_list]
 
         self.fft_bpm: str = 'bpm15'
         self.turns_bpm: str = 'bpm15'
@@ -105,25 +50,22 @@ class BpmPreproc:
         self.m_x1_septum: list = []
         self.m_x2_septum: list = []
 
-        try:
-            self.chan_tunes = cda.VChan(**chans_conf['tunes'])
-            self.chan_ctrl_tunes = cda.StrChan(**chans_conf['control_tunes'])
-            # order: p2v2, e2v2, p2v4, e2v4
-            self.chan_fft = cda.VChan(**chans_conf['fft'])
-            self.chan_coor = cda.VChan(**chans_conf['coor'])
-            self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
-            self.chan_cmd.valueMeasured.connect(self.cmd)
-            self.chan_res = cda.StrChan(**chans_conf['res'])
-            self.chan_orbit = cda.VChan(**chans_conf['orbit'])
-            self.chan_one_turn = cda.VChan(**chans_conf['one_turn'])
-            self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
-            self.chan_turns = cda.VChan(**chans_conf['turns'])
-            self.chan_turns_matrix = cda.VChan(**chans_conf['turns_matrix'])
-            self.chan_mode = cda.StrChan(**chans_conf['modet'])
-            self.chan_mode.valueMeasured.connect(self.mode_changed)
-            # self.chan_inj = cda.VChan('cxhw:4.bpm_preproc.injection_par', max_nelems=4)
-        except KeyError as error:
-            print('orbitd chans init gives ', error)
+        self.chan_tunes = cda.VChan(**chans_conf['tunes'])
+        self.chan_ctrl_tunes = cda.StrChan(**chans_conf['control_tunes'])
+        # order: p2v2, e2v2, p2v4, e2v4
+        self.chan_fft = cda.VChan(**chans_conf['fft'])
+        self.chan_coor = cda.VChan(**chans_conf['coor'])
+        self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
+        self.chan_cmd.valueMeasured.connect(self.cmd)
+        self.chan_res = cda.StrChan(**chans_conf['res'])
+        self.chan_orbit = cda.VChan(**chans_conf['orbit'])
+        self.chan_one_turn = cda.VChan(**chans_conf['one_turn'])
+        self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
+        self.chan_turns = cda.VChan(**chans_conf['turns'])
+        self.chan_turns_matrix = cda.VChan(**chans_conf['turns_matrix'])
+        self.chan_mode = cda.StrChan(**chans_conf['modet'])
+        self.chan_mode.valueMeasured.connect(self.mode_changed)
+        # self.chan_inj = cda.VChan('cxhw:4.bpm_preproc.injection_par', max_nelems=4)
 
         self.cmd_table = {
             'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
@@ -412,8 +354,9 @@ class BpmPreproc:
             self.send_cmd_res_(**{'action': 'loading_' + exc, 'client': client})
 
 
-DIR = os.getcwd()
-DIR = re.sub('deamons', 'bpm_plot', DIR)
+PATH = os.getcwd()
+DIR = re.sub('deamons', 'bpm_plot', PATH)
+CONF = re.sub('deamons', 'config', PATH)
 
 
 # class KMService(CXService):

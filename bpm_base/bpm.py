@@ -5,49 +5,19 @@ import time
 import re
 import pycx4.pycda as cda
 import scipy.signal as sp
-
-
-def load_config_bpm(conf_name, bpm_name):
-    conf_file = open(conf_name, "r")
-    configuration = conf_file.readlines()
-    bpm_find = False
-
-    def load_chans(i_b, data):
-        chans_sett = {}
-        while True:
-            result = re.match(r'(\w+)', data[i_b])
-            if result:
-                chan_name = result.group()
-                chans_sett[chan_name] = {}
-                chans_sett[chan_name].update({elem.split('=')[0]: elem.split('=')[1]
-                                              for elem in re.findall(r'\s(\S+=\w+:\S+)', data[i_b])})
-                chans_sett[chan_name].update({elem.split('=')[0]: int(elem.split('=')[1])
-                                              for elem in re.findall(r'\s(\S+=\d+)', data[i_b])})
-            i_b += 1
-
-            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
-                return i_b, chans_sett
-    i = 0
-    while i < len(configuration):
-        if configuration[i] == '[' + bpm_name + ']\n':
-            bpm_find = True
-            i_next, chans_config_sett = load_chans(i + 1, configuration)
-            i = i_next
-        i += 1
-
-    if bpm_find:
-        return chans_config_sett
-    else:
-        print(bpm_name + ' is absent in config file')
-
+from c_orbit.config.bpm_config_parser import load_config_bpm
 
 class BPM:
-    def __init__(self, bpm, collect_orbit, collect_tunes, send_current, send_fft, send_coor):
+    def __init__(self, bpm, collect_orbit, collect_tunes, send_current, send_fft, send_coor, CONF):
         super(BPM, self).__init__()
         self.collect_orbit, self.collect_tunes, self.send_current, self.send_fft, self.send_coor = \
             collect_orbit, collect_tunes, send_current, send_fft, send_coor
 
-        chans_conf = load_config_bpm('config/bpm_conf.txt', bpm)
+        chans_conf = load_config_bpm(CONF + '/bpm_conf.txt', bpm)
+        for chan in ['datatxzi', 'numpts', 'tunes_range']:
+            if chan not in chans_conf:
+                print(bpm + ' ' + chan + ' is absent in bpm_conf')
+
 
         self.last_data_upd: int = 0
         self.no_connection: bool = False

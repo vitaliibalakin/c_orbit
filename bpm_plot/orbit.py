@@ -35,6 +35,10 @@ class PlotControl(QMainWindow):
                 print(chan + ' is absent in orbitd_conf')
                 sys.exit(app.exec_())
 
+        self.orbit_plots: dict = {
+            'x_orbit': OrbitPlot('x', conf + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
+            'z_orbit': OrbitPlot('z', conf + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
+
         # variables for under control objects init
         self.ic_mode: str
         self.cur_orbit: nparray = np.zeros(len(self.bpms))
@@ -52,10 +56,6 @@ class PlotControl(QMainWindow):
         self.dict_lbls: dict = {self.bpms[i]: self.bpm_lbls[i] for i in range(len(self.bpms))}
         for btn in self.bpm_btns:
             btn.clicked.connect(self.bpm_btn_clicked)
-
-        # under control objects init
-        self.orbit_plots: dict = {'x_orbit': OrbitPlot('x', conf + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
-                                  'z_orbit': OrbitPlot('z', conf + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
 
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)

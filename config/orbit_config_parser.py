@@ -30,6 +30,19 @@ def load_config_orbit(conf_name, DIR):
                 d_list = d_str.split(',')
                 return i_b, d_list
 
+    def load_coor(i_b, data):
+        d_str = ''
+        d_list = []
+        coor_list = []
+        while True:
+            d_str += data[i_b][:-1]
+            i_b += 1
+            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
+                d_list = d_str.split(',')
+                for elem in d_list:
+                    coor_list.append(float(elem))
+                return i_b, coor_list
+
     def load_mode_filenames(i_b, data):
         mode_d = {}
         while True:
@@ -48,6 +61,10 @@ def load_config_orbit(conf_name, DIR):
             control_sum += 1
             i_next, bpm_config_sett = load_list(i + 1, configuration)
             i = i_next
+        elif configuration[i] == '[bpm_coor]\n':
+            control_sum += 1
+            i_next, bpm_coor = load_coor(i + 1, configuration)
+            i = i_next
         elif configuration[i] == '[client_list]\n':
             control_sum += 1
             i_next, client_config_sett = load_list(i + 1, configuration)
@@ -58,8 +75,8 @@ def load_config_orbit(conf_name, DIR):
             i = i_next
         i += 1
 
-    if control_sum == 4:
+    if control_sum == 5:
         return {'chans_conf': chans_config_sett, 'bpm_conf': bpm_config_sett, 'client_conf': client_config_sett,
-                'mode_d': mode_d}
+                'mode_d': mode_d, 'bpm_coor': bpm_coor}
     else:
         print('wrong control_sum: orbitd config file is incomplete')

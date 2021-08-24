@@ -10,6 +10,7 @@ import pycx4.qcda as cda
 import numpy as np
 import pyqtgraph as pg
 from bpm_base.aux_mod.orbit_plot import OrbitPlot
+from c_orbit.config.orbit_config_parser import load_config_orbit
 
 
 class PlotControl(QMainWindow):
@@ -17,21 +18,29 @@ class PlotControl(QMainWindow):
         super(PlotControl, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        direc = os.getcwd()
-        direc = re.sub('bpm_plot', 'uis', direc)
+        path = os.getcwd()
+        conf = re.sub('bpm_plot', 'config', path)
+        direc = re.sub('bpm_plot', 'uis', path)
         uic.loadUi(direc + "/bpm's.ui", self)
-        aper_files = re.sub('uis', 'bpm_base/aux_mod/aper_files', direc)
         self.setWindowTitle('Orbit Plot')
         self.show()
 
+        soft_conf = load_config_orbit(conf + '/orbitd_conf.txt', path)
+        chans_conf = soft_conf['chans_conf']
+        self.bpms = soft_conf['bpm_conf']
+        self.bpm_coor = soft_conf['bpm_coor']
+
+        for chan in ['act_bpm', 'cmd', 'res', 'orbit', 'control_orbit', 'modet']:
+            if chan not in chans_conf:
+                print(chan + ' is absent in orbitd_conf')
+                sys.exit(app.exec_())
+
         # variables for under control objects init
         self.ic_mode: str
-        self.cur_orbit: nparray = np.zeros(32)
-        self.bpms: list = ['bpm01', 'bpm02', 'bpm03', 'bpm04', 'bpm05', 'bpm07', 'bpm08', 'bpm09', 'bpm10', 'bpm11', 'bpm12',
-                          'bpm13', 'bpm14', 'bpm15', 'bpm16', 'bpm17']
+        self.cur_orbit: nparray = np.zeros(len(self.bpms))
         self.cur_bpms: list = self.bpms.copy()
-        self.bpm_coor: list = [21.4842, 23.39292, 24.6282, 26.5572, 0.8524, 2.7974, 4.0234, 5.9514, 7.7664, 9.6884,
-                               10.9154, 12.8604, 14.5802, 16.5152, 17.7697, 19.6742]
+
+        # migrate to special bpm tuning window
         self.bpm_btns: list = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
                                self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
                                self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]
@@ -45,8 +54,8 @@ class PlotControl(QMainWindow):
             btn.clicked.connect(self.bpm_btn_clicked)
 
         # under control objects init
-        self.orbit_plots: dict = {'x_orbit': OrbitPlot('x', aper_files + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
-                                  'z_orbit': OrbitPlot('z', aper_files + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
+        self.orbit_plots: dict = {'x_orbit': OrbitPlot('x', conf + '/x_aper.txt', self.bpms, self.bpm_coor, parent=self),
+                                  'z_orbit': OrbitPlot('z', conf + '/z_aper.txt', self.bpms, self.bpm_coor, parent=self)}
 
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
@@ -72,18 +81,18 @@ class PlotControl(QMainWindow):
         self.btn_inj_m.clicked.connect(self.load_inj_matrix)
 
         # other ordinary channels
-        self.chan_act_bpm = cda.StrChan('cxhw:4.bpm_preproc.act_bpm', max_nelems=1024)
-        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        self.chan_act_bpm = cda.StrChan(**chans_conf['act_bpm'])
         self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
+        self.chan_mode = cda.StrChan(**chans_conf['modet'])
         self.chan_mode.valueMeasured.connect(self.mode_changed)
+        self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
+        self.chan_res = cda.StrChan(**chans_conf['res'])
         self.chan_res.valueMeasured.connect(self.cmd_res)
 
         # data chans
-        self.chan_orbit = cda.VChan('cxhw:4.bpm_preproc.orbit', max_nelems=64)
-        self.chan_ctrl_orbit = cda.VChan('cxhw:4.bpm_preproc.control_orbit', max_nelems=64)
+        self.chan_orbit = cda.VChan(**chans_conf['orbit'])
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
+        self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
 
     def load_inj_matrix(self):

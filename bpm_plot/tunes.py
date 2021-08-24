@@ -10,8 +10,8 @@ import os
 import json
 import numpy as np
 import pycx4.qcda as cda
-
 from bpm_base.aux_mod.wrapper_tunes import LinesPlot, TunesMarker, Converter
+from c_orbit.config.orbit_config_parser import load_config_orbit
 
 
 class TunesControl(QMainWindow):
@@ -61,14 +61,19 @@ class TunesControl(QMainWindow):
         self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2,
                          'cur': self.lbl_cur}
 
-        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
+        for chan in ['tunes', 'cmd', 'res', 'control_tunes', 'modet']:
+            if chan not in chans_conf:
+                print(chan + ' is absent in orbitd_conf')
+                sys.exit(app.exec_())
+
+        self.chan_mode = cda.StrChan(**chans_conf['modet'])
         self.chan_mode.valueMeasured.connect(self.mode_changed)
-        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=1)
+        self.chan_tunes = cda.VChan(**chans_conf['tunes'])
         self.chan_tunes.valueMeasured.connect(self.tunes_update)
-        self.chan_ctrl_tunes = cda.StrChan('cxhw:4.bpm_preproc.control_tunes', max_nelems=1024)
+        self.chan_ctrl_tunes = cda.StrChan(**chans_conf['control_tunes'])
         self.chan_ctrl_tunes.valueMeasured.connect(self.ctrl_tunes_update)
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
+        self.chan_res = cda.StrChan(**chans_conf['res'])
         self.chan_res.valueMeasured.connect(self.cmd_result)
         # put IC mode tunes into their place on res_diag
         self.chan_cmd.setValue((json.dumps({'cmd': 'start_tunes', 'client': 'tunes'})))

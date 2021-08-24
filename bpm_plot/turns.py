@@ -12,6 +12,7 @@ from bpm_base.aux_mod.cur_plot import CurPlot
 from bpm_base.aux_mod.fft_plot import FFTPlot
 from bpm_base.aux_mod.coor_plot import CoorPlot
 from bpm_base.aux_mod.one_turn import OneTurnPlot
+from c_orbit.config.orbit_config_parser import load_config_orbit
 
 
 class TurnsControl(QMainWindow):
@@ -19,8 +20,9 @@ class TurnsControl(QMainWindow):
         super(TurnsControl, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        direc = os.getcwd()
-        direc = re.sub('bpm_plot', 'uis', direc)
+        path = os.getcwd()
+        conf = re.sub('bpm_plot', 'config', path)
+        direc = re.sub('bpm_plot', 'uis', path)
         uic.loadUi(direc + "/plot's.ui", self)
         self.setWindowTitle('Turns Plot')
         self.show()
@@ -30,9 +32,14 @@ class TurnsControl(QMainWindow):
         self.cur_num_pts = 1024
         self.cur_turn_num = 1
 
-        self.cur_cal = {'bpm01': 10.12, 'bpm02': 25.26, 'bpm03': 27.38, 'bpm04': 10.33, 'bpm05': 10.1, 'bpm07': 22.14,
-                        'bpm08': 19.83, 'bpm09': 25.68, 'bpm10': 21.35, 'bpm11': 24.1, 'bpm12': 23.7, 'bpm13': 7.23,
-                        'bpm14': 10.2, 'bpm15': 30.4, 'bpm16': 23.28, 'bpm17': 23}
+        soft_conf = load_config_orbit(conf + '/orbitd_conf.txt', path)
+        chans_conf = soft_conf['chans_conf']
+        self.cur_cal = soft_conf['cur_calib']
+
+        for chan in ['turns', 'cmd', 'coor', 'fft', 'modet']:
+            if chan not in chans_conf:
+                print(chan + ' is absent in orbitd_conf')
+                sys.exit(app.exec_())
 
         # fft and turns
         self.fft_p = FFTPlot(self)
@@ -66,15 +73,15 @@ class TurnsControl(QMainWindow):
         # other ordinary channels & callbacks
         # self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
         # self.chan_one_turn.valueMeasured.connect(self.one_turn_proc)
-        self.chan_turns = cda.VChan('cxhw:4.bpm_preproc.turns', max_nelems=131072)
+        self.chan_turns = cda.VChan(**chans_conf['turns'])
         self.chan_turns.valueMeasured.connect(self.cur_proc)
-        self.chan_fft = cda.VChan('cxhw:4.bpm_preproc.fft', max_nelems=262144)
+        self.chan_fft = cda.VChan(**chans_conf['fft'])
         self.chan_fft.valueMeasured.connect(self.fft_proc)
-        self.chan_coor = cda.VChan('cxhw:4.bpm_preproc.coor', max_nelems=262144)
+        self.chan_coor = cda.VChan(**chans_conf['coor'])
         self.chan_coor.valueMeasured.connect(self.coor_proc)
-        self.chan_mode = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=1)
+        self.chan_mode = cda.StrChan(**chans_conf['modet'])
         self.chan_mode.valueMeasured.connect(self.mode_proc)
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
+        self.chan_cmd = cda.StrChan(**chans_conf['res'])
         self.chan_cmd.valueMeasured.connect(self.cmd)
 
         # boxes changes

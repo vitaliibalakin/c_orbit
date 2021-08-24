@@ -39,3 +39,22 @@ orbit   mode_file.txt
 tunes   mode_tunes_file.txt
 inj     mode_inj_file.txt
 [end]
+
+[bpm_calib]
+bpm01   10.12
+bpm02   25.26
+bpm03   27.38
+bpm04   10.33
+bpm05   10.1
+bpm07   22.14
+bpm08   19.83
+bpm09   25.68
+bpm10   21.35
+bpm11   24.1
+bpm12   23.7
+bpm13   7.23
+bpm14   10.2
+bpm15   30.4
+bpm16   23.28
+bpm17   23
+[end]

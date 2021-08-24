@@ -51,6 +51,14 @@ def load_config_orbit(conf_name, DIR):
             if data[i_b] == '[end]\n' or data[i_b] == '[end]':
                 return i_b, mode_d
 
+    def load_cur_calib(i_b, data):
+        calib = {}
+        while True:
+            calib[re.findall(r'(\S+)', data[i_b])[0]] = float(re.findall(r'(\S+)', data[i_b])[1])
+            i_b += 1
+            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
+                return i_b, calib
+
     i = 0
     while i < len(configuration):
         if configuration[i] == '[chans_list]\n':
@@ -73,10 +81,14 @@ def load_config_orbit(conf_name, DIR):
             control_sum += 1
             i_next, mode_d = load_mode_filenames(i + 1, configuration)
             i = i_next
+        elif configuration[i] == '[bpm_calib]\n':
+            control_sum += 1
+            i_next, cur_calib = load_cur_calib(i + 1, configuration)
+            i = i_next
         i += 1
 
-    if control_sum == 5:
+    if control_sum == 6:
         return {'chans_conf': chans_config_sett, 'bpm_conf': bpm_config_sett, 'client_conf': client_config_sett,
-                'mode_d': mode_d, 'bpm_coor': bpm_coor}
+                'mode_d': mode_d, 'bpm_coor': bpm_coor, 'cur_calib': cur_calib}
     else:
         print('wrong control_sum: orbitd config file is incomplete')

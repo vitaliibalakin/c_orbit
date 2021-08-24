@@ -39,6 +39,7 @@ class InjTune(QMainWindow):
         for chan in ['res', 'cmd', 'tunes', 'extractioncurrent', 'eshots', 'pshots', 'modet', 'extracted']:
             if chan not in chan_conf:
                 print(chan + ' is absent in knobd_conf')
+                sys.exit(app.exec_())
 
         self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
         self.chan_res = cda.StrChan(**chan_conf['res'])

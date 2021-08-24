@@ -31,7 +31,8 @@ class HandlesProc:
         self.tmp = {}
         self.i = 0
 
-        chan_conf = load_config_knob(CONF + '/knobd_conf.txt')
+        soft_conf = load_config_knob(CONF + '/knobd_conf.txt')
+        chan_conf = soft_conf['chans_conf']
         for chan in ['res', 'cmd']:
             if chan not in chan_conf:
                 print(chan + ' is absent in knobd_conf')

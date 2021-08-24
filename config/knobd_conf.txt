@@ -1,4 +1,12 @@
 # knobd configuration data
 
-cmd name=cxhw:4.bpm_preproc.cmd   max_nelems=1024    on_update=1
-res name=cxhw:4.bpm_preproc.res   max_nelems=1024    on_update=1
+[chans_list]
+cmd                 name=cxhw:4.bpm_preproc.cmd         max_nelems=1024     on_update=1
+res                 name=cxhw:4.bpm_preproc.res         max_nelems=1024     on_update=1
+tunes               name=cxhw:4.bpm_preproc.tunes       max_nelems=2        on_update=1
+extractioncurrent   name=cxhw:0.dcct.extractioncurrent  on_update=1
+eshots              name=cxhw:0.ddm.eshots
+pshots              name=cxhw:0.ddm.pshots
+modet               name=cxhw:0.k500.modet              max_nelems=4        on_update=1
+extracted           name=cxhw:0.ddm.extracted           on_update=1
+[end]

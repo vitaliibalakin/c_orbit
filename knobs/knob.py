@@ -11,13 +11,15 @@ import json
 
 from knobs.knob_creating_table import Table
 from bpm_base.aux_mod.tree_table import TreeTableCom
+from c_orbit.config.knob_config_parser import load_config_knob
 
 
 class Handles(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
-        direc = os.getcwd()
-        direc = re.sub('knobs', 'uis', direc)
+        path = os.getcwd()
+        direc = re.sub('knobs', 'uis', path)
+        conf = re.sub('knobs', 'config', path)
         uic.loadUi(direc + "/handle_window.ui", self)
         self.setWindowTitle('Handles')
         self.show()
@@ -41,9 +43,14 @@ class Handles(QMainWindow):
         self.btn_add_knob.clicked.connect(self.add)
         self.btn_del_knob.clicked.connect(self.delete)
 
-        # control channels
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=1)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=1)
+        soft_conf = load_config_knob(conf + '/knobd_conf.txt')
+        chan_conf = soft_conf['chans_conf']
+        for chan in ['res', 'cmd']:
+            if chan not in chan_conf:
+                print(chan + ' is absent in knobd_conf')
+
+        self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
+        self.chan_res = cda.StrChan(**chan_conf['res'])
         self.chan_res.valueMeasured.connect(self.res)
 
         self.load_handles()
@@ -156,7 +163,6 @@ class Handles(QMainWindow):
             self.knobs_descr = {}
             f = open('saved_handles.txt', 'r')
             handles = json.loads(f.read())
-            print(handles)
             f.close()
             for row_num, handle in handles.items():
                 info = {}

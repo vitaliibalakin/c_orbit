@@ -11,6 +11,7 @@ import os
 import re
 import json
 import sys
+from c_orbit.config.knob_config_parser import load_config_knob
 
 
 class BtnHandle:
@@ -26,26 +27,33 @@ class BtnHandle:
 class InjTune(QMainWindow):
     def __init__(self):
         super(InjTune, self).__init__()
-        direc = os.getcwd()
-        direc = re.sub('knobs', 'uis', direc)
+        path = os.getcwd()
+        direc = re.sub('knobs', 'uis', path)
+        conf = re.sub('knobs', 'config', path)
         self.p_win = uic.loadUi(direc + "/inj_vs_tune.ui")
         self.setWindowTitle('InjResp')
         self.p_win.show()
 
-        self.chan_cmd = cda.StrChan('cxhw:4.bpm_preproc.cmd', max_nelems=1024, on_update=True)
-        self.chan_res = cda.StrChan('cxhw:4.bpm_preproc.res', max_nelems=1024, on_update=True)
+        soft_conf = load_config_knob(conf + '/knobd_conf.txt')
+        chan_conf = soft_conf['chans_conf']
+        for chan in ['res', 'cmd', 'tunes', 'extractioncurrent', 'eshots', 'pshots', 'modet', 'extracted']:
+            if chan not in chan_conf:
+                print(chan + ' is absent in knobd_conf')
+
+        self.chan_cmd = cda.StrChan(**chan_conf['cmd'])
+        self.chan_res = cda.StrChan(**chan_conf['res'])
         self.chan_res.valueMeasured.connect(self.res)
-        self.chan_tunes = cda.VChan('cxhw:4.bpm_preproc.tunes', max_nelems=2, on_update=True)
+        self.chan_tunes = cda.VChan(**chan_conf['tunes'])
         self.chan_tunes.valueMeasured.connect(self.tunes_changed)
-        self.chan_extracted = cda.DChan('cxhw:0.dcct.extractioncurrent', on_update=True)
+        self.chan_extracted = cda.DChan(**chan_conf['extractioncurrent'])
         self.chan_extracted.valueMeasured.connect(self.extracted_current)
-        self.chan_eshots = cda.DChan('cxhw:0.ddm.eshots')
+        self.chan_eshots = cda.DChan(**chan_conf['eshots'])
         self.chan_eshots.valueMeasured.connect(self.shots_num)
-        self.chan_eshots = cda.DChan('cxhw:0.ddm.pshots')
-        self.chan_eshots.valueMeasured.connect(self.shots_num)
-        self.chan_modet = cda.StrChan("cxhw:0.k500.modet", max_nelems=4, on_update=True)
+        self.chan_pshots = cda.DChan(**chan_conf['pshots'])
+        self.chan_pshots.valueMeasured.connect(self.shots_num)
+        self.chan_modet = cda.StrChan(**chan_conf['modet'])
         self.chan_modet.valueMeasured.connect(self.modet)
-        self.chan_modet = cda.DChan("cxhw:0.ddm.extracted", on_update=True)
+        self.chan_modet = cda.DChan(**chan_conf['extracted'])
         self.chan_modet.valueMeasured.connect(self.extraction)
 
         self.p_win.handles_table.cellPressed.connect(self.index)

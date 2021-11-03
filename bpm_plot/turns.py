@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PyQt5 import uic
 import sys
@@ -8,6 +8,7 @@ import re
 import pycx4.qcda as cda
 import json
 import pyqtgraph as pg
+import datetime
 from bpm_base.aux_mod.cur_plot import CurPlot
 from bpm_base.aux_mod.fft_plot import FFTPlot
 from bpm_base.aux_mod.coor_plot import CoorPlot
@@ -30,7 +31,10 @@ class TurnsControl(QMainWindow):
         self.ic_mode = 'e'
         self.cur_bpm = 'bpm01'
         self.cur_num_pts = 1024
-        self.cur_turn_num = 1
+        self.is_single_shot = False
+        self.make_turns_shot = False
+        self.make_fft_shot = False
+        self.make_coor_shot = False
 
         soft_conf = load_config_orbit(conf + '/orbitd_conf.txt', path)
         chans_conf = soft_conf['chans_conf']
@@ -60,15 +64,15 @@ class TurnsControl(QMainWindow):
         # p1.addWidget(self.one_turn_e)
         p1.addWidget(self.fft_e)
 
-        self.turns_p = CurPlot(self)
+        self.cur_p = CurPlot(self)
         p2 = QVBoxLayout()
         self.turns_mes_plot_p.setLayout(p2)
-        p2.addWidget(self.turns_p)
+        p2.addWidget(self.cur_p)
 
-        self.turns_e = CurPlot(self)
+        self.cur_e = CurPlot(self)
         p3 = QVBoxLayout()
         self.turns_mes_plot_e.setLayout(p3)
-        p3.addWidget(self.turns_e)
+        p3.addWidget(self.cur_e)
 
         # other ordinary channels & callbacks
         # self.chan_one_turn = cda.VChan('cxhw:4.bpm_preproc.one_turn', max_nelems=32)
@@ -89,7 +93,9 @@ class TurnsControl(QMainWindow):
         # boxes changes
         self.turns_bpm.currentTextChanged.connect(self.bpm_changed)
         self.bpm_num_pts.valueChanged.connect(self.num_pts_changed)
-        self.turn_number.valueChanged.connect(self.turn_number_changed)
+        self.btn_shot.clicked.connect(self.shot)
+        self.chb_single_shot.stateChanged.connect(self.shot_mode)
+        self.btn_save.clicked.connect(self.save)
 
         self.chan_cmd.setValue(json.dumps({'client': 'turns', 'cmd': 'status'}))
 
@@ -150,30 +156,39 @@ class TurnsControl(QMainWindow):
 
     def cur_proc(self, chan):
         if chan.val.any():
-            if self.ic_mode == 'p':
-                self.turns_p.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
-            elif self.ic_mode == 'e':
-                self.turns_e.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
-            else:
-                self.status_bar.showMessage('WTF cur_proc')
+            if (not self.is_single_shot) or self.make_turns_shot:
+                self.cur_data = chan.val
+                if self.ic_mode == 'p':
+                    self.cur_p.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
+                elif self.ic_mode == 'e':
+                    self.cur_e.turns_plot(chan.val / self.cur_cal[self.turns_bpm.currentText()])
+                else:
+                    self.status_bar.showMessage('WTF cur_proc')
+                self.make_turns_shot = False
 
     def fft_proc(self, chan):
         if chan.val.any():
-            if self.ic_mode == 'p':
-                self.fft_p.fft_plot(chan.val)
-            elif self.ic_mode == 'e':
-                self.fft_e.fft_plot(chan.val)
-            else:
-                self.status_bar.showMessage('WTF fft_proc')
+            if (not self.is_single_shot) or self.make_fft_shot:
+                self.fft_data = chan.val
+                if self.ic_mode == 'p':
+                    self.fft_p.fft_plot(chan.val)
+                elif self.ic_mode == 'e':
+                    self.fft_e.fft_plot(chan.val)
+                else:
+                    self.status_bar.showMessage('WTF fft_proc')
+                self.make_fft_shot = False
 
     def coor_proc(self, chan):
         if chan.val.any():
-            if self.ic_mode == 'p':
-                self.coor_p.coor_plot(chan.val)
-            elif self.ic_mode == 'e':
-                self.coor_e.coor_plot(chan.val)
-            else:
-                self.status_bar.showMessage('WTF coor_proc')
+            if (not self.is_single_shot) or self.make_coor_shot:
+                self.coor_data = chan.val
+                if self.ic_mode == 'p':
+                    self.coor_p.coor_plot(chan.val)
+                elif self.ic_mode == 'e':
+                    self.coor_e.coor_plot(chan.val)
+                else:
+                    self.status_bar.showMessage('WTF coor_proc')
+                self.make_coor_shot = False
 
     def mode_proc(self, chan):
         if chan.val:
@@ -187,9 +202,28 @@ class TurnsControl(QMainWindow):
             else:
                 self.status_bar.showMessage('WTF mode_proc')
 
+    def shot(self):
+        self.make_turns_shot = True
+        self.make_fft_shot = True
+        self.make_coor_shot = True
+
+    def shot_mode(self, state):
+        if state == 2:
+            self.is_single_shot = True
+        else:
+            self.is_single_shot = False
+
+    def save(self):
+        if self.is_single_shot:
+            time_stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            with open('saved_turns/' + time_stamp, 'a') as the_file:
+                the_file.write(json.dumps({'current': np.ndarray.tolist(self.cur_data),
+                                           'fft': np.ndarray.tolist(self.fft_data),
+                                           'coordinate': np.ndarray.tolist(self.coor_data)}))
+
+
 
 if __name__ == "__main__":
     app = QApplication(['turns'])
-
     w = TurnsControl()
     sys.exit(app.exec_())

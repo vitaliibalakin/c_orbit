@@ -41,7 +41,7 @@ class BpmPreproc:
         self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
                          self.collect_fft, self.collect_coor, CONF) for bpm in bpms_list]
 
-        self.turn_num: int = 1024
+        self.num_pts: int = 1024
         self.fft_bpm: str = 'bpm01'
         self.turn_bpm: str = 'bpm01'
         for bpm in self.bpms:
@@ -141,7 +141,6 @@ class BpmPreproc:
             self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
             self.chan_turns_matrix.setValue(turns_matrix)
 
-
     def collect_tunes(self, tunes):
         self.current_tunes = tunes
         self.chan_tunes.setValue(tunes)
@@ -205,7 +204,7 @@ class BpmPreproc:
     def turn_num_(self, **kwargs):
         turn_num = kwargs.get('turn_num')
         for bpm in self.bpms:
-            bpm.turn_num = turn_num
+            bpm.num_pts = turn_num
         self.chan_cmd.setValue('')
 
     def turn_bpm_num_pts_(self, **kwargs):
@@ -367,19 +366,19 @@ DIR = re.sub('deamons', 'bpm_plot', PATH)
 CONF = re.sub('deamons', 'config', PATH)
 
 
-# class KMService(CXService):
-#     def main(self):
-#         print('run main')
-#         self.w = BpmPreproc()
-#
-#     def clean(self):
-#         self.log_str('exiting bpm_prepoc')
-#
-#
-# bp = KMService("ringbpmd")
+class KMService(CXService):
+    def main(self):
+        print('run main')
+        self.w = BpmPreproc()
 
-if __name__ == "__main__":
-    w = BpmPreproc()
-    cda.main_loop()
+    def clean(self):
+        self.log_str('exiting bpm_prepoc')
+
+
+bp = KMService("ringbpmd")
+
+# if __name__ == "__main__":
+#     w = BpmPreproc()
+#     cda.main_loop()
     # load_config('config/orbitd_conf.txt')
 

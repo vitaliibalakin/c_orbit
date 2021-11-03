@@ -131,6 +131,7 @@ dmypy.json
 .pyre/
 /bpm_plot/saved_modes/
 /bpm_plot/saved_tunes/
+/bpm_plot/saved_turns/
 /bpm_plot/mode_tunes_file.txt
 /bpm_plot/mode_file.txt
 /bpm_plot/injection_m/

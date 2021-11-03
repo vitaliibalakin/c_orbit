@@ -138,8 +138,8 @@ class BpmPreproc:
                     self.bckrg_stop_()
                 return
             self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
-            self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
-            self.chan_turns_matrix.setValue(turns_matrix)
+            # self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
+            # self.chan_turns_matrix.setValue(turns_matrix)
 
     def collect_tunes(self, tunes):
         self.current_tunes = tunes
@@ -366,19 +366,19 @@ DIR = re.sub('deamons', 'bpm_plot', PATH)
 CONF = re.sub('deamons', 'config', PATH)
 
 
-# class KMService(CXService):
-#     def main(self):
-#         print('run main')
-#         self.w = BpmPreproc()
-#
-#     def clean(self):
-#         self.log_str('exiting bpm_prepoc')
-#
-#
-# bp = KMService("ringbpmd")
+class KMService(CXService):
+    def main(self):
+        print('run main')
+        self.w = BpmPreproc()
 
-if __name__ == "__main__":
-    w = BpmPreproc()
-    cda.main_loop()
+    def clean(self):
+        self.log_str('exiting bpm_prepoc')
+
+
+bp = KMService("ringbpmd")
+
+# if __name__ == "__main__":
+#     w = BpmPreproc()
+#     cda.main_loop()
     # load_config('config/orbitd_conf.txt')
 

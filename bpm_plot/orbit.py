@@ -41,7 +41,7 @@ class PlotControl(QMainWindow):
 
         # variables for under control objects init
         self.ic_mode: str
-        self.cur_orbit: nparray = np.zeros(len(self.bpms))
+        self.cur_orbit: nparray = np.zeros(2 * len(self.bpms))
         self.cur_bpms: list = self.bpms.copy()
 
         # migrate to special bpm tuning window
@@ -134,6 +134,7 @@ class PlotControl(QMainWindow):
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
     def data_receiver(self, orbit, std=np.zeros(64), which='cur'):
+        print(len(orbit))
         if len(orbit):
             self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
             self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])

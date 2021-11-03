@@ -47,7 +47,7 @@ class OrbitPlot(pg.PlotWidget):
     def update_orbit_cur(self, orbit, bpm_list, std=np.zeros(16)):
         for i in range(len(self.bpms)):
             if self.bpms[i] in bpm_list:
-                # print(orbit)
+                print(orbit)
                 self.pos['cur'][i].update_pos(orbit[i])
                 self.pos['dis'][i].update_pos(100.0)
             else:

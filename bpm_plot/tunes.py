@@ -19,8 +19,9 @@ class TunesControl(QMainWindow):
         super(TunesControl, self).__init__()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        direc = os.getcwd()
-        direc = re.sub('bpm_plot', 'uis', direc)
+        path = os.getcwd()
+        conf = re.sub('bpm_plot', 'config', path)
+        direc = re.sub('bpm_plot', 'uis', path)
         uic.loadUi(direc + "/wp's.ui", self)
         self.setWindowTitle('Tunes Plot')
         self.show()
@@ -60,6 +61,9 @@ class TunesControl(QMainWindow):
                        'e2v2': 'background-color:#75ff91;', 'p2v2': 'background-color:#ff6b6b;'}
         self.lbl_dict = {'e2v4': self.lbl_e2v4, 'p2v4': self.lbl_p2v4, 'e2v2': self.lbl_e2v2, 'p2v2': self.lbl_p2v2,
                          'cur': self.lbl_cur}
+
+        soft_conf = load_config_orbit(conf + '/orbitd_conf.txt', path)
+        chans_conf = soft_conf['chans_conf']
 
         for chan in ['tunes', 'cmd', 'res', 'control_tunes', 'modet']:
             if chan not in chans_conf:

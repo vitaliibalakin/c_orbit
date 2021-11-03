@@ -366,19 +366,19 @@ DIR = re.sub('deamons', 'bpm_plot', PATH)
 CONF = re.sub('deamons', 'config', PATH)
 
 
-class KMService(CXService):
-    def main(self):
-        print('run main')
-        self.w = BpmPreproc()
+# class KMService(CXService):
+#     def main(self):
+#         print('run main')
+#         self.w = BpmPreproc()
+#
+#     def clean(self):
+#         self.log_str('exiting bpm_prepoc')
+#
+#
+# bp = KMService("ringbpmd")
 
-    def clean(self):
-        self.log_str('exiting bpm_prepoc')
-
-
-bp = KMService("ringbpmd")
-
-# if __name__ == "__main__":
-#     w = BpmPreproc()
-#     cda.main_loop()
+if __name__ == "__main__":
+    w = BpmPreproc()
+    cda.main_loop()
     # load_config('config/orbitd_conf.txt')
 

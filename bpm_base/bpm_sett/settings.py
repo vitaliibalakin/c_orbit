@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout
+from PyQt5 import uic
+
 import pycx4.qcda as cda
 import sys
 import numpy as np
 import pyqtgraph as pg
-from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout
-from PyQt5 import uic
+
 
 
 class Test(QMainWindow):
@@ -61,26 +63,6 @@ class Test(QMainWindow):
 
     def data_proc(self, chan):
         if chan.name.split('.')[-2] == self.cur_bpm:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             self.cur_lines[chan.name.split('.')[-1][-1]] = chan.val
             self.plot.clear()

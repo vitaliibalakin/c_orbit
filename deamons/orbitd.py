@@ -41,10 +41,11 @@ class BpmPreproc:
         self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
                          self.collect_fft, self.collect_coor, CONF) for bpm in bpms_list]
 
-        self.fft_bpm: str = 'bpm15'
-        self.turns_bpm: str = 'bpm15'
+        self.turn_num: int = 1024
+        self.fft_bpm: str = 'bpm01'
+        self.turn_bpm: str = 'bpm01'
         for bpm in self.bpms:
-            if bpm.name == 'bpm15':
+            if bpm.name == 'bpm01':
                 bpm.turns_mes = 1
 
         self.inj_bpms: dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
@@ -78,7 +79,7 @@ class BpmPreproc:
             'num_pts': self.turn_bpm_num_pts_, 'turn_num': self.turn_num_,
             'no_cmd': self.no_cmd_,
             'start_tunes': self.start_tunes_, 'bckgr': self.bckgr_start_,
-            'bckgr_discard': self.bckgr_discard_
+            'bckgr_discard': self.bckgr_discard_, 'status': self.status_
         }
         self.start_tunes_()
         print('start')
@@ -137,7 +138,6 @@ class BpmPreproc:
                     self.bckrg_stop_()
                 return
             self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
-            print(orbit)
             self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
             self.chan_turns_matrix.setValue(turns_matrix)
 
@@ -187,8 +187,14 @@ class BpmPreproc:
         self.ic_mode = chan.val
         self.to_another_ic_mode_('orbit')
 
+    def status_(self, **kwargs):
+        client = kwargs.get('client')
+        if client == 'turns':
+            self.chan_res.setValue(json.dumps({'client': client, 'turn_bpm': self.turn_bpm, 'num_pts': self.num_pts}))
+
     def turn_bpm_(self, **kwargs):
         turn_bpm = kwargs.get('turn_bpm')
+        self.turn_bpm = turn_bpm
         for bpm in self.bpms:
             if bpm.name == turn_bpm:
                 bpm.turns_mes = 1
@@ -204,6 +210,7 @@ class BpmPreproc:
 
     def turn_bpm_num_pts_(self, **kwargs):
         num_pts = kwargs.get('num_pts')
+        self.num_pts = num_pts
         for bpm in self.bpms:
             if bpm.turns_mes:
                 bpm.chan_numpts.setValue(num_pts)
@@ -258,7 +265,6 @@ class BpmPreproc:
         f = open(self.mode_d['tunes'], 'r')
         if os.fstat(f.fileno()).st_size:
             data_mode = json.loads(f.read())
-            print(data_mode)
             for mode in ic_modes:
                 try:
                     file = open(data_mode[mode], 'r')
@@ -282,7 +288,6 @@ class BpmPreproc:
         self.chan_ctrl_tunes.setValue(json.dumps(ctrl_tunes))
 
     def mode_file_edit_(self, file_name, mode_file):
-        print(mode_file)
         f = open(mode_file, 'r')
         info = f.read()
         if info:
@@ -371,7 +376,7 @@ CONF = re.sub('deamons', 'config', PATH)
 #         self.log_str('exiting bpm_prepoc')
 #
 #
-# bp = KMService("bpmd")
+# bp = KMService("ringbpmd")
 
 if __name__ == "__main__":
     w = BpmPreproc()

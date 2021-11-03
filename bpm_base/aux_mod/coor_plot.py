@@ -26,18 +26,18 @@ class CoorPlot(pg.PlotWidget):
         x = data[:h_len]
         z = data[h_len: len(data)]
 
-        try:
-            params, pcov = optimize.curve_fit(self.osc_fit, self.time, x, p0=[4, 5.3, -1.7, 5e-6, 10])
-            # print('coor_plot', params)
-        except RuntimeError:
-            print('fit error')
+        # try:
+        #     params, pcov = optimize.curve_fit(self.osc_fit, self.time, x, p0=[4, 5.3, -1.7, 5e-6, 10])
+        #     # print('coor_plot', params)
+        # except RuntimeError:
+        #     print('fit error')
 
         self.x_plot.setData(x, pen=pg.mkPen('b', width=1))
         self.z_plot.setData(z, pen=pg.mkPen('r', width=1))
 
-    @staticmethod
-    def osc_fit(t, amp, freq, phase, decr, zero):
-        return amp*np.cos(2*np.pi*freq*t + phase)*np.exp(-decr*t) + zero
+    # @staticmethod
+    # def osc_fit(t, amp, freq, phase, decr, zero):
+    #     return amp*np.cos(2*np.pi*freq*t + phase)*np.exp(-decr*t) + zero
 
 
 if __name__ == "__main__":

@@ -73,13 +73,17 @@ class BPM:
         self.send_fft(np.concatenate([freq, np.abs(x_fft), np.abs(z_fft)]))
 
         # searching of working DR point
-        x_arr = freq[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))]
-        z_arr = freq[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))]
-        x_index = np.argmax(np.abs(x_fft)[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))])
-        z_index = np.argmax(np.abs(z_fft)[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))])
-        x_tune = round(x_arr[x_index], 4)
-        z_tune = round((1 - z_arr[z_index]), 4)
-        self.collect_tunes(np.array([x_tune, z_tune]))
+        try:
+            x_arr = freq[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))]
+            z_arr = freq[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))]
+            x_index = np.argmax(np.abs(x_fft)[np.where((freq < self.x_bound[1]) & (freq > self.x_bound[0]))])
+            z_index = np.argmax(np.abs(z_fft)[np.where((freq < self.z_bound[1]) & (freq > self.z_bound[0]))])
+            x_tune = round(x_arr[x_index], 4)
+            z_tune = round((1 - z_arr[z_index]), 4)
+            self.collect_tunes(np.array([x_tune, z_tune]))
+        except ValueError:
+            pass
+
 
     def tunes_range(self, chan):
         if chan.val:

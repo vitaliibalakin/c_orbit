@@ -81,13 +81,17 @@ class TurnsControl(QMainWindow):
         self.chan_coor.valueMeasured.connect(self.coor_proc)
         self.chan_mode = cda.StrChan(**chans_conf['modet'])
         self.chan_mode.valueMeasured.connect(self.mode_proc)
-        self.chan_cmd = cda.StrChan(**chans_conf['res'])
+        self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
         self.chan_cmd.valueMeasured.connect(self.cmd)
+        self.chan_res = cda.StrChan(**chans_conf['res'])
+        self.chan_res.valueMeasured.connect(self.cmd_res)
 
         # boxes changes
         self.turns_bpm.currentTextChanged.connect(self.bpm_changed)
         self.bpm_num_pts.valueChanged.connect(self.num_pts_changed)
         self.turn_number.valueChanged.connect(self.turn_number_changed)
+
+        self.chan_cmd.setValue(json.dumps({'client': 'turns', 'cmd': 'status'}))
 
     #########################################################
     #                     command part                      #
@@ -105,15 +109,26 @@ class TurnsControl(QMainWindow):
                     self.cur_num_pts = cmd_dict['num_pts']
                     self.bpm_num_pts.setValue(cmd_dict['num_pts'])
 
+    def cmd_res(self, chan):
+        if chan.val:
+            client = json.loads(chan.val).get('client', 'no_client')
+            if client == 'turns':
+                self.cur_bpm = json.loads(chan.val).get('turn_bpm')
+                self.turns_bpm.setCurrentText(self.cur_bpm)
+                self.cur_num_pts = json.loads(chan.val).get('num_pts')
+                print(self.cur_num_pts)
+                self.bpm_num_pts.setValue(self.cur_num_pts)
+
     def turn_number_changed(self, turn_num):
         if self.cur_turn_num != turn_num:
             self.cur_turn_num = turn_num
             self.chan_cmd.setValue(json.dumps({'cmd': 'turn_num', 'client': 'turns', 'turn_num': turn_num}))
 
     def bpm_changed(self):
-        self.cur_bpm = self.turns_bpm.currentText()
-        self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'client': 'turns', 'turn_bpm': self.cur_bpm}))
-        self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'client': 'turns', 'num_pts': self.cur_num_pts}))
+        if self.cur_bpm != self.turns_bpm.currentText():
+            self.cur_bpm = self.turns_bpm.currentText()
+            self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'client': 'turns', 'turn_bpm': self.cur_bpm}))
+            self.chan_cmd.setValue(json.dumps({'cmd': 'num_pts', 'client': 'turns', 'num_pts': self.cur_num_pts}))
 
     def num_pts_changed(self, bpm_num_pts):
         if self.cur_num_pts != bpm_num_pts:

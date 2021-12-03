@@ -79,6 +79,9 @@ class PlotControl(QMainWindow):
         self.btn_save.clicked.connect(self.save_file_)
         self.btn_bckgr.clicked.connect(self.bckgr)
         self.btn_inj_m.clicked.connect(self.load_inj_matrix)
+        self.btn_step_up.clicked.connect(self.step_up)
+        self.btn_step_dn.clicked.connect(self.step_down)
+        self.btn_load_rrm.clicked.connect(self.load_resp_mat)
 
         # other ordinary channels
         self.chan_act_bpm = cda.StrChan(**chans_conf['act_bpm'])
@@ -94,6 +97,20 @@ class PlotControl(QMainWindow):
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
         self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
+
+    def load_resp_mat(self):
+        try:
+            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/saved_rrms',
+                                                    filter='Text Files (*.txt)')[0]
+            self.chan_cmd.setValue(json.dumps({'cmd': 'load_rresp_mat', 'client': 'orbit', 'file_name': file_name}))
+        except Exception as exc:
+            self.status_bar.showMessage(exc)
+
+    def step_down(self):
+        self.chan_cmd.setValue(json.dumps({'cmd': 'step_dn', 'client': 'orbit'}))
+
+    def step_up(self):
+        self.chan_cmd.setValue(json.dumps({'cmd': 'step_up', 'client': 'orbit'}))
 
     def load_inj_matrix(self):
         try:

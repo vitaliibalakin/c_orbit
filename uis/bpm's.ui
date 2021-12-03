@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1033</width>
+    <width>1039</width>
     <height>770</height>
    </rect>
   </property>
@@ -32,10 +32,96 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="15">
+      <widget class="QPushButton" name="btn_bot_off">
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>off</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="11">
+      <widget class="QPushButton" name="btn_bckgr_discard">
+       <property name="text">
+        <string>Discard</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="4">
       <widget class="QPushButton" name="btn_sel_p2v4">
        <property name="text">
         <string>p2v4</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="17">
+      <widget class="QPushButton" name="btn_step_dn">
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>&lt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="14">
+      <widget class="QPushButton" name="btn_bot_on">
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>on</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="7">
+      <widget class="QPushButton" name="btn_save">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="16">
+      <widget class="QPushButton" name="btn_load_rrm">
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Load rRM</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="8">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btn_sel_e2v4">
+       <property name="text">
+        <string>e2v4</string>
        </property>
       </widget>
      </item>
@@ -53,68 +139,20 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="9">
-      <widget class="QPushButton" name="btn_bckgr">
-       <property name="text">
-        <string>Background</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="8">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="17">
-      <spacer name="horizontalSpacer_6">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="16">
-      <widget class="QPushButton" name="btn_bot_off">
-       <property name="text">
-        <string>bot off</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="btn_sel_e2v4">
-       <property name="text">
-        <string>e2v4</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="15">
-      <widget class="QPushButton" name="btn_bot_on">
-       <property name="text">
-        <string>bot on</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="7">
-      <widget class="QPushButton" name="btn_save">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="18">
+      <widget class="QPushButton" name="btn_step_up">
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="19">
       <widget class="QLabel" name="label">
        <property name="minimumSize">
         <size>
@@ -133,18 +171,12 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="14">
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <item row="0" column="9">
+      <widget class="QPushButton" name="btn_bckgr">
+       <property name="text">
+        <string>Background</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
      <item row="0" column="10">
       <widget class="QSpinBox" name="spb_bckgr">
@@ -159,12 +191,18 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="11">
-      <widget class="QPushButton" name="btn_bckgr_discard">
-       <property name="text">
-        <string>Discard</string>
+     <item row="0" column="12">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </widget>
@@ -1260,7 +1298,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1033</width>
+     <width>1039</width>
      <height>20</height>
     </rect>
    </property>

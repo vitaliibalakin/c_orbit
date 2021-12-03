@@ -135,6 +135,7 @@ dmypy.json
 /bpm_plot/mode_tunes_file.txt
 /bpm_plot/mode_file.txt
 /bpm_plot/injection_m/
+/bpm_plot/saved_rrms/
 /bpm_plot/mode_inj_file.txt
 /cooked_rm/
 /old/

@@ -18,16 +18,21 @@ class HandlesProc:
         super(HandlesProc, self).__init__()
         self.handles: dict = {}
         self.handle_descr: dict = {}
+        self.orbit_rma_knob = {}
 
         self.cell_col: dict = {0: 'name', 1: 'descr'}
-        self.client_list: list = ['handle', 'rm_proc', 'inj_vs_handles']
+        self.client_list: list = ['handle', 'rm_proc', 'inj_vs_handles', 'orbitd']
         self.cmd_table: dict = {
             'add_handle': self.add_handle_, 'handle_complete': self.handle_complete_, 'add_cor': self.add_cor_,
             'delete_handle': self.delete_handle_, 'edit_item': self.edit_item_,
             'step_up': self.step_up_, 'cst_step_up': self.cst_step_up_,
-            'step_down': self.step_down_, 'cst_step_down': self.cst_step_down_
+            'step_down': self.step_down_, 'cst_step_down': self.cst_step_down_,
+            'add_orbit_rma_knob': self.add_orbit_rma_knob_, 'orbit_rma_step_up': self.orbit_rma_step_up_,
+            'orbit_rma_step_down': self.orbit_rma_step_down_, 'add_orbit_rma_corr': self.add_orbit_rma_corr_,
+            'orbit_rma_knob_complete': self.orbit_rma_knob_complete_
         }
         self.knob_is_adding: bool = False
+        self.knob_orbit_is_adding: bool = False
         self.tmp = {}
         self.i = 0
 
@@ -57,6 +62,40 @@ class HandlesProc:
             if client in self.client_list:
                 self.cmd_table[command](**cmd)
 
+    def add_orbit_rma_knob_(self, **kwargs):
+        if not self.knob_orbit_is_adding:
+            client = kwargs.get('client')
+            self.orbit_rma_knob = {}
+            self.knob_orbit_is_adding = True
+            self.chan_res.setValue(json.dumps({'client': client, 'res': 'knob_receiving'}))
+
+    def add_orbit_rma_corr_(self, **kwargs):
+        cor = kwargs.get('cor')
+        channel = cda.DChan(cor['name'] + '.Iset', private=1)
+        self.orbit_rma_knob[cor['name'].split('.')[-1]] = [channel, cor['step']]
+
+    def orbit_rma_knob_complete_(self, **kwargs):
+        client = kwargs.get('client')
+        if self.knob_orbit_is_adding:
+            self.knob_orbit_is_adding = False
+            self.chan_cmd.setValue('')
+            print('creeeated')
+            self.chan_res.setValue(json.dumps({'client': client, 'res': 'orbit_knob_added'}))
+
+    def orbit_rma_step_up_(self, **kwargs):
+        for key, k_val in self.orbit_rma_knob.items():
+            new_curr = k_val[0].val + k_val[1]
+            k_val[0].setValue(new_curr)
+        print('rma_stepped up')
+        self.chan_cmd.setValue('')
+
+    def orbit_rma_step_down_(self, **kwargs):
+        for key, k_val in self.orbit_rma_knob.items():
+            new_curr = k_val[0].val - k_val[1]
+            k_val[0].setValue(new_curr)
+        print('rma_stepped down')
+        self.chan_cmd.setValue('')
+
     def add_handle_(self, **kwargs):
         if not self.knob_is_adding:
             name = kwargs.get('name')
@@ -72,11 +111,11 @@ class HandlesProc:
         cor = kwargs.get('cor')
         self.handle_descr[0]['cor_list'].append(cor)
         if cor['name'].split('.')[-1][0] == 'G':
-            self.handles[0][cor['name'].split('.')[-1]] = [cda.DChan(cor['name'] + '.Uset'), cor['step']]
+            channel = cda.DChan(cor['name'] + '.Uset', private=1)
         else:
             channel = cda.DChan(cor['name'] + '.Iset', private=1)
-            self.handles[0][cor['name'].split('.')[-1]] = [channel, cor['step']]
-            self.handles[0][cor['name'].split('.')[-1]][0].valueMeasured.connect(self.connection_check)
+        self.handles[0][cor['name'].split('.')[-1]] = [channel, cor['step']]
+            # self.handles[0][cor['name'].split('.')[-1]][0].valueMeasured.connect(self.connection_check)
         # print('connection added')
 
     def connection_check(self, chan):

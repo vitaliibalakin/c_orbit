@@ -79,7 +79,6 @@ class HandlesProc:
         if self.knob_orbit_is_adding:
             self.knob_orbit_is_adding = False
             self.chan_cmd.setValue('')
-            print('creeeated')
             self.chan_res.setValue(json.dumps({'client': client, 'res': 'orbit_knob_added'}))
 
     def orbit_rma_step_up_(self, **kwargs):

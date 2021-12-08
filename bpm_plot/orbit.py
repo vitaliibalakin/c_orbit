@@ -82,6 +82,7 @@ class PlotControl(QMainWindow):
         self.btn_step_up.clicked.connect(self.step_up)
         self.btn_step_dn.clicked.connect(self.step_down)
         self.btn_load_rrm.clicked.connect(self.load_resp_mat)
+        self.btn_reknob.clicked.connect(self.knob_recalc)
 
         # other ordinary channels
         self.chan_act_bpm = cda.StrChan(**chans_conf['act_bpm'])
@@ -97,6 +98,9 @@ class PlotControl(QMainWindow):
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
         self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
+
+    def knob_recalc(self):
+        self.chan_cmd.setValue(json.dumps({'cmd': 'knob_recalc', 'client': 'orbit'}))
 
     def load_resp_mat(self):
         try:
@@ -132,7 +136,6 @@ class PlotControl(QMainWindow):
         bpm = self.sender().text()
         self.active_bpm(bpm)
         self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
-        self.chan_cmd.setValue(json.dumps({'cmd': 'cur_bpms', 'client': 'orbit', 'act_bpm': self.cur_bpms}))
 
     def active_bpm(self, bpm):
         if self.worked_bpms[bpm]:
@@ -151,7 +154,6 @@ class PlotControl(QMainWindow):
         self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
 
     def data_receiver(self, orbit, std=np.zeros(64), which='cur'):
-        print(len(orbit))
         if len(orbit):
             self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
             self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>310</width>
+    <height>33</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>306</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Turns</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="turn_bpm">
+      <item>
+       <property name="text">
+        <string>bpm 01</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 02</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 03</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 04</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 05</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 07</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 08</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 09</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 10</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 11</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 12</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 13</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 14</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 15</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 16</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bpm 17</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_inj">
+      <property name="text">
+       <string>INJ ALL</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_free">
+      <property name="text">
+       <string>FREE ALL</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

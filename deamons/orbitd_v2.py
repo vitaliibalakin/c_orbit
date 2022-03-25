@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # bpm delay is 20527.89 (???) ns in pickup2 channel - check
 
-from PyQt5.QtWidgets import QApplication
 import sys
-
 import numpy as np
 import pycx4.pycda as cda
 from scipy import optimize
@@ -12,7 +10,7 @@ import os
 import re
 import datetime
 from cservice import CXService
-from bpm_base.bpm import BPM
+from bpm_base.bpm_v2 import BPM
 from c_orbit.config.orbit_config_parser import load_config_orbit
 
 
@@ -42,27 +40,12 @@ class BpmPreproc:
         self.rev_rm = np.empty(0)
         self.rm_info: dict = {}
         self.current_tunes = np.empty(0)
-        self.bpms: list = [BPM(bpm, self.collect_orbit, self.collect_tunes, self.collect_current,
-                         self.collect_fft, self.collect_coor, CONF) for bpm in bpms_list]
-
-        self.num_pts: int = 1024
-        self.fft_bpm: str = 'bpm01'
-        self.turn_bpm: str = 'bpm01'
-        for bpm in self.bpms:
-            if bpm.name == 'bpm01':
-                bpm.turns_mes = 1
-
-        # self.inj_bpms: dict = {'p2v2': ['bpm12', 'bpm11'], 'p2v4': ['bpm12', 'bpm11'],
-        #                        'e2v2': ['bpm07', 'bpm08'], 'e2v4': ['bpm07', 'bpm08']}
-        # self.inj_coors: dict = {'bpm07': [], 'bpm08': [], 'bpm11': [], 'bpm12': []}
-        # self.m_x1_septum: list = []
-        # self.m_x2_septum: list = []
 
         self.chan_tunes = cda.VChan(**chans_conf['tunes'])
+        self.chan_tunes.valueMeasured.connect(self.collect_tunes)
         self.chan_ctrl_tunes = cda.StrChan(**chans_conf['control_tunes'])
         # order: p2v2, e2v2, p2v4, e2v4
         self.chan_act_bpm = cda.StrChan(**chans_conf['act_bpm'])
-        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
         self.chan_fft = cda.VChan(**chans_conf['fft'])
         self.chan_coor = cda.VChan(**chans_conf['coor'])
         self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
@@ -76,7 +59,9 @@ class BpmPreproc:
         self.chan_turns_matrix = cda.VChan(**chans_conf['turns_matrix'])
         self.chan_mode = cda.StrChan(**chans_conf['modet'])
         self.chan_mode.valueMeasured.connect(self.mode_changed)
-        # self.chan_inj = cda.VChan('cxhw:4.bpm_preproc.injection_par', max_nelems=4)
+
+        self.bpms: list = [BPM(bpm, self.collect_orbit, self.chan_tunes, self.chan_turns,
+                               self.chan_fft, self.chan_coor, CONF) for bpm in bpms_list]
 
         self.cmd_table = {
             'load_orbit': self.load_file_, 'load_tunes': self.load_file_,
@@ -107,8 +92,6 @@ class BpmPreproc:
                     break
 
         if permission:
-            one_turn_x = np.array([])
-            one_turn_z = np.array([])
             x_orbit = np.array([])
             x_orbit_sigma = np.array([])
             z_orbit = np.array([])
@@ -146,40 +129,9 @@ class BpmPreproc:
                     self.bckrg_stop_()
                 return
             self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
-            # self.chan_one_turn.setValue(np.concatenate([one_turn_x, one_turn_z]))
-            # self.chan_turns_matrix.setValue(turns_matrix)
 
-    def collect_tunes(self, tunes):
-        self.current_tunes = tunes
-        self.chan_tunes.setValue(tunes)
-
-    def collect_current(self, data):
-        self.chan_turns.setValue(data)
-
-    def collect_fft(self, data):
-        self.chan_fft.setValue(data)
-
-    def collect_coor(self, data):
-        self.chan_coor.setValue(data)
-
-    # def calc_inj_param(self):
-    #     # x corr from first bpm on beam way
-    #     x1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][0]
-    #     # x corr from second bpm on beam way
-    #     x2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][0]
-    #     # # y corr from first bpm on beam way
-    #     # y1 = self.inj_coors[self.inj_bpms[self.ic_mode][0]][1]
-    #     # # y corr from second bpm on beam way
-    #     # y2 = self.inj_coors[self.inj_bpms[self.ic_mode][1]][1]
-    #     if self.m_x1_septum and self.m_x2_septum:
-    #         coord = (self.m_x2_septum[0][1] * x1 - self.m_x1_septum[0][1] * x2) \
-    #                 / (self.m_x2_septum[0][1] * self.m_x1_septum[0][0] - self.m_x1_septum[0][1] * self.m_x2_septum[0][0])
-    #         angle = (self.m_x1_septum[0][0] * x2 - self.m_x2_septum[0][0] * x1) \
-    #                 / (self.m_x2_septum[0][1] * self.m_x1_septum[0][0] - self.m_x1_septum[0][1] * self.m_x2_septum[0][0])
-    #         # self.chan_inj.setValue(np.array([coord, angle]))
-    #########################################################
-    #                     command part                      #
-    #########################################################
+    def collect_tunes(self, chan):
+        self.current_tunes = chan.val
 
     #########################################################
     #                      cmd part                         #
@@ -205,15 +157,6 @@ class BpmPreproc:
     def mode_changed(self, chan):
         self.ic_mode = chan.val
         self.to_another_ic_mode_('orbit')
-
-    def act_bpm(self, chan):
-        if chan.val:
-            act_bpm = json.loads(chan.val)['cur_bpms']
-            for bpm in self.bpms:
-                if bpm.name in act_bpm:
-                    bpm.act_state = 1
-                else:
-                    bpm.act_state = 0
 
     #########################################################
     #               service and communication               #
@@ -247,6 +190,16 @@ class BpmPreproc:
         self.knob_recalc_()
         self.send_cmd_res_(**{'action': 'load -> rrm load success', 'client': client})
 
+    def turn_bpm_(self, **kwargs):
+        turn_bpm = kwargs.get('turn_bpm')
+        self.turn_bpm = turn_bpm
+        for bpm in self.bpms:
+            if bpm.name == turn_bpm:
+                bpm.turns_mes = 1
+            else:
+                bpm.turns_mes = 0
+        self.chan_cmd.setValue('')
+
     def step_up_(self, **kwargs):
         # self.knob_recalc_()
         self.chan_cmd.setValue(json.dumps({'client': 'orbitd', 'cmd': 'orbit_rma_step_up'}))
@@ -259,30 +212,6 @@ class BpmPreproc:
         client = kwargs.get('client')
         if client == 'turns':
             self.chan_res.setValue(json.dumps({'client': client, 'turn_bpm': self.turn_bpm, 'num_pts': self.num_pts}))
-
-    def turn_bpm_(self, **kwargs):
-        turn_bpm = kwargs.get('turn_bpm')
-        self.turn_bpm = turn_bpm
-        for bpm in self.bpms:
-            if bpm.name == turn_bpm:
-                bpm.turns_mes = 1
-            else:
-                bpm.turns_mes = 0
-        self.chan_cmd.setValue('')
-
-    def turn_num_(self, **kwargs):
-        turn_num = kwargs.get('turn_num')
-        for bpm in self.bpms:
-            bpm.num_pts = turn_num
-        self.chan_cmd.setValue('')
-
-    def turn_bpm_num_pts_(self, **kwargs):
-        num_pts = kwargs.get('num_pts')
-        self.num_pts = num_pts
-        for bpm in self.bpms:
-            if bpm.turns_mes:
-                bpm.chan_numpts.setValue(num_pts)
-        self.chan_cmd.setValue('')
 
     def bckgr_discard_(self, **kwargs):
         self.bpms_zeros = np.zeros([32, ])

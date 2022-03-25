@@ -258,8 +258,8 @@ class RMA(QMainWindow, DeviceFunc):
             si_err.append(resp['si_err'])
         dict_cors['main'] = self.main_cur
         np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
-        if self.resp_type.currentText() == 'coords':
-            np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
+        # if self.resp_type.currentText() == 'coords':
+        np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
         self.log_msg.append('RM saved')
         self.log_msg.append('RM collecting process has finished')
         self.set_default()

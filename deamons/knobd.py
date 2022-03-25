@@ -10,7 +10,7 @@ import os
 import re
 import datetime
 from cservice import CXService
-from c_orbit.config.knob_config_parser import load_config_knob
+from knob_config_parser import load_config_knob
 
 
 class HandlesProc:
@@ -85,14 +85,14 @@ class HandlesProc:
         for key, k_val in self.orbit_rma_knob.items():
             new_curr = k_val[0].val + k_val[1]
             k_val[0].setValue(new_curr)
-        print('rma_stepped up')
+        # print('rma_stepped up')
         self.chan_cmd.setValue('')
 
     def orbit_rma_step_down_(self, **kwargs):
         for key, k_val in self.orbit_rma_knob.items():
             new_curr = k_val[0].val - k_val[1]
             k_val[0].setValue(new_curr)
-        print('rma_stepped down')
+        # print('rma_stepped down')
         self.chan_cmd.setValue('')
 
     def add_handle_(self, **kwargs):

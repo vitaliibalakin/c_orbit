@@ -31,85 +31,85 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="turn_bpm">
+     <widget class="QComboBox" name="turns_bpm">
       <item>
        <property name="text">
-        <string>bpm 01</string>
+        <string>bpm01</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 02</string>
+        <string>bpm02</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 03</string>
+        <string>bpm03</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 04</string>
+        <string>bpm04</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 05</string>
+        <string>bpm05</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 07</string>
+        <string>bpm07</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 08</string>
+        <string>bpm08</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 09</string>
+        <string>bpm09</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 10</string>
+        <string>bpm10</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 11</string>
+        <string>bpm11</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 12</string>
+        <string>bpm12</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 13</string>
+        <string>bpm13</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 14</string>
+        <string>bpm14</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 15</string>
+        <string>bpm15</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 16</string>
+        <string>bpm16</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>bpm 17</string>
+        <string>bpm17</string>
        </property>
       </item>
      </widget>

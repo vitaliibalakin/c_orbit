@@ -81,7 +81,6 @@ class BPM:
         except ValueError:
             pass
 
-
     def tunes_range(self, chan):
         if chan.val:
             bounds = json.loads(chan.val)

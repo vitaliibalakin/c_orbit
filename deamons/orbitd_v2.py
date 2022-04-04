@@ -96,31 +96,21 @@ class BpmPreproc:
             x_orbit_sigma = np.array([])
             z_orbit = np.array([])
             z_orbit_sigma = np.array([])
-            turns_matrix = np.array([])
             for bpm in self.bpms:
                 bpm.marker = 0
                 if bpm.act_state:
-                    #one_turn_x = np.append(one_turn_x, bpm.turn_slice[0])
-                    #one_turn_z = np.append(one_turn_z, bpm.turn_slice[1])
                     x_orbit = np.append(x_orbit, bpm.coor[0])
                     x_orbit_sigma = np.append(x_orbit_sigma, bpm.sigma[0])
                     z_orbit = np.append(z_orbit, bpm.coor[1])
                     z_orbit_sigma = np.append(z_orbit_sigma, bpm.sigma[1])
-                    turns_matrix = np.append(turns_matrix, bpm.turn_arrays)
-                    # if bpm.name in self.inj_bpms[self.ic_mode]:
-                    #     self.inj_coors[bpm.name] = [bpm.turn_arrays[0], bpm.turn_arrays[bpm.data_len]]
                 else:
-                    #one_turn_x = np.append(one_turn_x, 100)
-                    #one_turn_z = np.append(one_turn_z, 100)
                     x_orbit = np.append(x_orbit, 100.0)
                     x_orbit_sigma = np.append(x_orbit_sigma, 0.0)
                     z_orbit = np.append(z_orbit, 100.0)
                     z_orbit_sigma = np.append(z_orbit_sigma, 0.0)
-                    turns_matrix = np.append(turns_matrix, np.ones(bpm.data_len * 2) * 100.0)
             orbit = np.concatenate([x_orbit, z_orbit])
             std = np.concatenate([x_orbit_sigma, z_orbit_sigma])
             self.current_orbit = np.concatenate([orbit - self.bpms_zeros, std])
-            # self.calc_inj_param()
 
             if self.bckgr_proc:
                 self.bpms_deviation += orbit
@@ -128,7 +118,7 @@ class BpmPreproc:
                 if self.bckrg_counter == 0:
                     self.bckrg_stop_()
                 return
-            self.chan_orbit.setValue(np.concatenate([orbit - self.bpms_zeros, std]))
+            self.chan_orbit.setValue(self.current_orbit)
 
     def collect_tunes(self, chan):
         self.current_tunes = chan.val
@@ -301,7 +291,6 @@ class BpmPreproc:
         client = kwargs.get('client')
         if client == 'orbit':
             data = self.ctrl_orbit = self.current_orbit
-            # print(data)
             if data.any():
                 self.chan_ctrl_orbit.setValue(data)
                 np.savetxt(file_name, data)
@@ -369,5 +358,3 @@ CONF = re.sub('deamons', 'config', PATH)
 if __name__ == "__main__":
     w = BpmPreproc()
     cda.main_loop()
-    # load_config('config/orbitd_conf.txt')
-

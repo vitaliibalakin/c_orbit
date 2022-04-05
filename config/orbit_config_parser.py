@@ -1,6 +1,6 @@
 import re
 
-def load_config_orbit(conf_name, DIR):
+def load_config_orbit(conf_name, DIR=''):
     conf_file = open(conf_name, "r")
     configuration = conf_file.readlines()
     control_sum = 0
@@ -58,6 +58,14 @@ def load_config_orbit(conf_name, DIR):
             i_b += 1
             if data[i_b] == '[end]\n' or data[i_b] == '[end]':
                 return i_b, calib
+    def load_aper(i_b, data):
+        aper = {}
+        while True:
+            aper[re.findall(r'(\S+)', data[i_b])[0]] = [int(re.findall(r'(\S+)', data[i_b])[1]),
+                                                        int(re.findall(r'(\S+)', data[i_b])[2])]
+            i_b += 1
+            if data[i_b] == '[end]\n' or data[i_b] == '[end]':
+                return i_b, aper
 
     i = 0
     while i < len(configuration):
@@ -85,10 +93,14 @@ def load_config_orbit(conf_name, DIR):
             control_sum += 1
             i_next, cur_calib = load_cur_calib(i + 1, configuration)
             i = i_next
+        elif configuration[i] == '[bpm_aper]\n':
+            control_sum += 1
+            i_next, aper = load_aper(i + 1, configuration)
+            i = i_next
         i += 1
 
-    if control_sum == 6:
+    if control_sum == 7:
         return {'chans_conf': chans_config_sett, 'bpm_conf': bpm_config_sett, 'client_conf': client_config_sett,
-                'mode_d': mode_d, 'bpm_coor': bpm_coor, 'cur_calib': cur_calib}
+                'mode_d': mode_d, 'bpm_coor': bpm_coor, 'cur_calib': cur_calib, 'bpm_aper': aper}
     else:
         print('wrong control_sum: orbitd config file is incomplete')

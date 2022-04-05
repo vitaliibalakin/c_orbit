@@ -30,14 +30,23 @@ bpm14,bpm15,bpm16,bpm17
 14.5802, 16.5152, 17.7697, 19.6742
 [end]
 
-[client_list]
-orbit,tunes,turns,inj
-[end]
-
-[mode_files]
-orbit   mode_file.txt
-tunes   mode_tunes_file.txt
-inj     mode_inj_file.txt
+[bpm_aper]
+bpm01   36  19
+bpm02   36  19
+bpm03   30  30
+bpm04   37  37
+bpm05   37  37
+bpm07   30  30
+bpm08   36  19
+bpm09   36  19
+bpm10   36  19
+bpm11   36  19
+bpm12   30  30
+bpm13   37  37
+bpm14   37  37
+bpm15   30  30
+bpm16   36  19
+bpm17   36  19
 [end]
 
 [bpm_calib]
@@ -57,4 +66,14 @@ bpm14   10.2
 bpm15   30.4
 bpm16   23.28
 bpm17   23
+[end]
+
+[client_list]
+orbit,tunes,turns,inj
+[end]
+
+[mode_files]
+orbit   mode_file.txt
+tunes   mode_tunes_file.txt
+inj     mode_inj_file.txt
 [end]

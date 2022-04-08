@@ -7,6 +7,39 @@ import sys
 import pyqtgraph as pg
 import pycx4.pycda as cda
 
+class Cross(pg.GraphicsObject):
+    def __init__(self, **kwargs):
+        pg.GraphicsObject.__init__(self)
+        self.picture = pg.QtGui.QPicture()
+        self.x = kwargs.get('x', 0)
+        self.y = kwargs.get('y', 0)
+        self.width = 2
+        self.cross_widget()
+
+    def cross_widget(self):
+        p = pg.QtGui.QPainter(self.picture)
+        p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        pen = QPen(pg.mkPen('#0f14a6'))
+        pen.setWidth(self.width)
+        p.setPen(pen)
+        lines = [
+            QtCore.QLineF(QtCore.QPointF(self.x - 3, self.y),
+                          QtCore.QPointF(self.x + 3, self.y)),
+            QtCore.QLineF(QtCore.QPointF(self.x, self.y - 3),
+                          QtCore.QPointF(self.x, self.y + 3))
+        ]
+        p.drawLines(lines)
+        p.end()
+
+    def update_pos(self, x, y):
+        self.setPos(x, y)
+
+    def paint(self, p, *args):
+        p.drawPicture(0, 0, self.picture)
+
+    def boundingRect(self):
+        return pg.QtCore.QRectF(self.picture.boundingRect())
+
 class AperPlot(pg.GraphicsObject):
     def __init__(self, xaper, zaper):
         pg.GraphicsObject.__init__(self)
@@ -82,26 +115,30 @@ class BPMPlot(pg.PlotWidget):
         self.setLabel('bottom', "X", units='mm')
         self.setRange(xRange=[-40, 40], yRange=[-40, 40])
 
-        self.vLine = pg.InfiniteLine(angle=90, movable=False)
-        self.hLine = pg.InfiniteLine(angle=0, movable=False)
-
-        self.marker = BPMCircle(xname, zname, x=-3, y=5, color=QtCore.Qt.blue)
+        self.marker = BPMCircle(xname, zname)
         self.addItem(self.marker)
         self.aper = AperPlot(xaper, zaper)
         self.addItem(self.aper)
+        self.cross = Cross()
+        self.addItem(self.cross)
         self.getPlotItem().setMenuEnabled(False)
         self.getPlotItem().disableAutoRange(True)
 
-        self.scene().sigMouseClicked.connect(self.mouseMoved)
+        self.scene().sigMouseClicked.connect(self.mouse_clicked)
         # self.scene().sigMouseMoved.connect(self.mouseMoved)
 
-    def mouseMoved(self, event):
-        # mouseClickEvent is a pyqtgraph.GraphicsScene.mouseEvents.MouseClickEvent
-        # print('clicked plot 0x{:x}, event: {}'.format(id(self), mouseClickEvent))
-        # print(event.pos()[0], event.pos()[1])
-        pos = event.scenePos()
-        mousePoint = self.plotItem.vb.mapSceneToView(pos)
-        print(mousePoint.x(), mousePoint.y())
-
-    def update_pos(self, x, y):
+    def update_marker_pos(self, x, y):
         self.marker.update_pos(x, y)
+
+    def update_cross_pos(self, x, y):
+        self.cross.update_pos(x, y)
+
+    def mouse_clicked(self, event):
+        # mouseClickEvent is a pyqtgraph.GraphicsScene.mouseEvents.MouseClickEvent
+        #print('clicked plot 0x{:x}, event: {}'.format(id(self), event.double()))
+        if event.double():
+            pos = event.scenePos()
+            mousePoint = self.plotItem.vb.mapSceneToView(pos)
+            self.update_cross_pos(mousePoint.x(), mousePoint.y())
+
+

@@ -114,6 +114,8 @@ class BPMPlot(pg.PlotWidget):
         # self.setLabel('left', "Z", units='mm')
         # self.setLabel('bottom', "X", units='mm')
         self.setRange(xRange=[-40, 40], yRange=[-40, 40])
+        self.getAxis('bottom').setStyle(showValues=False)
+        self.getAxis('left').setStyle(showValues=False)
 
         self.marker = BPMCircle(xname, zname)
         self.addItem(self.marker)

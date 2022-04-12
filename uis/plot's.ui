@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
-    <height>728</height>
+    <width>515</width>
+    <height>727</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
      <rect>
       <x>0</x>
       <y>280</y>
-      <width>531</width>
-      <height>451</height>
+      <width>511</width>
+      <height>441</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -35,7 +35,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>521</width>
+        <width>501</width>
         <height>411</height>
        </rect>
       </property>
@@ -68,31 +68,24 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>931</width>
-        <height>551</height>
+        <width>501</width>
+        <height>401</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="1">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+        <widget class="QWidget" name="fft_plot_p" native="true">
+         <property name="minimumSize">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>500</width>
+           <height>400</height>
           </size>
          </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="3">
-        <widget class="QWidget" name="fft_plot_p" native="true"/>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>COORDINATES AND FOURIER PLOT</string>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>400</height>
+          </size>
          </property>
         </widget>
        </item>
@@ -118,7 +111,7 @@
      <rect>
       <x>0</x>
       <y>30</y>
-      <width>531</width>
+      <width>511</width>
       <height>251</height>
      </rect>
     </property>
@@ -134,7 +127,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>521</width>
+        <width>501</width>
         <height>211</height>
        </rect>
       </property>
@@ -173,31 +166,24 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>931</width>
-        <height>271</height>
+        <width>501</width>
+        <height>211</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0" colspan="3">
-        <widget class="QWidget" name="turns_mes_plot_p" native="true"/>
-       </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+       <item row="0" column="0">
+        <widget class="QWidget" name="turns_mes_plot_p" native="true">
+         <property name="minimumSize">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>500</width>
+           <height>200</height>
           </size>
          </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_4">
-         <property name="text">
-          <string>CURRENT PLOT</string>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>200</height>
+          </size>
          </property>
         </widget>
        </item>

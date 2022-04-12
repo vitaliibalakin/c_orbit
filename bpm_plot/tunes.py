@@ -104,7 +104,7 @@ class TunesControl(QMainWindow):
         tunes = chan.val
         if tunes.any():
             self.tunes['cur'].update_pos(tunes)
-            self.lbl_dict['cur'].setText(str(round(tunes[0], 5)) + " | " + str(round(tunes[1], 5)))
+            self.lbl_dict['cur'].setText('x=' + str(round(tunes[0], 5)) + "\ny=" + str(round(tunes[1], 5)))
         else:
             self.status_bar.showMessage('empty tunes channel data')
 
@@ -113,7 +113,7 @@ class TunesControl(QMainWindow):
             tunes_dict = json.loads(chan.val)
             for k, v in tunes_dict.items():
                 self.tunes[k].update_pos(v)
-                self.lbl_dict[k].setText(str(round(v[0], 3)) + " | " + str(round(v[1], 3)))
+                self.lbl_dict[k].setText('x=' + str(round(v[0], 5)) + "\ny=" + str(round(v[1], 5)))
         except Exception as exc:
             self.status_bar.showMessage(str(exc))
 

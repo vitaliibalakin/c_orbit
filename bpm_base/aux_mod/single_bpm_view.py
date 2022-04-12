@@ -123,6 +123,8 @@ class BPMPlot(pg.PlotWidget):
         self.addItem(self.cross)
         self.getPlotItem().setMenuEnabled(False)
         self.getPlotItem().disableAutoRange(True)
+        # self.getPlotItem().hideAxis('bottom')
+        # self.getPlotItem().hideAxis('left')
 
         self.scene().sigMouseClicked.connect(self.mouse_clicked)
         # self.scene().sigMouseMoved.connect(self.mouseMoved)

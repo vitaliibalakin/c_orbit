@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>542</width>
-    <height>638</height>
+    <width>530</width>
+    <height>728</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>240</y>
-      <width>541</width>
-      <height>351</height>
+      <y>280</y>
+      <width>531</width>
+      <height>451</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -35,13 +35,26 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>531</width>
-        <height>311</height>
+        <width>521</width>
+        <height>411</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
-        <widget class="QWidget" name="fft_plot_e" native="true"/>
+        <widget class="QWidget" name="fft_plot_e" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>500</width>
+           <height>400</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>400</height>
+          </size>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -104,9 +117,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>40</y>
-      <width>541</width>
-      <height>201</height>
+      <y>30</y>
+      <width>531</width>
+      <height>251</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -121,13 +134,32 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>531</width>
-        <height>161</height>
+        <width>521</width>
+        <height>211</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0" colspan="2">
-        <widget class="QWidget" name="turns_mes_plot_e" native="true"/>
+       <item row="0" column="0">
+        <widget class="QWidget" name="turns_mes_plot_e" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>250</horstretch>
+           <verstretch>49</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>500</width>
+           <height>200</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>200</height>
+          </size>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -177,7 +209,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>10</y>
+      <y>0</y>
       <width>83</width>
       <height>25</height>
      </rect>
@@ -190,7 +222,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>10</y>
+      <y>0</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -203,7 +235,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>10</y>
+      <y>0</y>
       <width>83</width>
       <height>25</height>
      </rect>
@@ -213,17 +245,6 @@
     </property>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>542</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="status_bar"/>
  </widget>
  <resources/>
  <connections/>

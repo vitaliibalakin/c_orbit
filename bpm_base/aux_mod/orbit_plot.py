@@ -52,8 +52,6 @@ class OrbitPlot(pg.PlotWidget):
             else:
                 self.pos['cur'][i].update_pos(100.0)
                 self.pos['dis'][i].update_pos(0.0)
-        # for i in range(len(self.pos[which_orbit])):
-        #     self.pos[which_orbit][i].update_pos(orbit[i])
 
     def add_structure(self, structure, o_type):
         anchor = self.anchor[o_type]

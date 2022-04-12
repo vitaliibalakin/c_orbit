@@ -43,8 +43,7 @@ class BPMsView(QWidget):
             bpm_wid.bpm_z.set_cname(chans_conf['z'])
             bpm_wid.bpm_xstd.set_cname(chans_conf['xstd'])
             bpm_wid.bpm_zstd.set_cname(chans_conf['zstd'])
-            bpm_wid.bpm_plot = BPMPlot(self, chans_conf['xstd'], chans_conf['zstd'], bpms_aper[bpm][0],
-                                                                                     bpms_aper[bpm][1])
+            bpm_wid.bpm_plot = BPMPlot(self, chans_conf['x'], chans_conf['z'], bpms_aper[bpm][0], bpms_aper[bpm][1])
             bpm_wid.view_grid.addWidget(bpm_wid.bpm_plot)
             grid.addWidget(bpm_wid, (i // NUM_PER_ROW), i % NUM_PER_ROW, 1, 1)
             self.bpms[bpm] = bpm_wid

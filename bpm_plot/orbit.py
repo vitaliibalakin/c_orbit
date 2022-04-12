@@ -45,18 +45,6 @@ class PlotControl(QMainWindow):
         self.cur_bpms: list = self.bpms.copy()
 
         # migrate to special bpm tuning window
-        self.bpm_btns: list = [self.btn_bpm01, self.btn_bpm02, self.btn_bpm03, self.btn_bpm04, self.btn_bpm05, self.btn_bpm07,
-                               self.btn_bpm08, self.btn_bpm09, self.btn_bpm10, self.btn_bpm11, self.btn_bpm12, self.btn_bpm13,
-                               self.btn_bpm14, self.btn_bpm15, self.btn_bpm16, self.btn_bpm17]
-        self.bpm_lbls:  list = [self.lbl_bpm01, self.lbl_bpm02, self.lbl_bpm03, self.lbl_bpm04, self.lbl_bpm05, self.lbl_bpm07,
-                                self.lbl_bpm08, self.lbl_bpm09, self.lbl_bpm10, self.lbl_bpm11, self.lbl_bpm12, self.lbl_bpm13,
-                                self.lbl_bpm14, self.lbl_bpm15, self.lbl_bpm16, self.lbl_bpm17]
-        self.worked_bpms: dict = {bpm: 1 for bpm in self.bpms}
-        self.dict_btns: dict = {self.bpms[i]: self.bpm_btns[i] for i in range(len(self.bpms))}
-        self.dict_lbls: dict = {self.bpms[i]: self.bpm_lbls[i] for i in range(len(self.bpms))}
-        for btn in self.bpm_btns:
-            btn.clicked.connect(self.bpm_btn_clicked)
-
         p = QVBoxLayout()
         self.plot_coor.setLayout(p)
         for o_type, plot in self.orbit_plots.items():
@@ -78,15 +66,12 @@ class PlotControl(QMainWindow):
         self.btn_bckgr_discard.clicked.connect(self.bckrg_discard)
         self.btn_save.clicked.connect(self.save_file_)
         self.btn_bckgr.clicked.connect(self.bckgr)
-        self.btn_inj_m.clicked.connect(self.load_inj_matrix)
         self.btn_step_up.clicked.connect(self.step_up)
         self.btn_step_dn.clicked.connect(self.step_down)
         self.btn_load_rrm.clicked.connect(self.load_resp_mat)
         self.btn_reknob.clicked.connect(self.knob_recalc)
 
         # other ordinary channels
-        self.chan_act_bpm = cda.StrChan(**chans_conf['act_bpm'])
-        self.chan_act_bpm.valueMeasured.connect(self.act_bpm)
         self.chan_mode = cda.StrChan(**chans_conf['modet'])
         self.chan_mode.valueMeasured.connect(self.mode_changed)
         self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
@@ -98,6 +83,9 @@ class PlotControl(QMainWindow):
         self.chan_orbit.valueMeasured.connect(self.new_orbit)
         self.chan_ctrl_orbit = cda.VChan(**chans_conf['control_orbit'])
         self.chan_ctrl_orbit.valueMeasured.connect(self.new_ctrl_orbit)
+        self.chan_act_bpm = cda.StrChan(**chans_conf['act_bpm'])
+        self.chan_act_bpm.valueMeasured.connect(self.new_act_bpm)
+
 
     def knob_recalc(self):
         self.chan_cmd.setValue(json.dumps({'cmd': 'knob_recalc', 'client': 'orbit'}))
@@ -116,14 +104,6 @@ class PlotControl(QMainWindow):
     def step_up(self):
         self.chan_cmd.setValue(json.dumps({'cmd': 'step_up', 'client': 'orbit'}))
 
-    def load_inj_matrix(self):
-        try:
-            file_name = QFileDialog.getOpenFileName(parent=self, directory=os.getcwd() + '/injection_m',
-                                                    filter='Text Files (*.txt)')[0]
-            self.chan_cmd.setValue(json.dumps({'cmd': 'load_inj_matrix', 'client': 'inj', 'file_name': file_name}))
-        except Exception as exc:
-            self.status_bar.showMessage(exc)
-
     def bckgr(self):
         self.btn_bckgr.setEnabled(False)
         self.spb_bckgr.setEnabled(False)
@@ -132,40 +112,10 @@ class PlotControl(QMainWindow):
     def bckrg_discard(self):
         self.chan_cmd.setValue(json.dumps({'cmd': 'bckgr_discard', 'client': 'orbit'}))
 
-    def bpm_btn_clicked(self):
-        bpm = self.sender().text()
-        self.active_bpm(bpm)
-        self.chan_act_bpm.setValue(json.dumps({'cur_bpms': self.cur_bpms}))
-
-    def active_bpm(self, bpm):
-        if self.worked_bpms[bpm]:
-            self.worked_bpms[bpm] = 0
-            self.dict_btns[bpm].setStyleSheet("background-color:rgb(255, 0, 0);")
-            self.dict_lbls[bpm].setStyleSheet("background-color:rgb(255, 0, 0);")
-            if bpm in self.cur_bpms:
-                self.cur_bpms.remove(bpm)
-        else:
-            self.worked_bpms[bpm] = 1
-            self.dict_btns[bpm].setStyleSheet("background-color:rgb(0, 255, 0);")
-            self.dict_lbls[bpm].setStyleSheet("background-color:rgb(0, 255, 0);")
-            if bpm not in self.cur_bpms:
-                self.cur_bpms.append(bpm)
-        self.orbit_plots['x_orbit'].update_orbit['cur'](self.cur_orbit[:16], self.cur_bpms)  #  , std=std[32:48])
-        self.orbit_plots['z_orbit'].update_orbit['cur'](self.cur_orbit[16:32], self.cur_bpms)  #  , std=std[48:])
-
     def data_receiver(self, orbit, std=np.zeros(64), which='cur'):
         if len(orbit):
             self.orbit_plots['x_orbit'].update_orbit[which](orbit[:16], self.cur_bpms, std=std[32:48])
             self.orbit_plots['z_orbit'].update_orbit[which](orbit[16:32], self.cur_bpms, std=std[48:])
-            self.orbit_to_lbl(orbit)
-
-    def orbit_to_lbl(self, orbit):
-        for i in range(0, 16):
-            bpm = self.bpms[i]
-            if self.worked_bpms[bpm]:
-                self.dict_lbls[bpm].setText(str(round(orbit[i], 2)) + " | " + str(round(orbit[i + 16], 2)))
-            else:
-                self.dict_lbls[bpm].setText('None')
 
     def mode_changed(self, chan):
         self.ic_mode = chan.val
@@ -173,28 +123,7 @@ class PlotControl(QMainWindow):
         for key in self.btn_dict:
             self.btn_dict[key].setStyleSheet("background-color:rgb(255, 255, 255);")
         self.btn_dict[self.ic_mode].setStyleSheet(self.colors[self.ic_mode])
-        if self.inj_mode_matr[self.ic_mode[0]]:
-            self.btn_inj_m.setStyleSheet(self.colors[self.ic_mode])
-        else:
-            self.btn_inj_m.setStyleSheet("background-color:rgb(255, 255, 255);")
 
-    def act_bpm(self, chan):
-        try:
-            act_bpm = json.loads(chan.val)
-            new_cur_bpms = act_bpm['cur_bpms']
-            cur_bpms = self.cur_bpms
-            for bpm in self.bpms:
-                if bpm in new_cur_bpms and bpm in cur_bpms:
-                    pass
-                elif bpm not in new_cur_bpms and bpm not in cur_bpms:
-                    pass
-                elif bpm in new_cur_bpms and bpm not in cur_bpms:
-                    self.active_bpm(bpm)
-                elif bpm not in new_cur_bpms and bpm in cur_bpms:
-                    self.active_bpm(bpm)
-            self.orbit_to_lbl(self.cur_orbit[:32])
-        except Exception as exc:
-            self.status_bar.showMessage('act_bpm', exc)
 
     def load_file_(self):
         try:
@@ -221,6 +150,10 @@ class PlotControl(QMainWindow):
 
     def new_ctrl_orbit(self, chan):
         self.data_receiver(chan.val, which='eq')
+
+    def new_act_bpm(self, chan):
+        if chan.val:
+            self.cur_bpms = json.loads(chan.val)
 
     def cmd_res(self, chan):
         if chan.val:

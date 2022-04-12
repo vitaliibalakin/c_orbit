@@ -1,11 +1,11 @@
 # bpm configuration data
 
 [bpm01]
-is_on       name=cxhw:37.ring.bpm01.is_on
-x           name=cxhw:37.ring.bpm01.x
-xstd        name=cxhw:37.ring.bpm01.xstd
-z           name=cxhw:37.ring.bpm01.z
-zstd        name=cxhw:37.ring.bpm01.zstd
+is_on       name=cxhw:1.ring.bpm01.is_on
+x           name=cxhw:1.ring.bpm01.x
+xstd        name=cxhw:1.ring.bpm01.xstd
+z           name=cxhw:1.ring.bpm01.z
+zstd        name=cxhw:1.ring.bpm01.zstd
 datatxzi    name=cxhw:37.ring.bpm01.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm01.numpts
 ptsofs      name=cxhw:37.ring.bpm01.ptsofs
@@ -15,11 +15,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm02]
-is_on       name=cxhw:37.ring.bpm02.is_on
-x           name=cxhw:37.ring.bpm02.x
-xstd        name=cxhw:37.ring.bpm02.xstd
-z           name=cxhw:37.ring.bpm02.z
-zstd        name=cxhw:37.ring.bpm02.zstd
+is_on       name=cxhw:1.ring.bpm02.is_on
+x           name=cxhw:1.ring.bpm02.x
+xstd        name=cxhw:1.ring.bpm02.xstd
+z           name=cxhw:1.ring.bpm02.z
+zstd        name=cxhw:1.ring.bpm02.zstd
 datatxzi    name=cxhw:37.ring.bpm02.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm02.numpts
 ptsofs      name=cxhw:37.ring.bpm02.ptsofs
@@ -29,11 +29,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm03]
-is_on       name=cxhw:37.ring.bpm03.is_on
-x           name=cxhw:37.ring.bpm03.x
-xstd        name=cxhw:37.ring.bpm03.xstd
-z           name=cxhw:37.ring.bpm03.z
-zstd        name=cxhw:37.ring.bpm03.zstd
+is_on       name=cxhw:1.ring.bpm03.is_on
+x           name=cxhw:1.ring.bpm03.x
+xstd        name=cxhw:1.ring.bpm03.xstd
+z           name=cxhw:1.ring.bpm03.z
+zstd        name=cxhw:1.ring.bpm03.zstd
 datatxzi    name=cxhw:37.ring.bpm03.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm03.numpts
 ptsofs      name=cxhw:37.ring.bpm03.ptsofs
@@ -43,11 +43,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm04]
-is_on       name=cxhw:37.ring.bpm04.is_on
-x           name=cxhw:37.ring.bpm04.x
-xstd        name=cxhw:37.ring.bpm04.xstd
-z           name=cxhw:37.ring.bpm04.z
-zstd        name=cxhw:37.ring.bpm04.zstd
+is_on       name=cxhw:1.ring.bpm04.is_on
+x           name=cxhw:1.ring.bpm04.x
+xstd        name=cxhw:1.ring.bpm04.xstd
+z           name=cxhw:1.ring.bpm04.z
+zstd        name=cxhw:1.ring.bpm04.zstd
 datatxzi    name=cxhw:37.ring.bpm04.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm04.numpts
 ptsofs      name=cxhw:37.ring.bpm04.ptsofs
@@ -57,11 +57,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm05]
-is_on       name=cxhw:37.ring.bpm05.is_on
-x           name=cxhw:37.ring.bpm05.x
-xstd        name=cxhw:37.ring.bpm05.xstd
-z           name=cxhw:37.ring.bpm05.z
-zstd        name=cxhw:37.ring.bpm05.zstd
+is_on       name=cxhw:1.ring.bpm05.is_on
+x           name=cxhw:1.ring.bpm05.x
+xstd        name=cxhw:1.ring.bpm05.xstd
+z           name=cxhw:1.ring.bpm05.z
+zstd        name=cxhw:1.ring.bpm05.zstd
 datatxzi    name=cxhw:37.ring.bpm05.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm05.numpts
 ptsofs      name=cxhw:37.ring.bpm05.ptsofs
@@ -71,11 +71,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm07]
-is_on       name=cxhw:37.ring.bpm07.is_on
-x           name=cxhw:37.ring.bpm07.x
-xstd        name=cxhw:37.ring.bpm07.xstd
-z           name=cxhw:37.ring.bpm07.z
-zstd        name=cxhw:37.ring.bpm07.zstd
+is_on       name=cxhw:1.ring.bpm07.is_on
+x           name=cxhw:1.ring.bpm07.x
+xstd        name=cxhw:1.ring.bpm07.xstd
+z           name=cxhw:1.ring.bpm07.z
+zstd        name=cxhw:1.ring.bpm07.zstd
 datatxzi    name=cxhw:37.ring.bpm07.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm07.numpts
 ptsofs      name=cxhw:37.ring.bpm07.ptsofs
@@ -85,11 +85,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm08]
-is_on       name=cxhw:37.ring.bpm08.is_on
-x           name=cxhw:37.ring.bpm08.x
-xstd        name=cxhw:37.ring.bpm08.xstd
-z           name=cxhw:37.ring.bpm08.z
-zstd        name=cxhw:37.ring.bpm08.zstd
+is_on       name=cxhw:1.ring.bpm08.is_on
+x           name=cxhw:1.ring.bpm08.x
+xstd        name=cxhw:1.ring.bpm08.xstd
+z           name=cxhw:1.ring.bpm08.z
+zstd        name=cxhw:1.ring.bpm08.zstd
 datatxzi    name=cxhw:37.ring.bpm08.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm08.numpts
 ptsofs      name=cxhw:37.ring.bpm08.ptsofs
@@ -99,11 +99,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm09]
-is_on       name=cxhw:37.ring.bpm09.is_on
-x           name=cxhw:37.ring.bpm09.x
-xstd        name=cxhw:37.ring.bpm09.xstd
-z           name=cxhw:37.ring.bpm09.z
-zstd        name=cxhw:37.ring.bpm09.zstd
+is_on       name=cxhw:1.ring.bpm09.is_on
+x           name=cxhw:1.ring.bpm09.x
+xstd        name=cxhw:1.ring.bpm09.xstd
+z           name=cxhw:1.ring.bpm09.z
+zstd        name=cxhw:1.ring.bpm09.zstd
 datatxzi    name=cxhw:37.ring.bpm09.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm09.numpts
 ptsofs      name=cxhw:37.ring.bpm09.ptsofs
@@ -113,11 +113,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm10]
-is_on       name=cxhw:37.ring.bpm10.is_on
-x           name=cxhw:37.ring.bpm10.x
-xstd        name=cxhw:37.ring.bpm10.xstd
-z           name=cxhw:37.ring.bpm10.z
-zstd        name=cxhw:37.ring.bpm10.zstd
+is_on       name=cxhw:1.ring.bpm10.is_on
+x           name=cxhw:1.ring.bpm10.x
+xstd        name=cxhw:1.ring.bpm10.xstd
+z           name=cxhw:1.ring.bpm10.z
+zstd        name=cxhw:1.ring.bpm10.zstd
 datatxzi    name=cxhw:37.ring.bpm10.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm10.numpts
 ptsofs      name=cxhw:37.ring.bpm10.ptsofs
@@ -127,11 +127,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm11]
-is_on       name=cxhw:37.ring.bpm11.is_on
-x           name=cxhw:37.ring.bpm11.x
-xstd        name=cxhw:37.ring.bpm11.xstd
-z           name=cxhw:37.ring.bpm11.z
-zstd        name=cxhw:37.ring.bpm11.zstd
+is_on       name=cxhw:1.ring.bpm11.is_on
+x           name=cxhw:1.ring.bpm11.x
+xstd        name=cxhw:1.ring.bpm11.xstd
+z           name=cxhw:1.ring.bpm11.z
+zstd        name=cxhw:1.ring.bpm11.zstd
 datatxzi    name=cxhw:37.ring.bpm11.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm11.numpts
 ptsofs      name=cxhw:37.ring.bpm11.ptsofs
@@ -141,11 +141,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm12]
-is_on       name=cxhw:37.ring.bpm12.is_on
-x           name=cxhw:37.ring.bpm12.x
-xstd        name=cxhw:37.ring.bpm12.xstd
-z           name=cxhw:37.ring.bpm12.z
-zstd        name=cxhw:37.ring.bpm12.zstd
+is_on       name=cxhw:1.ring.bpm12.is_on
+x           name=cxhw:1.ring.bpm12.x
+xstd        name=cxhw:1.ring.bpm12.xstd
+z           name=cxhw:1.ring.bpm12.z
+zstd        name=cxhw:1.ring.bpm12.zstd
 datatxzi    name=cxhw:37.ring.bpm12.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm12.numpts
 ptsofs      name=cxhw:37.ring.bpm12.ptsofs
@@ -155,11 +155,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm13]
-is_on       name=cxhw:37.ring.bpm13.is_on
-x           name=cxhw:37.ring.bpm13.x
-xstd        name=cxhw:37.ring.bpm13.xstd
-z           name=cxhw:37.ring.bpm13.z
-zstd        name=cxhw:37.ring.bpm13.zstd
+is_on       name=cxhw:1.ring.bpm13.is_on
+x           name=cxhw:1.ring.bpm13.x
+xstd        name=cxhw:1.ring.bpm13.xstd
+z           name=cxhw:1.ring.bpm13.z
+zstd        name=cxhw:1.ring.bpm13.zstd
 datatxzi    name=cxhw:37.ring.bpm13.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm13.numpts
 ptsofs      name=cxhw:37.ring.bpm13.ptsofs
@@ -169,11 +169,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm14]
-is_on       name=cxhw:37.ring.bpm14.is_on
-x           name=cxhw:37.ring.bpm14.x
-xstd        name=cxhw:37.ring.bpm14.xstd
-z           name=cxhw:37.ring.bpm14.z
-zstd        name=cxhw:37.ring.bpm14.zstd
+is_on       name=cxhw:1.ring.bpm14.is_on
+x           name=cxhw:1.ring.bpm14.x
+xstd        name=cxhw:1.ring.bpm14.xstd
+z           name=cxhw:1.ring.bpm14.z
+zstd        name=cxhw:1.ring.bpm14.zstd
 datatxzi    name=cxhw:37.ring.bpm14.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm14.numpts
 ptsofs      name=cxhw:37.ring.bpm14.ptsofs
@@ -183,11 +183,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm15]
-is_on       name=cxhw:37.ring.bpm15.is_on
-x           name=cxhw:37.ring.bpm15.x
-xstd        name=cxhw:37.ring.bpm15.xstd
-z           name=cxhw:37.ring.bpm15.z
-zstd        name=cxhw:37.ring.bpm15.zstd
+is_on       name=cxhw:1.ring.bpm15.is_on
+x           name=cxhw:1.ring.bpm15.x
+xstd        name=cxhw:1.ring.bpm15.xstd
+z           name=cxhw:1.ring.bpm15.z
+zstd        name=cxhw:1.ring.bpm15.zstd
 datatxzi    name=cxhw:37.ring.bpm15.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm15.numpts
 ptsofs      name=cxhw:37.ring.bpm15.ptsofs
@@ -197,11 +197,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm16]
-is_on       name=cxhw:37.ring.bpm16.is_on
-x           name=cxhw:37.ring.bpm16.x
-xstd        name=cxhw:37.ring.bpm16.xstd
-z           name=cxhw:37.ring.bpm16.z
-zstd        name=cxhw:37.ring.bpm16.zstd
+is_on       name=cxhw:1.ring.bpm16.is_on
+x           name=cxhw:1.ring.bpm16.x
+xstd        name=cxhw:1.ring.bpm16.xstd
+z           name=cxhw:1.ring.bpm16.z
+zstd        name=cxhw:1.ring.bpm16.zstd
 datatxzi    name=cxhw:37.ring.bpm16.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm16.numpts
 ptsofs      name=cxhw:37.ring.bpm16.ptsofs
@@ -211,11 +211,11 @@ tunes_range name=cxhw:4.bpm_preproc.tunes_range max_nelems=4096
 [end]
 
 [bpm17]
-is_on       name=cxhw:37.ring.bpm17.is_on
-x           name=cxhw:37.ring.bpm17.x
-xstd        name=cxhw:37.ring.bpm17.xstd
-z           name=cxhw:37.ring.bpm17.z
-zstd        name=cxhw:37.ring.bpm17.zstd
+is_on       name=cxhw:1.ring.bpm17.is_on
+x           name=cxhw:1.ring.bpm17.x
+xstd        name=cxhw:1.ring.bpm17.xstd
+z           name=cxhw:1.ring.bpm17.z
+zstd        name=cxhw:1.ring.bpm17.zstd
 datatxzi    name=cxhw:37.ring.bpm17.datatxzi    max_nelems=524288
 numpts      name=cxhw:37.ring.bpm17.numpts
 ptsofs      name=cxhw:37.ring.bpm17.ptsofs

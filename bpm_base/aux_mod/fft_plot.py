@@ -63,7 +63,7 @@ class FFTPlot(pg.PlotWidget):
             if self.z_lin_reg.getRegion() != tuple(self.z_bound):
                 self.z_lin_reg.setRegion(self.z_bound)
         else:
-            print('bpm.py', 'chan empty', chan.name)
+            print('bpm_old.py', 'chan empty', chan.name)
             self.x_bound = [0.345, 0.365]
             self.z_bound = [0.2, 0.4]
 

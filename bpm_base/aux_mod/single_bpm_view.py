@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import QPainter, QBrush, QRadialGradient, QPen, QColor
 import sys
 import pyqtgraph as pg
-import pycx4.pycda as cda
+import pycx4.qcda as cda
 
 class Cross(pg.GraphicsObject):
     def __init__(self, **kwargs):
@@ -71,9 +71,9 @@ class BPMCircle(pg.GraphicsObject):
         self.y = kwargs.get('y', 0)
         self.color = kwargs.get('color', QtCore.Qt.darkCyan)
 
-        self.chan_x = cda.DChan(xname)
+        self.chan_x = cda.DChan(name=xname)
         self.chan_x.valueMeasured.connect(self.new_x)
-        self.chan_z = cda.DChan(zname)
+        self.chan_z = cda.DChan(name=zname)
         self.chan_z.valueMeasured.connect(self.new_z)
 
         self.point_obj()
@@ -92,6 +92,12 @@ class BPMCircle(pg.GraphicsObject):
     def update_pos(self, x, y):
         self.setPos(x, y)
 
+    def paint(self, p, *args):
+        p.drawPicture(0, 0, self.picture)
+
+    def boundingRect(self):
+        return pg.QtCore.QRectF(self.picture.boundingRect())
+
     def new_x(self, chan):
         self.x = chan.val
         self.update_pos(self.x, self.y)
@@ -100,19 +106,13 @@ class BPMCircle(pg.GraphicsObject):
         self.y = chan.val
         self.update_pos(self.x, self.y)
 
-    def paint(self, p, *args):
-        p.drawPicture(0, 0, self.picture)
-
-    def boundingRect(self):
-        return pg.QtCore.QRectF(self.picture.boundingRect())
-
 
 class BPMPlot(pg.PlotWidget):
     def __init__(self, parent, xname, zname, xaper=30, zaper=30):
         super().__init__(parent=parent)
         self.showGrid(x=True, y=True)
-        self.setLabel('left', "Z", units='mm')
-        self.setLabel('bottom', "X", units='mm')
+        # self.setLabel('left', "Z", units='mm')
+        # self.setLabel('bottom', "X", units='mm')
         self.setRange(xRange=[-40, 40], yRange=[-40, 40])
 
         self.marker = BPMCircle(xname, zname)

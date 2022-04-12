@@ -14,7 +14,6 @@ class BPM:
             collect_orbit, chan_tunes, chan_turns, chan_fft, chan_coor
 
         chans_conf = load_config_bpm(CONF + '/bpm_conf.txt', bpm)
-        print(chans_conf)
         for chan in ['datatxzi', 'numpts', 'tunes_range', 'is_on', 'x', 'xstd', 'z', 'zstd']:
             if chan not in chans_conf:
                 print(bpm + ' ' + chan + ' is absent in bpm_conf')
@@ -42,6 +41,7 @@ class BPM:
 
     def is_on(self, chan):
         self.act_state = chan.val
+        # print(chan.val)
 
     def data_proc(self, chan):
         data_len = int(len(chan.val) / 4)

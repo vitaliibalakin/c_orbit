@@ -10,7 +10,7 @@ import os
 import re
 import datetime
 from cservice import CXService
-from knob_config_parser import load_config_knob
+from c_orbit.config.knob_config_parser import load_config_knob
 
 
 class HandlesProc:
@@ -56,7 +56,7 @@ class HandlesProc:
     def cmd(self, chan):
         if chan.val:
             cmd = json.loads(chan.val)
-            print(cmd)
+            # print(cmd)
             command = cmd.get('cmd', 'no_cmd')
             client = cmd.get('client', 'no_serv')
             if client in self.client_list:
@@ -96,38 +96,44 @@ class HandlesProc:
         self.chan_cmd.setValue('')
 
     def add_handle_(self, **kwargs):
-        if not self.knob_is_adding:
-            name = kwargs.get('name')
-            descr = kwargs.get('descr')
-            client = kwargs.get('client')
-            self.handles_renum()
-            self.handles[0] = {}
-            self.handle_descr[0] = {'name': name, 'descr': descr, 'cor_list': []}
-            self.knob_is_adding = True
-            self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_receiving'}))
+        name = kwargs.get('name')
+        descr = kwargs.get('descr')
+        client = kwargs.get('client')
+        knob_id = kwargs.get('knob_id')
+        self.handles_renum()
+        self.handles[0] = {}
+        self.handle_descr[0] = {'knob_id': knob_id, 'name': name, 'descr': descr, 'cor_list': []}
+        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_receiving'}))
 
     def add_cor_(self, **kwargs):
         cor = kwargs.get('cor')
-        self.handle_descr[0]['cor_list'].append(cor)
-        if cor['name'].split('.')[-1][0] == 'G':
-            channel = cda.DChan(cor['name'] + '.Uset', private=1)
-        else:
-            channel = cda.DChan(cor['name'] + '.Iset', private=1)
-        self.handles[0][cor['name'].split('.')[-1]] = [channel, cor['step']]
-            # self.handles[0][cor['name'].split('.')[-1]][0].valueMeasured.connect(self.connection_check)
-        # print('connection added')
+        knob_id = kwargs.get('knob_id')
+        row = self.row_by_id(knob_id)
+        if row != -404:
+            self.handle_descr[row]['cor_list'].append(cor)
+            if cor['name'].split('.')[-1][0] == 'G':
+                channel = cda.DChan(cor['name'] + '.Uset', private=1)
+            else:
+                channel = cda.DChan(cor['name'] + '.Iset', private=1)
+            self.handles[row][cor['name'].split('.')[-1]] = [channel, cor['step']]
+                # self.handles[0][cor['name'].split('.')[-1]][0].valueMeasured.connect(self.connection_check)
+            # print('connection added')
 
     def connection_check(self, chan):
         pass
         # print(chan.val)
 
+    def row_by_id(self, knob_id):
+        for row, descr in self.handle_descr.items():
+            if descr['knob_id'] == knob_id:
+                return row
+        return -404
+
     def handle_complete_(self, **kwargs):
         client = kwargs.get('client')
-        if self.knob_is_adding:
-            self.knob_is_adding = False
-            self.save_changes()
-            self.chan_cmd.setValue('')
-            self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
+        self.save_changes()
+        self.chan_cmd.setValue('')
+        self.chan_res.setValue(json.dumps({'client': client, 'res': 'handle_added'}))
 
     def delete_handle_(self, **kwargs):
         row = kwargs.get('row')

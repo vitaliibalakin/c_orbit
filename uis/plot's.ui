@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>947</width>
-    <height>995</height>
+    <width>542</width>
+    <height>638</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>350</y>
-      <width>941</width>
-      <height>591</height>
+      <y>240</y>
+      <width>541</width>
+      <height>351</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -35,12 +35,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>931</width>
-        <height>551</height>
+        <width>531</width>
+        <height>311</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="2">
+       <item row="0" column="0">
         <widget class="QWidget" name="fft_plot_e" native="true"/>
        </item>
       </layout>
@@ -105,8 +105,8 @@
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>941</width>
-      <height>311</height>
+      <width>541</width>
+      <height>201</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -121,8 +121,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>931</width>
-        <height>271</height>
+        <width>531</width>
+        <height>161</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -218,7 +218,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>947</width>
+     <width>542</width>
      <height>22</height>
     </rect>
    </property>

@@ -61,8 +61,11 @@ class BPMConfig(QWidget):
         conf = re.sub('bpm_plot', 'config', path)
         self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
         self.chan_cmd.valueMeasured.connect(self.cmd)
+        # self.chan_res = cda.StrChan(**chans_conf['res'])
+        # self.chan_res.valueMeasured.connect(self.cmd_res)
 
         self.set_colors(colors)
+        self.chan_cmd.setValue(json.dumps({'client': 'cnfg', 'cmd': 'status'}))
 
     def turn_bpm_changed(self):
         if self.cur_bpm != self.ctrl_panel.turns_bpm.currentText():
@@ -84,11 +87,13 @@ class BPMConfig(QWidget):
 
     def cmd(self, chan):
         if chan.val:
+            print(chan.val)
             cmd_dict = json.loads(chan.val)
             cmd = cmd_dict.get('cmd', 'no_srv')
             if cmd == 'turn_bpm':
                 if cmd_dict['turn_bpm'] != self.cur_bpm:
                     self.ctrl_panel.turns_bpm.setCurrentText(cmd_dict['turn_bpm'])
+                    print(self.cur_bpm)
 
 if __name__ == "__main__":
     app = QApplication(['bpm_cnfg'])

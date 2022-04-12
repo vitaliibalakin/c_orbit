@@ -32,6 +32,7 @@ class BpmPreproc:
         self.bpms_zeros = np.zeros(2 * len(bpms_list),)
         self.bpms_deviation = np.zeros(2 * len(bpms_list),)
         self.ic_mode: str
+        self.turn_bpm: str = 'bpm01'
         self.bckgr_proc: bool = False
         self.bckrg_counter: int = 0
         self.bckgr_it_num: int = 0
@@ -144,10 +145,10 @@ class BpmPreproc:
 
     def cmd_res(self, chan):
         if chan.val:
+            print('res', chan.val)
             client = json.loads(chan.val).get('client')
             action = json.loads(chan.val).get('res')
             if client == 'orbitd':
-                print(action)
                 self.send_cmd_res_(**{'action': action, 'client': 'orbit'})
 
     def mode_changed(self, chan):
@@ -206,8 +207,8 @@ class BpmPreproc:
 
     def status_(self, **kwargs):
         client = kwargs.get('client')
-        if client == 'turns':
-            self.chan_res.setValue(json.dumps({'client': client, 'turn_bpm': self.turn_bpm, 'num_pts': self.num_pts}))
+        if client == 'turns' or 'cnfg':
+            self.chan_cmd.setValue(json.dumps({'cmd': 'turn_bpm', 'client': 'orbitd', 'turn_bpm': self.turn_bpm}))
 
     def bckgr_discard_(self, **kwargs):
         self.bpms_zeros = np.zeros([32, ])

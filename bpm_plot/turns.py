@@ -80,7 +80,7 @@ class TurnsControl(QMainWindow):
         self.chan_mode.valueMeasured.connect(self.mode_proc)
         self.chan_cmd = cda.StrChan(**chans_conf['cmd'])
         self.chan_cmd.valueMeasured.connect(self.cmd)
-        self.chan_res = cda.StrChan(**chans_conf['res'])
+        # self.chan_res = cda.StrChan(**chans_conf['res'])
         # self.chan_res.valueMeasured.connect(self.cmd_res)
 
         # boxes changes
@@ -101,7 +101,6 @@ class TurnsControl(QMainWindow):
             if cmd == 'turn_bpm':
                 if cmd_dict['turn_bpm'] != self.cur_bpm:
                     self.cur_bpm = cmd_dict['turn_bpm']
-                    print(self.cur_bpm)
 
     #########################################################
     #                    data proc part                     #

@@ -69,7 +69,7 @@ bpm17   23
 [end]
 
 [client_list]
-orbit,tunes,turns,inj
+orbit,tunes,turns,inj,cnfg,orbitd
 [end]
 
 [mode_files]

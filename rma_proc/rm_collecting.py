@@ -196,6 +196,7 @@ class RMA(QMainWindow, DeviceFunc):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i],
                                                  sigma=std_err[:, i], absolute_sigma=True)
                 # if const[0] == 1.0:
+
                 #     print('const', const)
                 #     print('err', std_err[:, i])
                 #     print('resp', resp_arr[:, i])

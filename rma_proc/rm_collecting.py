@@ -195,15 +195,15 @@ class RMA(QMainWindow, DeviceFunc):
             for i in range(len(resp_arr[0])):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i],
                                                  sigma=std_err[:, i], absolute_sigma=True)
-                # if const[0] == 1.0:
-
-                #     print('const', const)
-                #     print('err', std_err[:, i])
-                #     print('resp', resp_arr[:, i])
-                #     print('cur', cur)
+                print('#########################')
+                print(name, i)
+                print('const', const)
+                print('err', std_err[:, i])
+                print('resp', resp_arr[:, i])
+                print('cur', cur)
                 if abs(const[0]) < 1E-7:
-                    buffer.append(0)
-                    err_buffer.append(0)
+                    buffer.append(0.0)
+                    err_buffer.append(0.0)
                 else:
                     # print(const[0], np.sqrt(np.diag(pcov))[0])
                     buffer.append(const[0])
@@ -270,10 +270,10 @@ class RMA(QMainWindow, DeviceFunc):
         # if self.resp_type.currentText() == 'coords':
         np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
 
-        bpm_list = ['bpm01_x', 'bpm01_z', 'bpm02_x', 'bpm02_z', 'bpm03_x', 'bpm03_z', 'bpm04_x', 'bpm04_z',
-                    'bpm05_x', 'bpm05_z', 'bpm07_x', 'bpm07_z', 'bpm08_x', 'bpm08_z', 'bpm09_x', 'bpm09_z',
-                    'bpm10_x', 'bpm10_z', 'bpm11_x', 'bpm11_z', 'bpm12_x', 'bpm12_z', 'bpm13_x', 'bpm13_z',
-                    'bpm14_x', 'bpm14_z', 'bpm15_x', 'bpm15_z', 'bpm16_x', 'bpm16_z', 'bpm17_x', 'bpm17_z']
+        bpm_list = ['bpm01_x', 'bpm02_x', 'bpm03_x', 'bpm04_x', 'bpm05_x', 'bpm07_x', 'bpm08_x', 'bpm09_x',
+                    'bpm10_x', 'bpm11_x', 'bpm12_x', 'bpm13_x', 'bpm14_x', 'bpm15_x', 'bpm16_x', 'bpm17_x',
+                    'bpm01_z', 'bpm02_z', 'bpm03_z', 'bpm04_z', 'bpm05_z', 'bpm07_z', 'bpm08_z', 'bpm09_z',
+                    'bpm10_z', 'bpm11_z', 'bpm12_z', 'bpm13_z', 'bpm14_z', 'bpm15_z', 'bpm16_z', 'bpm17_z',]
         for cname, resp in self.resp_matr_dict.items():
             name = cname.split('.')[-1]
             for i in range(len(bpm_list)):

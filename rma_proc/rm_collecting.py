@@ -195,12 +195,12 @@ class RMA(QMainWindow, DeviceFunc):
             for i in range(len(resp_arr[0])):
                 const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i],
                                                  sigma=std_err[:, i], absolute_sigma=True)
-                print('#########################')
-                print(name, i)
-                print('const', const)
-                print('err', std_err[:, i])
-                print('resp', resp_arr[:, i])
-                print('cur', cur)
+                # print('#########################')
+                # print(name, i)
+                # print('const', const)
+                # print('err', std_err[:, i])
+                # print('resp', resp_arr[:, i])
+                # print('cur', cur)
                 if abs(const[0]) < 1E-7:
                     buffer.append(0.0)
                     err_buffer.append(0.0)
@@ -266,6 +266,7 @@ class RMA(QMainWindow, DeviceFunc):
             si_err.append(resp['si_err'])
 
         dict_cors['main'] = self.main_cur
+        responses['response parameters'] = dict_cors
         np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
         # if self.resp_type.currentText() == 'coords':
         np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
@@ -277,7 +278,7 @@ class RMA(QMainWindow, DeviceFunc):
         for cname, resp in self.resp_matr_dict.items():
             name = cname.split('.')[-1]
             for i in range(len(bpm_list)):
-                responses["responce data"][f"{bpm_list[i]} / {name}"] = {"units": "mm/mA",
+                responses["response data"][f"{bpm_list[i]} / {name}"] = {"units": "mm/mA",
                                                                          "slope": resp['data'][i],
                                                                          "slope error": resp['si_err'][i]}
         f = open('saved_rms/' + self.rm_name.text() + '.json', "w")

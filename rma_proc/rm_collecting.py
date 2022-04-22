@@ -271,6 +271,7 @@ class RMA(QMainWindow, DeviceFunc):
         # if self.resp_type.currentText() == 'coords':
         np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
 
+        # to make list reading from configs
         bpm_list = ['bpm01_x', 'bpm02_x', 'bpm03_x', 'bpm04_x', 'bpm05_x', 'bpm07_x', 'bpm08_x', 'bpm09_x',
                     'bpm10_x', 'bpm11_x', 'bpm12_x', 'bpm13_x', 'bpm14_x', 'bpm15_x', 'bpm16_x', 'bpm17_x',
                     'bpm01_z', 'bpm02_z', 'bpm03_z', 'bpm04_z', 'bpm05_z', 'bpm07_z', 'bpm08_z', 'bpm09_z',

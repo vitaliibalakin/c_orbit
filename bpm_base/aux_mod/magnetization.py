@@ -106,12 +106,13 @@ class MagnetizationProc(DeviceFunc):
         QTimer.singleShot(3000, self.begin_proc)
 
     def begin_proc(self):
+        self.main_cur = self.progress.copy()
         for name, elem in self.elems_2_mag.items():
             elem.proc()
 
     def action_loop(self, name):
         # remember init vals
-        if not (name in self.main_cur):
+        if name in self.main_cur:
             self.main_cur[name] = self.elems_2_mag[name].init_val
 
         if self.elems_2_mag[name].status == 'fail':
@@ -127,7 +128,6 @@ class MagnetizationProc(DeviceFunc):
             self.prg(int(146))
             for key, val in self.progress.items():
                 self.progress[key] = 0
-            self.main_cur = self.progress.copy()
         else:
             self.prg(int(self.control_sum/len(self.progress) * 100))
 

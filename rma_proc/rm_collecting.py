@@ -193,7 +193,13 @@ class RMA(QMainWindow, DeviceFunc):
         cur = np.arange(-1 * info.step * (info.n_mesh - 1), info.step * info.n_mesh, info.step) + init_val
         if self.resp_type.currentText() == 'coords':
             for i in range(len(resp_arr[0])):
-                const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i], sigma=std_err[:, i])
+                const, pcov = optimize.curve_fit(self.lin_fit, cur, resp_arr[:, i],
+                                                 sigma=std_err[:, i], absolute_sigma=True)
+                # if const[0] == 1.0:
+                #     print('const', const)
+                #     print('err', std_err[:, i])
+                #     print('resp', resp_arr[:, i])
+                #     print('cur', cur)
                 if abs(const[0]) < 1E-7:
                     buffer.append(0)
                     err_buffer.append(0)
@@ -252,14 +258,30 @@ class RMA(QMainWindow, DeviceFunc):
         dict_cors = {}
         rm = []
         si_err = []
+        responses = {"name": "ic dr response", "responce data": {}}
         for name, resp in self.resp_matr_dict.items():
             dict_cors[name] = {'id': resp['id'], 'step': resp['step'], 'n_iter': resp['n_iter'], 'init': resp['init']}
             rm.append(resp['data'])
             si_err.append(resp['si_err'])
+
         dict_cors['main'] = self.main_cur
         np.savetxt('saved_rms/' + self.rm_name.text() + '.txt', np.array(rm), header=json.dumps(dict_cors))
         # if self.resp_type.currentText() == 'coords':
         np.savetxt('saved_rms/' + self.rm_name.text() + '_std_err' + '.txt', np.array(si_err))
+
+        bpm_list = ['bpm01_x', 'bpm01_z', 'bpm02_x', 'bpm02_z', 'bpm03_x', 'bpm03_z', 'bpm04_x', 'bpm04_z',
+                    'bpm05_x', 'bpm05_z', 'bpm07_x', 'bpm07_z', 'bpm08_x', 'bpm08_z', 'bpm09_x', 'bpm09_z',
+                    'bpm10_x', 'bpm10_z', 'bpm11_x', 'bpm11_z', 'bpm12_x', 'bpm12_z', 'bpm13_x', 'bpm13_z',
+                    'bpm14_x', 'bpm14_z', 'bpm15_x', 'bpm15_z', 'bpm16_x', 'bpm16_z', 'bpm17_x', 'bpm17_z']
+        for cname, resp in self.resp_matr_dict.items():
+            name = cname.split('.')[-1]
+            for i in range(len(bpm_list)):
+                responses["responce data"][f"{bpm_list[i]} / {name}"] = {"units": "mm/mA",
+                                                                         "slope": resp['data'][i],
+                                                                         "slope error": resp['si_err'][i]}
+        f = open('saved_rms/' + self.rm_name.text() + '.json', "w")
+        json.dump(responses, f, indent='\t')
+        f.close()
         self.log_msg.append('RM saved')
         self.log_msg.append('RM collecting process has finished')
         self.set_default()

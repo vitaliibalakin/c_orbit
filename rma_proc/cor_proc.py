@@ -91,6 +91,8 @@ class CorMeasure(DeviceFunc):
             if self.resp_type == 'coords':
                 self.cor_data = np.vstack((self.cor_data, chan.val[0:32]))
                 self.cor_std = np.vstack((self.cor_std, chan.val[32:]))
+                print('coor', chan.val[0:32])
+                print('std', chan.val[32:])
             elif self.resp_type == 'tunes':
                 self.cor_data = np.vstack((self.cor_data, chan.val))
             self.proc()
